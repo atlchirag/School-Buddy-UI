@@ -1,0 +1,1398 @@
+﻿@{
+    ViewData["Title"] = "Attendance";
+}
+
+<style>
+    :root {
+        --attendance-primary: midnightblue;
+        --attendance-primary-hover: #10105c;
+        --attendance-light: #eef2ff;
+        --attendance-background: #f8fafc;
+        --attendance-border: #e2e8f0;
+        --attendance-text: #0f172a;
+        --attendance-muted: #64748b;
+        --attendance-success: #16a34a;
+        --attendance-danger: #dc2626;
+    }
+
+    body {
+        background-color: var(--sb-surface);
+    }
+
+    .attendance-page {
+        min-height: calc(100vh - 70px);
+        padding: 18px;
+        background-color: var(--sb-surface);
+    }
+
+    /* Page header */
+
+    .attendance-page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 17px 20px;
+        margin-bottom: 18px;
+        color: white;
+        background-color: var(--attendance-primary);
+        border-radius: 14px;
+        box-shadow: 0 8px 24px rgba(25, 25, 112, 0.16);
+    }
+
+        .attendance-page-header h4 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+    /* Main card */
+
+    .attendance-content-card {
+        overflow: hidden;
+        background-color: var(--sb-surface);
+        border: 1px solid var(--attendance-border);
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), 0 3px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    /* Tabs */
+
+    .attendance-tabs-wrapper {
+        padding: 16px 18px 0;
+        border-bottom: 1px solid var(--attendance-border);
+    }
+
+    #main {
+        display: flex;
+        justify-content: flex-start !important;
+        gap: 10px;
+        padding: 0;
+        margin: 0;
+        border-bottom: 0;
+        flex-wrap: wrap;
+    }
+
+        #main li {
+            list-style: none;
+        }
+
+        #main .tabstyle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 170px;
+            padding: 12px 22px;
+            color: var(--attendance-primary);
+            background-color: var(--sb-surface);
+            border: 1px solid var(--attendance-border);
+            border-radius: 12px 12px 0 0;
+            font-size: 0.95rem;
+            font-weight: 650;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+            #main .tabstyle:hover {
+                color: var(--attendance-primary);
+                background-color: var(--attendance-light);
+            }
+
+            #main .tabstyle.active {
+                color: white !important;
+                background-color: var(--attendance-primary) !important;
+                border-color: var(--attendance-primary) !important;
+                box-shadow: 0 6px 15px rgba(25, 25, 112, 0.18);
+            }
+
+                #main .tabstyle.active i {
+                    color: white !important;
+                }
+
+    /* Top section */
+
+    .attendance-filter-panel {
+        padding: 20px;
+        background-color: var(--sb-surface);
+    }
+
+    .attendance-top-card {
+        height: 100%;
+        padding: 18px;
+        background-color: var(--sb-surface);
+        border: 1px solid var(--attendance-border);
+        border-radius: 16px;
+        box-shadow: 0 7px 22px rgba(15, 23, 42, 0.06);
+    }
+
+    .attendance-card-title {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+        color: var(--attendance-text);
+        font-size: 0.96rem;
+        font-weight: 700;
+    }
+
+        .attendance-card-title i {
+            color: var(--attendance-primary);
+        }
+
+    .attendance-filter-panel label {
+        display: block;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.84rem;
+        font-weight: 600;
+    }
+
+    .required_ {
+        color: var(--attendance-danger);
+    }
+
+    .attendance-input-group {
+        position: relative;
+    }
+
+        .attendance-input-group .form-control,
+        .attendance-filter-panel .form-control,
+        .attendance-filter-panel .form-select {
+            height: 42px;
+            color: var(--attendance-text);
+            background-color: var(--sb-input-bg);
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            box-shadow: none;
+        }
+
+        .attendance-input-group .form-control {
+            padding-right: 42px;
+        }
+
+            .attendance-input-group .form-control:focus,
+            .attendance-filter-panel .form-control:focus,
+            .attendance-filter-panel .form-select:focus {
+                border-color: var(--attendance-primary);
+                box-shadow: 0 0 0 3px rgba(25, 25, 112, 0.10);
+            }
+
+    .attendance-calendar-icon {
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        z-index: 2;
+        color: var(--attendance-primary);
+        cursor: pointer;
+        transform: translateY(-50%);
+    }
+
+    .attendance-selected-date {
+        padding: 9px 12px;
+        margin-top: 14px;
+        color: #475569;
+        background-color: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        font-size: 0.83rem;
+        text-align: center;
+    }
+
+    /* Attendance distribution */
+
+    .attendance-progress-row {
+        margin-bottom: 18px;
+    }
+
+    .attendance-progress-label {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.87rem;
+        font-weight: 600;
+    }
+
+    .attendance-progress {
+        height: 10px;
+        overflow: hidden;
+        background-color: #e2e8f0;
+        border-radius: 20px;
+    }
+
+    .attendance-progress-bar {
+        height: 100%;
+        border-radius: 20px;
+        transition: width 0.35s ease;
+    }
+
+        .attendance-progress-bar.present {
+            background-color: var(--attendance-success);
+        }
+
+        .attendance-progress-bar.absent {
+            background-color: var(--attendance-danger);
+        }
+
+    .attendance-percentage-display {
+        padding-top: 13px;
+        margin-top: 17px;
+        color: #475569;
+        border-top: 1px dashed #dbe2ea;
+        font-size: 0.88rem;
+    }
+
+        .attendance-percentage-display strong {
+            float: right;
+            color: var(--attendance-primary);
+            font-size: 1rem;
+        }
+
+    /* KPI */
+
+    .attendance-mini-kpi {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 88px;
+        padding: 13px;
+        border-radius: 13px;
+    }
+
+        .attendance-mini-kpi.total {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .attendance-mini-kpi.present {
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .attendance-mini-kpi.absent {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+        }
+
+    .attendance-mini-kpi-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 39px;
+        height: 39px;
+        min-width: 39px;
+        color: white;
+        border-radius: 11px;
+        font-size: 1rem;
+    }
+
+    .attendance-mini-kpi.total .attendance-mini-kpi-icon {
+        background-color: #2563eb;
+    }
+
+    .attendance-mini-kpi.present .attendance-mini-kpi-icon {
+        background-color: #16a34a;
+    }
+
+    .attendance-mini-kpi.absent .attendance-mini-kpi-icon {
+        background-color: #dc2626;
+    }
+
+    .attendance-mini-kpi-label {
+        color: #64748b;
+        font-size: 0.73rem;
+        font-weight: 600;
+    }
+
+    .attendance-mini-kpi-value {
+        color: #0f172a;
+        font-size: 1.35rem;
+        font-weight: 750;
+        line-height: 1.2;
+    }
+
+    .attendance-kpi-message {
+        padding: 10px 12px;
+        margin-top: 12px;
+        color: #475569;
+        background-color: #f8fafc;
+        border-radius: 9px;
+        font-size: 0.8rem;
+    }
+
+    /* Buttons */
+
+    .attendance-action-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        padding-top: 17px;
+        margin-top: 17px;
+        border-top: 1px solid var(--attendance-border);
+    }
+
+    .attendance-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 42px;
+        padding: 8px 20px;
+        border-radius: 9px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .attendance-btn-primary {
+        color: white;
+        background-color: var(--attendance-primary);
+        border: 1px solid var(--attendance-primary);
+    }
+
+        .attendance-btn-primary:hover {
+            color: white;
+            background-color: var(--attendance-primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .attendance-btn-primary:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+            transform: none;
+        }
+
+    .attendance-btn-outline {
+        color: #334155;
+        background-color: var(--sb-surface);
+        border: 1px solid #cbd5e1;
+    }
+
+        .attendance-btn-outline:hover {
+            color: var(--attendance-primary);
+            background-color: var(--attendance-light);
+            border-color: var(--attendance-primary);
+        }
+
+    /* Circular export */
+
+    .attendance-export-circle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        color: white;
+        background-color: var(--attendance-primary);
+        border: 0;
+        border-radius: 50%;
+        font-size: 1.15rem;
+        box-shadow: 0 7px 18px rgba(25, 25, 112, 0.25);
+        transition: all 0.2s ease;
+    }
+
+        .attendance-export-circle:hover {
+            color: white;
+            background-color: var(--attendance-primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 23px rgba(25, 25, 112, 0.32);
+        }
+
+        .attendance-export-circle:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+            transform: none;
+        }
+
+    .attendance-export-menu {
+        min-width: 195px;
+        padding: 7px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 14px 35px rgba(15, 23, 42, 0.14);
+    }
+
+        .attendance-export-menu .dropdown-item {
+            padding: 9px 11px;
+            color: #334155;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+            .attendance-export-menu .dropdown-item:hover {
+                color: midnightblue;
+                background-color: #eef2ff;
+            }
+
+    /* Table */
+
+    .attendance-table-card {
+        margin: 0 20px 20px;
+        overflow: hidden;
+        background-color: var(--sb-surface);
+        border: 1px solid var(--attendance-border);
+        border-radius: 16px;
+    }
+
+    .attendance-table-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--attendance-border);
+        flex-wrap: wrap;
+    }
+
+        .attendance-table-header h5 {
+            margin: 0;
+            color: var(--attendance-text);
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+    .attendance-table-scroll {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .attendance-table {
+        width: 100% !important;
+        min-width: 950px;
+        margin-bottom: 0 !important;
+    }
+
+        .attendance-table thead th {
+            padding: 12px 14px !important;
+            color: white !important;
+            background-color: midnightblue !important;
+            border-color: rgba(255, 255, 255, 0.15) !important;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+            .attendance-table thead th * {
+                color: white !important;
+            }
+
+        .attendance-table tbody td {
+            padding: 11px 14px;
+            color: #334155;
+            font-size: 0.84rem;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
+
+    .attendance-status {
+        display: inline-flex;
+        justify-content: center;
+        min-width: 78px;
+        padding: 5px 11px;
+        border-radius: 30px;
+        font-size: 0.78rem;
+        font-weight: 650;
+    }
+
+        .attendance-status.present {
+            color: #166534;
+            background-color: #dcfce7;
+        }
+
+        .attendance-status.absent {
+            color: #991b1b;
+            background-color: #fee2e2;
+        }
+
+    .attendance-empty-state {
+        padding: 55px 20px;
+        color: var(--attendance-muted);
+        text-align: center;
+    }
+
+        .attendance-empty-state i {
+            display: block;
+            margin-bottom: 12px;
+            color: #94a3b8;
+            font-size: 2.6rem;
+        }
+
+        .attendance-empty-state h6 {
+            margin-bottom: 5px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+    /* DataTable */
+
+    #dayWiseAttendanceTable_wrapper {
+        padding: 15px;
+    }
+
+        #dayWiseAttendanceTable_wrapper .dataTables_filter {
+            margin-bottom: 12px;
+        }
+
+            #dayWiseAttendanceTable_wrapper .dataTables_filter input {
+                min-width: 220px;
+                height: 37px;
+                margin-left: 8px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                outline: none;
+            }
+
+                #dayWiseAttendanceTable_wrapper .dataTables_filter input:focus {
+                    border-color: midnightblue;
+                    box-shadow: 0 0 0 3px rgba(25, 25, 112, 0.10);
+                }
+
+        #dayWiseAttendanceTable_wrapper .dataTables_length select {
+            height: 36px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+        }
+
+        #dayWiseAttendanceTable_wrapper .dataTables_paginate .paginate_button.current,
+        #dayWiseAttendanceTable_wrapper .dataTables_paginate .paginate_button.current:hover {
+            color: white !important;
+            background: midnightblue !important;
+            border-color: midnightblue !important;
+            border-radius: 7px;
+        }
+
+    .attendance-hidden-buttons {
+        display: none !important;
+    }
+
+    /* Other tab placeholder */
+
+    .attendance-placeholder {
+        padding: 60px 20px;
+        color: #64748b;
+        text-align: center;
+    }
+
+        .attendance-placeholder i {
+            display: block;
+            margin-bottom: 12px;
+            color: #94a3b8;
+            font-size: 2.5rem;
+        }
+
+    @@media (max-width: 767.98px) {
+        .attendance-page {
+            padding: 10px;
+        }
+
+        .attendance-page-header {
+            padding: 15px;
+        }
+
+        .attendance-tabs-wrapper {
+            padding: 12px;
+        }
+
+        #main {
+            display: grid !important;
+            grid-template-columns: 1fr;
+        }
+
+            #main li {
+                width: 100%;
+            }
+
+            #main .tabstyle {
+                width: 100%;
+                min-width: unset;
+                border-radius: 10px;
+            }
+
+        .attendance-filter-panel {
+            padding: 12px;
+        }
+
+        .attendance-action-row {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+            .attendance-action-row > div:first-child {
+                width: 100%;
+            }
+
+            .attendance-action-row .attendance-btn {
+                flex: 1;
+            }
+
+            .attendance-action-row .dropdown {
+                align-self: flex-end;
+            }
+
+        .attendance-table-card {
+            margin-right: 12px;
+            margin-left: 12px;
+        }
+
+        .attendance-mini-kpi {
+            min-height: 75px;
+        }
+    }
+
+    .export-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--sb-surface);
+        border: 2px solid;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: .25s ease;
+        box-shadow: 0 3px 10px rgba(0,0,0,.08);
+    }
+
+        .export-btn i {
+            font-size: 20px;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-4px) scale(1.06);
+            box-shadow: 0 8px 20px rgba(0,0,0,.15);
+        }
+
+        /* Copy */
+        .export-btn.copy {
+            border-color: #00A3FF;
+            color: #00A3FF;
+        }
+
+            .export-btn.copy:hover {
+                background: #00A3FF;
+                color: #fff;
+            }
+
+        /* Excel */
+        .export-btn.excel {
+            border-color: #28A745;
+            color: #28A745;
+        }
+
+            .export-btn.excel:hover {
+                background: #28A745;
+                color: #fff;
+            }
+
+        /* CSV */
+        .export-btn.csv {
+            border-color: #F4B000;
+            color: #F4B000;
+        }
+
+            .export-btn.csv:hover {
+                background: #F4B000;
+                color: #fff;
+            }
+
+        /* PDF */
+        .export-btn.pdf {
+            border-color: #FF3B30;
+            color: #FF3B30;
+        }
+
+            .export-btn.pdf:hover {
+                background: #FF3B30;
+                color: #fff;
+            }
+
+        /* Print */
+        .export-btn.print {
+            border-color: #2962FF;
+            color: #2962FF;
+        }
+
+            .export-btn.print:hover {
+                background: #2962FF;
+                color: #fff;
+            }
+
+
+    .attendance-mini-kpi.percentage {
+        background-color: #f5f3ff;
+        border: 1px solid #ddd6fe;
+    }
+
+        .attendance-mini-kpi.percentage .attendance-mini-kpi-icon {
+            background-color: #7c3aed;
+        }
+
+    #classWiseAttendanceTable_wrapper {
+        padding: 15px;
+    }
+
+        #classWiseAttendanceTable_wrapper .dataTables_filter {
+            margin-bottom: 12px;
+        }
+
+            #classWiseAttendanceTable_wrapper .dataTables_filter input {
+                min-width: 220px;
+                height: 37px;
+                margin-left: 8px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                outline: none;
+            }
+
+        #classWiseAttendanceTable_wrapper .dataTables_length select {
+            height: 36px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+        }
+
+
+    .attendance-validation-message {
+        display: block;
+        min-height: 18px;
+        margin-top: 5px;
+        color: #dc2626;
+        font-size: 0.76rem;
+        font-weight: 600;
+    }
+
+    .attendance-field-invalid {
+        border-color: #dc2626 !important;
+        background-color: #fff7f7 !important;
+    }
+
+        .attendance-field-invalid:focus {
+            border-color: #dc2626 !important;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important;
+        }
+
+    .attendance-date-field,
+    .attendance-native-date {
+        cursor: pointer;
+    }
+
+        .attendance-native-date::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+        }
+
+    /* DataTables pagination on the right side */
+    #dayWiseAttendanceTable_wrapper .attendance-table-footer,
+    #classWiseAttendanceTable_wrapper .attendance-table-footer {
+        width: 100%;
+    }
+
+    #dayWiseAttendanceTable_wrapper .dataTables_paginate,
+    #classWiseAttendanceTable_wrapper .dataTables_paginate {
+        width: auto !important;
+        margin-left: auto !important;
+        padding-top: 0 !important;
+        float: none !important;
+        text-align: right !important;
+    }
+
+        #dayWiseAttendanceTable_wrapper .dataTables_paginate .pagination,
+        #classWiseAttendanceTable_wrapper .dataTables_paginate .pagination {
+            display: flex;
+            justify-content: flex-end !important;
+            margin: 0 !important;
+        }
+
+    #dayWiseAttendanceTable_wrapper .dataTables_info,
+    #classWiseAttendanceTable_wrapper .dataTables_info {
+        padding-top: 0 !important;
+        text-align: left;
+    }
+
+    /* Mobile */
+    @@media (max-width: 767.98px) {
+        #dayWiseAttendanceTable_wrapper .dataTables_info,
+        #classWiseAttendanceTable_wrapper .dataTables_info {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        #dayWiseAttendanceTable_wrapper .dataTables_paginate,
+        #classWiseAttendanceTable_wrapper .dataTables_paginate {
+            margin-right: auto !important;
+            margin-left: auto !important;
+        }
+
+            #dayWiseAttendanceTable_wrapper .dataTables_paginate .pagination,
+            #classWiseAttendanceTable_wrapper .dataTables_paginate .pagination {
+                justify-content: center !important;
+            }
+    }
+
+</style>
+
+<div class="attendance-page">
+
+    <!-- API configuration -->
+    <div id="attendancePageConfig"
+         data-day-wise-url="@Url.Action("GetDayWiseAttendance", "Attendance")"
+         data-class-wise-url="@Url.Action("GetClassWiseAttendance", "Attendance")">
+    </div>
+
+    <!-- Header -->
+    @* <div class="attendance-page-header">
+        <h4>
+            <i class="bi bi-calendar2-check-fill me-2"></i>
+            Attendance Dashboard
+        </h4>
+    </div> *@
+
+    <div class="attendance-content-card">
+
+        <!-- Tabs -->
+        <div class="attendance-tabs-wrapper">
+            <ul class="nav nav-tabs"
+                id="main"
+                role="tablist">
+
+                <li role="presentation">
+                    <a class="tabstyle active"
+                       id="A1"
+                       data-bs-toggle="tab"
+                       href="#day_wise"
+                       role="tab"
+                       aria-controls="day_wise"
+                       aria-selected="true">
+
+                        <i class="bi bi-calendar-day-fill"></i>
+                        Date Wise
+                    </a>
+                </li>
+
+                <li role="presentation">
+                    <a class="tabstyle"
+                       id="A2"
+                       data-bs-toggle="tab"
+                       href="#class_wise"
+                       role="tab"
+                       aria-controls="class_wise"
+                       aria-selected="false">
+
+                        <i class="bi bi-mortarboard-fill"></i>
+                        Class Wise
+                    </a>
+                </li>
+
+               
+
+            </ul>
+        </div>
+
+        <div class="tab-content">
+
+            <!-- Day Wise -->
+            <div class="tab-pane fade show active"
+                 id="day_wise"
+                 role="tabpanel"
+                 aria-labelledby="A1">
+
+                <div class="attendance-filter-panel">
+
+                    <!-- Date + Distribution + KPI -->
+                    <div class="row g-3">
+
+                        <!-- Date -->
+                        <div class="col-xl-5 col-lg-5 col-md-12">
+                            <div class="attendance-top-card">
+
+                                <div class="attendance-card-title">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    Select Date
+                                </div>
+
+                                <label for="datepicker">
+                                    Attendance Date
+                                    <span class="required_">*</span>
+                                </label>
+
+                                <div class="attendance-input-group">
+                                    <input id="datepicker"
+                                           type="text"
+                                           class="form-control attendance-date-field"
+                                           placeholder="Select date"
+                                           autocomplete="off"
+                                           readonly />
+
+                                    <i class="fa fa-calendar attendance-calendar-icon"
+                                       id="datepicker1"></i>
+                                </div>
+
+                                <span class="attendance-validation-message"
+                                      id="datepickerError">
+                                </span>
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    <button type="button"
+                                            class="attendance-btn attendance-btn-primary"
+                                            id="dayWiseSearchButton">
+
+                                        <span class="spinner-border spinner-border-sm d-none"
+                                              id="attendanceSearchLoader"
+                                              role="status">
+                                        </span>
+
+                                        <i class="bi bi-search"
+                                           id="attendanceSearchIcon"></i>
+
+                                        Search
+                                    </button>
+
+                                    <button type="button"
+                                            class="attendance-btn attendance-btn-outline"
+                                            id="dayWiseResetButton">
+
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                        Reset
+                                    </button>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        
+
+                        <!-- KPI -->
+                        <div class="col-xl-7 col-lg-7 col-md-12">
+                            <div class="attendance-top-card">
+
+                                <div class="attendance-card-title">
+                                    <i class="bi bi-bar-chart-fill me-2"></i>
+                                    Attendance KPI
+                                </div>
+
+                                <div class="row g-2">
+
+                                    <div class="col-12 col-sm-4">
+                                        <div class="attendance-mini-kpi total">
+
+                                            <div class="attendance-mini-kpi-icon">
+                                                <i class="bi bi-people-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <div class="attendance-mini-kpi-label">
+                                                    Total
+                                                </div>
+
+                                                <div class="attendance-mini-kpi-value"
+                                                     id="totalStudentCount">
+                                                    0
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-4">
+                                        <div class="attendance-mini-kpi present">
+
+                                            <div class="attendance-mini-kpi-icon">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <div class="attendance-mini-kpi-label">
+                                                    Present
+                                                </div>
+
+                                                <div class="attendance-mini-kpi-value"
+                                                     id="presentStudentCount">
+                                                    0
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-4">
+                                        <div class="attendance-mini-kpi absent">
+
+                                            <div class="attendance-mini-kpi-icon">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <div class="attendance-mini-kpi-label">
+                                                    Absent
+                                                </div>
+
+                                                <div class="attendance-mini-kpi-value"
+                                                     id="absentStudentCount">
+                                                    0
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="attendance-kpi-message"
+                                     id="attendanceKpiMessage">
+                                    Select a date and click Search.
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Search / Reset / Export -->
+                    <div class="attendance-action-row">
+
+                        
+
+                        <div class="d-flex align-items-center gap-3">
+
+                            <button class="export-btn copy attendance-export-option"
+                                    data-export-type="copy"
+                                    title="Copy">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+
+                            <button class="export-btn excel attendance-export-option"
+                                    data-export-type="excel"
+                                    title="Excel">
+                                <i class="bi bi-file-earmark-excel-fill"></i>
+                            </button>
+
+                            <button class="export-btn csv attendance-export-option"
+                                    data-export-type="csv"
+                                    title="CSV">
+                                <i class="bi bi-table"></i>
+                            </button>
+
+                            <button class="export-btn pdf attendance-export-option"
+                                    data-export-type="pdf"
+                                    title="PDF">
+                                <i class="bi bi-file-earmark-pdf-fill"></i>
+                            </button>
+
+                            <button class="export-btn print attendance-export-option"
+                                    data-export-type="print"
+                                    title="Print">
+                                <i class="bi bi-printer-fill"></i>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Table -->
+                <div class="attendance-table-card">
+
+                    <div class="attendance-table-header">
+                        <h5>
+                            <i class="bi bi-list-check me-2"></i>
+                            Day-Wise Attendance List
+                        </h5>
+                    </div>
+
+                    <div class="attendance-table-scroll">
+
+                        <table class="table table-bordered table-striped table-hover attendance-table"
+                               id="dayWiseAttendanceTable">
+
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Admission No.</th>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Section</th>
+                                    <th>Vehicle Number</th>
+                                    <th>RFID</th>
+                                    <th>Attendance Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="dayWiseAttendanceBody">
+                                <tr class="attendance-empty-row">
+                                    <td colspan="8">
+
+                                        <div class="attendance-empty-state">
+
+                                            <i class="bi bi-calendar2-check"></i>
+
+                                            <h6>No attendance data loaded</h6>
+
+                                            <div>
+                                                Select a date and click Search.
+                                            </div>
+
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Class Wise -->
+            <div class="tab-pane fade"
+                 id="class_wise"
+                 role="tabpanel"
+                 aria-labelledby="A2">
+
+                <div class="attendance-filter-panel">
+
+                    <div class="row g-3">
+
+                        <!-- Filters -->
+                        <div class="col-xl-5 col-lg-5 col-md-12">
+                            <div class="attendance-top-card">
+
+                                <div class="attendance-card-title">
+                                    <i class="bi bi-person-lines-fill me-2"></i>
+                                    Student Attendance Filter
+                                </div>
+
+                                <div class="row g-2">
+
+                                    <!-- Class -->
+                                    <div class="col-12 col-md-6">
+                                        <label for="classWiseClassId">
+                                            Class
+                                            <span class="required_">*</span>
+                                        </label>
+
+                                        <select id="classWiseClassId" class="form-select">
+                                            <option value="">Select Class</option>
+
+                                            @if (ViewBag.class_dropdown != null)
+                                            {
+                                                foreach (var item in ViewBag.class_dropdown)
+                                                {
+                                                    <option value="@item.id">
+                                                        @item.class_name
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+
+                                        <span class="attendance-validation-message"
+                                              id="classWiseClassIdError"></span>
+                                    </div>
+
+                                    <!-- Attendance Date -->
+                                    <div class="col-12 col-md-6">
+                                        <label for="classWiseDateFrom">
+                                            Attendance Date
+                                            <span class="required_">*</span>
+                                        </label>
+
+                                        <input type="date"
+                                               id="classWiseDateFrom"
+                                               class="form-control attendance-native-date" />
+
+                                        <span class="attendance-validation-message"
+                                              id="classWiseDateFromError"></span>
+                                    </div>
+
+                                    <!-- Buttons -->
+                                    <div class="col-12">
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button type="button"
+                                                    class="attendance-btn attendance-btn-primary"
+                                                    id="classWiseSearchButton">
+
+                                                <span class="spinner-border spinner-border-sm d-none"
+                                                      id="classWiseSearchLoader"
+                                                      role="status"></span>
+
+                                                <i class="bi bi-search"
+                                                   id="classWiseSearchIcon"></i>
+
+                                                Search
+                                            </button>
+
+                                            <button type="button"
+                                                    class="attendance-btn attendance-btn-outline"
+                                                    id="classWiseResetButton">
+
+                                                <i class="bi bi-arrow-clockwise"></i>
+                                                Reset
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Class Wise KPI -->
+                        <div class="col-xl-7 col-lg-7 col-md-12">
+                            <div class="attendance-top-card">
+
+                                <div class="attendance-card-title">
+                                    <i class="bi bi-bar-chart-fill me-2"></i>
+                                    Student Attendance KPI
+                                </div>
+
+                                <div class="row g-2">
+
+                                    <div class="col-6 col-md-4">
+                                        <div class="attendance-mini-kpi total">
+
+                                            <div class="attendance-mini-kpi-icon">
+                                                <i class="bi bi-calendar3"></i>
+                                            </div>
+
+                                            <div>
+                                                <div class="attendance-mini-kpi-label">
+                                                    Total
+                                                </div>
+
+                                                <div class="attendance-mini-kpi-value"
+                                                     id="classWiseTotalDays">
+                                                    0
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 col-md-4">
+                                        <div class="attendance-mini-kpi present">
+
+                                            <div class="attendance-mini-kpi-icon">
+                                                <i class="bi bi-check-circle-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <div class="attendance-mini-kpi-label">
+                                                    Present
+                                                </div>
+
+                                                <div class="attendance-mini-kpi-value"
+                                                     id="classWisePresentDays">
+                                                    0
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 col-md-4">
+                                        <div class="attendance-mini-kpi absent">
+
+                                            <div class="attendance-mini-kpi-icon">
+                                                <i class="bi bi-x-circle-fill"></i>
+                                            </div>
+
+                                            <div>
+                                                <div class="attendance-mini-kpi-label">
+                                                    Absent
+                                                </div>
+
+                                                <div class="attendance-mini-kpi-value"
+                                                     id="classWiseAbsentDays">
+                                                    0
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="attendance-kpi-message"
+                                     id="classWiseKpiMessage">
+                                    Select a class and date, then click Search.
+                                </div>
+                                
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                   
+
+                </div>
+
+                <!-- Class Wise Table -->
+                <div class="attendance-table-card">
+
+                    <div class="attendance-table-header">
+                        <h5>
+                            <i class="bi bi-person-check-fill me-2"></i>
+                            Student Attendance History
+                        </h5>
+                    </div>
+
+                    <div class="attendance-table-scroll">
+
+                        <table class="table table-bordered table-striped table-hover attendance-table"
+                               id="classWiseAttendanceTable">
+
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Admission No.</th>
+                                    <th>Student Name</th>
+                                    <th>Class</th>
+                                    <th>Section</th>
+                                    <th>Attendance Date</th>
+                                   
+                                    <th>Vehicle Number</th>
+                                    <th>RFID</th>
+                                    <th>Attendance Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="classWiseAttendanceBody">
+                                <tr class="attendance-empty-row">
+                                    <td colspan="10">
+                                        <div class="attendance-empty-state">
+                                            <i class="bi bi-person-check"></i>
+                                            <h6>No class-wise attendance loaded</h6>
+                                            <div>
+                                                Select a class and date, then click Search.
+                                            </div>
+                                           
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            
+        </div>
+
+    </div>
+
+</div>
+
+<script src="~/js/attendance.js" asp-append-version="true"></script>

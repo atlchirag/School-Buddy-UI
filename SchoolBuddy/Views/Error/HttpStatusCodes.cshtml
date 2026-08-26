@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewData["Title"] = "HttpStatusCodes";
+    Layout = null;
+}
+<head>
+    
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <meta name="viewport" content="width=device-width" />
+    @*<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />*@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.11.0/sweetalert2.min.css" integrity="sha512-OWGg8FcHstyYFwtjfkiCoYHW2hG3PDWwdtczPAPUcETobBJOVCouKig8rqED0NMLcT9GtE4jw6IT1CSrwY87uw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body{
+            font-family: "Inter", sans-serif;
+            font-optical-sizing: auto;
+            padding: 0px;
+            font-style: normal;
+        }
+    </style>
+
+</head>
+<body>
+    
+    <div class="d-flex justify-content-center alert alert-danger">
+        <h4>@ViewBag.ErrorMessage</h4>
+    </div>
+    
+    <div>
+        <a class="fs-4" asp-controller="Home" asp-action="Dashboard">
+            Click here to go to dashboard..
+        </a>
+    </div>
+    <div class="d-flex justify-content-center">
+        <img  src="~/images/404_error.jpg" asp-append-version="true" />
+    </div>
+   
+   
+    
+    
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+
+
+

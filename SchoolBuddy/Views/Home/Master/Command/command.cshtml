@@ -1,0 +1,359 @@
+﻿
+@{
+    ViewData["Title"] = "Command";
+}
+@model IEnumerable<show_command>
+<style>
+    #commands thead th {
+        background-color: midnightblue !important;
+        color: white !important;
+    }
+
+    #commands thead th * {
+            color: white !important;
+        }
+
+    #commands thead th {
+        padding-right: 25px !important;
+        vertical-align: middle !important;
+    }
+</style>
+
+
+<div class="card container-fluid command-page">
+    <div class="row">
+
+
+        <div class="col-lg-12" style="margin-top:3vmin">
+            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Command</p>
+            </div>
+            <div class="card-body rounded ms-2 command-card-body">
+                <div class="layout ">
+
+                    <a  class="btn btn-sm" onclick="add()" title="Add Broadcast Message" style="padding:0px"><i style="font-size:36px" class="ri-add-circle-line center" aria-hidden="true"></i></a>
+
+                </div>
+                <div class="row scrollit mt-1 command-table-panel">
+                    <div class="col-lg-12 table-responsive">
+                        <table id="commands" class=" table  table-striped table-hover">
+                            <thead>
+                                <tr class="text-center" style="font-size:14px;background-color:midnightblue;color:white">
+                                    
+                                    <th class="text-center">Type</th>
+                                    <th class="text-center">Route Name</th>
+                                    <th class="text-center">Broadcast Message</th>
+                               
+                                    <th class="text-center">History</th>
+                                    
+                                </tr>
+                            </thead>
+
+                           @* <tbody>
+                                <tr class="text-center" style="font-size:12px">
+
+                                    <td class="text-center">Notification</td>
+                                    <td class="text-center">Route name</td>
+
+                                    <td class="text-center">Hii</td>
+
+
+                                    <td class="text-center">
+
+                                        <a id="history" onclick="checkhistoty();" title="Delete Record"><i class="ri-history-line" style="font-size:1rem;font-weight:500;cursor:pointer;text-align:center"></i></a>
+                                    </td>
+
+                                </tr>
+                            </tbody>*@
+                            <tbody>
+                                @{
+                                    string trip_type = null;
+                                    int sno = 1;
+                                    if (Model != null)
+                                    {
+                                        foreach (var command in Model)
+                                        {
+                                           
+                                            <tr class="text-center" style="font-size:12px">
+                                                <td class="text-center">Notification</td>
+                                                <td class="text-center">@command.route_name</td>
+
+                                                <td class="text-center">@command.message</td>
+                                               
+
+                                                <td class="text-center">
+                                                    
+                                                <a id="history" onclick="checkhistoty(@command.id);" title="Delete Record"><i class="ri-history-line" style="font-size:1rem;font-weight:500;cursor:pointer;text-align:center"></i></a>
+                                                </td>
+
+                                            </tr>
+                                           
+                                        }
+                                       
+
+
+                                    }
+
+                                    else
+                                    {
+                                        
+
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+               
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade sb-common-modal" id="historymodal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="historyModalLabel">History</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table id="comhistory" class="table table-responsive table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                Sent Time
+                            </th>
+                            <th class="text-center">
+                                Reason
+                            </th>
+                            <th class="text-center">
+                                Status
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="historybody"></tbody>
+                </table>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade sb-common-modal" id="AddCommand" tabindex="-1" aria-labelledby="addCommandModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCommandModalLabel">Add Command</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+               <div class=row>
+                   <div class=col-lg-6>
+                       <div class="row">
+                           <div class="col-lg-6">
+                               <label>Route Name</label>
+                           </div>
+                           <div class="col-lg-6"></div>
+                       <select id = "routenames" class="form-control">
+                           </select>
+                       <div id="routenamesError" class="text-danger small mt-1" aria-live="polite"></div>
+                       </div>
+                      
+
+                   </div>
+                    <div class=col-lg-6>
+
+                       <div class="row">
+                           <div class="col-lg-6">
+                               <label>Message</label>
+                           </div>
+                           <div class="col-lg-6"></div>
+                           <input id="msg" class="form-control" type="text"/>
+                           <div id="msgError" class="text-danger small mt-1" aria-live="polite"></div>
+                       </div>
+                        
+                    </div>
+               </div>
+                <div class=row>
+                    <div class=col-lg-12>
+                        <label>Reason</label>
+
+
+                    </div>
+                    
+                </div>
+                <div class=row>
+                    <div class=col-lg-12>
+                        <textarea id="reason" class="form-control"></textarea>
+                        <div id="reasonError" class="text-danger small mt-1" aria-live="polite"></div>
+
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button onclick="AddCommand();" type="button" class="btn btn-primary">Broadcast Message</button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+@section Scripts{
+
+    <script>
+
+        $(document).ready(function () {
+
+            $("#commands").DataTable();
+           
+
+        })
+
+        function checkhistoty(commandid) {
+            var table = $("#comhistory").DataTable();
+                table.clear().draw();
+            console.log("id:"+commandid);
+            $.ajax({
+                url: '/schoolbuddy/Command/CommandHistory',
+                data: { commandid: commandid },
+                type:'POST',
+                success:function(response){
+
+                    let data;
+                    try {
+                        data = JSON.parse(response);
+                    } catch (e) {
+                        console.error('Failed to parse JSON:', e);
+                        alert('Failed to load data.');
+                        return;
+                    }
+                    var result;
+                    let rows = data.map(item => [
+                        item.sent_date.replace("T","") || "",
+                        item.reason || "",
+                        result = (item.is_pending == '1') ? 'Pending' : 'Done' || ""
+                       
+                    ]);
+
+                    table.rows.add(rows).draw();
+
+
+                }
+            })
+            $('#historymodal').modal('show');
+
+
+        }
+
+
+
+         function add() {
+            
+             $.ajax({
+                url: '/schoolbuddy/Command/GetRoutes',
+                 type:'POST',
+
+                success: function (response) {
+                    //console.log('sbchqu');
+                    let options;
+                    try {
+                        // Parse the JSON response
+                        options = JSON.parse(response);
+                    } catch (e) {
+                        // Handle JSON parse errors
+                        console.error('Failed to parse JSON:', e);
+                        alert('Failed to load options.');
+                        return;
+                    }
+
+                    // Find the select element
+                    var select = $("#routenames");
+
+                    // Clear existing options
+                    select.empty();
+
+                    select.append(new Option("All Route", "0"));
+
+                    // Check if options array is not empty
+                    if (options.length === 0) {
+                        // Optionally add a default option if no data is returned
+                        select.append(new Option("No options available", ""));
+                    } 
+                    else {
+                        // Add new options
+                        options.forEach(option => {
+                            // Create a new <option> element
+                            var newOption = $("<option></option>")
+                                .val(option.id || "") // Set the value attribute
+                                .text(option.route_name || "No Text"); // Set the display text
+
+                            // Append the new <option> element to the <select> element
+                            select.append(newOption);
+                        });
+                    }
+                    //console.log('sbchqu');
+                    $('#AddCommand').modal('show');
+                 }
+             })
+
+           
+
+
+        }
+
+        function clearCommandErrors() {
+            $('#routenamesError').text('');
+            $('#msgError').text('');
+            $('#reasonError').text('');
+        }
+
+        function AddCommand(){
+            clearCommandErrors();
+            var route_id = $('#routenames').val();
+            var mssg = ($('#msg').val() || '').toString().trim();
+            var reason = ($('#reason').val() || '').toString().trim();
+
+            var hasError = false;
+            if (!mssg) {
+                $('#msgError').text('Message is required.');
+                hasError = true;
+            }
+            if (!reason) {
+                $('#reasonError').text('Reason is required.');
+                hasError = true;
+            }
+
+            if (hasError) {
+                // focus first error
+                if ($('#msgError').text()) { $('#msg').focus(); }
+                else if ($('#reasonError').text()) { $('#reason').focus(); }
+                return;
+            }
+
+            $.ajax({
+                url: '/schoolbuddy/Command/AddCommand',
+                type:'POST',
+                data:{rid:route_id,msg:mssg,reason:reason},
+                success: function(res){
+                    if(res=="true"){
+                        console.log(res);
+                        location.reload();
+                    }
+                    $('#AddCommand').modal('hide');
+                }
+            })
+        }
+    </script>
+}
+

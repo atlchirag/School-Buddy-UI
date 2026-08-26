@@ -1,0 +1,661 @@
+﻿@{
+    ViewData["Title"] = "Contact Us";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .contact-page {
+        padding: 48px 12px;
+        background-color: #f8f9fa;
+    }
+
+    .contact-wrapper {
+        overflow: hidden;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.10);
+    }
+
+    .contact-info {
+        height: 100%;
+        padding: 40px;
+        color: #ffffff;
+        background-color: midnightblue;
+    }
+
+        .contact-info h3 {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .contact-info p {
+            color: rgba(255, 255, 255, 0.90);
+        }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+        transition: transform 0.3s ease;
+    }
+
+        .contact-item:hover {
+            transform: translateX(8px);
+        }
+
+    .contact-icon {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 42px;
+        margin-right: 15px;
+        color: #ffffff;
+        font-size: 17px;
+        line-height: 1;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.20);
+    }
+
+        .contact-icon i {
+            display: block;
+            line-height: 1;
+        }
+
+    .contact-item h6 {
+        margin-bottom: 3px;
+        color: #ffffff;
+        font-weight: 700;
+    }
+
+    .contact-item p {
+        margin-bottom: 0;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .social-links {
+        margin-top: 30px;
+    }
+
+        .social-links h6 {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+    .social-icon {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 8px;
+        color: #ffffff;
+        text-decoration: none;
+        line-height: 1;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.20);
+        transition: all 0.3s ease;
+    }
+
+        .social-icon i {
+            line-height: 1;
+        }
+
+        .social-icon:hover {
+            color: midnightblue;
+            background-color: #ffffff;
+            transform: translateY(-3px);
+        }
+
+    .contact-form {
+        height: 100%;
+        padding: 40px;
+        background-color: #ffffff;
+    }
+
+        .contact-form h3 {
+            color: #111827;
+            font-weight: 700;
+        }
+
+        .contact-form .form-label {
+            margin-bottom: 7px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+    .required-mark {
+        color: #dc3545;
+    }
+
+    .contact-form .form-control {
+        width: 100%;
+        padding: 11px 14px;
+        color: #111827;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        box-shadow: none;
+        transition: border-color 0.2s ease;
+    }
+
+        .contact-form .form-control:focus {
+            border-color: midnightblue;
+            box-shadow: none;
+        }
+
+        .contact-form .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .contact-form .form-control.is-valid {
+            border-color: #198754;
+        }
+
+    .field-error {
+        display: none;
+        margin-top: 5px;
+        color: #dc3545;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+        .field-error.show {
+            display: block;
+        }
+
+    .btn-submit {
+        min-width: 145px;
+        padding: 12px 30px;
+        color: #ffffff !important;
+        font-weight: 600;
+        border: 2px solid midnightblue !important;
+        border-radius: 10px;
+        background-color: midnightblue !important;
+        transition: all 0.3s ease;
+    }
+
+        .btn-submit:hover,
+        .btn-submit:focus,
+        .btn-submit:active {
+            color: #ffffff !important;
+            border-color: midnightblue !important;
+            background-color: midnightblue !important;
+            box-shadow: 0 5px 15px rgba(25, 25, 112, 0.30) !important;
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+    @@media (max-width: 767.98px) {
+        .contact-page {
+            padding: 24px 10px;
+        }
+
+        .contact-info,
+        .contact-form {
+            padding: 28px 22px;
+        }
+    }
+</style>
+
+<div class="contact-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10">
+
+                <div class="contact-wrapper">
+                    <div class="row g-0">
+
+                        <!-- Contact Information -->
+                        <div class="col-12 col-md-5">
+                            <div class="contact-info">
+
+                                <h3 class="mb-4">Get in touch</h3>
+
+                                <p class="mb-4">
+                                    We'd love to hear from you. Please fill out the form
+                                    or contact us using the information below.
+                                </p>
+
+                                <!-- Address -->
+                                <div class="contact-item">
+                                    <div class="contact-icon">
+                                        <i class="bi bi-geo-alt-fill"></i>
+                                    </div>
+
+                                    <div>
+                                        <h6>Address</h6>
+                                        <p>
+                                            M-135, 2nd Floor, M Block, CP<br />
+                                            New Delhi, India, 110001
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Phone -->
+                                <div class="contact-item">
+                                    <div class="contact-icon">
+                                        <i class="bi bi-telephone-fill"></i>
+                                    </div>
+
+                                    <div>
+                                        <h6>Phone</h6>
+                                        <p>+91 11 49039798 / 799</p>
+                                    </div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="contact-item">
+                                    <div class="contact-icon">
+                                        <i class="bi bi-envelope-fill"></i>
+                                    </div>
+
+                                    <div>
+                                        <h6>Email</h6>
+                                        <p>support@atlantasys.com</p>
+                                    </div>
+                                </div>
+
+                                <!-- Social Media -->
+                                <div class="social-links">
+                                    <h6 class="mb-3">Follow Us</h6>
+
+                                    <a href="#"
+                                       class="social-icon"
+                                       aria-label="Facebook">
+                                        <i class="bi bi-facebook"></i>
+                                    </a>
+
+                                    <a href="#"
+                                       class="social-icon"
+                                       aria-label="Twitter">
+                                        <i class="bi bi-twitter-x"></i>
+                                    </a>
+
+                                    <a href="#"
+                                       class="social-icon"
+                                       aria-label="LinkedIn">
+                                        <i class="bi bi-linkedin"></i>
+                                    </a>
+
+                                    <a href="#"
+                                       class="social-icon"
+                                       aria-label="Instagram">
+                                        <i class="bi bi-instagram"></i>
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Contact Form -->
+                        <div class="col-12 col-md-7">
+                            <div class="contact-form">
+
+                                <h3 class="mb-4">Send us a message</h3>
+
+                                <form id="contactForm" novalidate>
+
+                                    <div class="row">
+
+                                        <!-- First Name -->
+                                        <div class="col-12 col-md-6 mb-3">
+                                            <label for="firstName" class="form-label">
+                                                First Name
+                                                <span class="required-mark">*</span>
+                                            </label>
+
+                                            <input type="text"
+                                                   id="firstName"
+                                                   name="firstName"
+                                                   class="form-control"
+                                                   placeholder="First Name"
+                                                   maxlength="50"
+                                                   autocomplete="given-name" />
+
+                                            <div id="firstNameError" class="field-error">
+                                                Please enter your first name.
+                                            </div>
+                                        </div>
+
+                                        <!-- Last Name -->
+                                        <div class="col-12 col-md-6 mb-3">
+                                            <label for="lastName" class="form-label">
+                                                Last Name
+                                                <span class="required-mark">*</span>
+                                            </label>
+
+                                            <input type="text"
+                                                   id="lastName"
+                                                   name="lastName"
+                                                   class="form-control"
+                                                   placeholder="Last Name"
+                                                   maxlength="50"
+                                                   autocomplete="family-name" />
+
+                                            <div id="lastNameError" class="field-error">
+                                                Please enter your last name.
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <!-- Email -->
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">
+                                            Email
+                                            <span class="required-mark">*</span>
+                                        </label>
+
+                                        <input type="email"
+                                               id="email"
+                                               name="email"
+                                               class="form-control"
+                                               placeholder="john@example.com"
+                                               maxlength="100"
+                                               autocomplete="email" />
+
+                                        <div id="emailError" class="field-error">
+                                            Please enter a valid email address.
+                                        </div>
+                                    </div>
+
+                                    <!-- Mobile -->
+                                    <div class="mb-3">
+                                        <label for="mobile" class="form-label">
+                                            Mobile Number
+                                            <span class="required-mark">*</span>
+                                        </label>
+
+                                        <input type="tel"
+                                               id="mobile"
+                                               name="mobile"
+                                               class="form-control"
+                                               placeholder="10-digit Mobile Number"
+                                               maxlength="10"
+                                               minlength="10"
+                                               inputmode="numeric"
+                                               pattern="[0-9]{10}"
+                                               autocomplete="tel" />
+
+                                        <div id="mobileError" class="field-error">
+                                            Please enter a valid 10-digit mobile number.
+                                        </div>
+                                    </div>
+
+                                    <!-- Query -->
+                                    <div class="mb-4">
+                                        <label for="query" class="form-label">
+                                            Your Query
+                                            <span class="required-mark">*</span>
+                                        </label>
+
+                                        <textarea id="query"
+                                                  name="query"
+                                                  class="form-control"
+                                                  rows="5"
+                                                  maxlength="1000"
+                                                  placeholder="Your message here..."></textarea>
+
+                                        <div id="queryError" class="field-error">
+                                            Please enter your query.
+                                        </div>
+                                    </div>
+
+                                    <button type="submit"
+                                            id="submitButton"
+                                            class="btn btn-submit">
+                                        <span id="submitButtonText">Send Message</span>
+
+                                        <span id="submitButtonLoader"
+                                              class="spinner-border spinner-border-sm ms-2 d-none"
+                                              role="status"
+                                              aria-hidden="true">
+                                        </span>
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const contactForm = document.getElementById('contactForm');
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
+    const emailInput = document.getElementById('email');
+    const mobileInput = document.getElementById('mobile');
+    const queryInput = document.getElementById('query');
+
+    /*
+    * Mobile input:
+    * - Removes every non-numeric character
+    * - Allows a maximum of 10 digits
+    */
+    mobileInput.addEventListener('input', function () {
+    this.value = this.value
+    .replace(/\D/g, '')
+    .slice(0, 10);
+
+    clearFieldError('mobile');
+    });
+
+    /*
+    * Prevent non-numeric key presses in mobile field.
+    * Control keys such as Backspace and Delete remain allowed.
+    */
+    mobileInput.addEventListener('keydown', function (event) {
+
+    const permittedKeys = [
+    'Backspace',
+    'Delete',
+    'Tab',
+    'ArrowLeft',
+    'ArrowRight',
+    'Home',
+    'End'
+    ];
+
+    if (
+    permittedKeys.includes(event.key) ||
+    event.ctrlKey ||
+    event.metaKey
+    ) {
+    return;
+    }
+
+    if (!/^\d$/.test(event.key)) {
+    event.preventDefault();
+    }
+    });
+
+    /*
+    * Remove pasted non-numeric characters.
+    */
+    mobileInput.addEventListener('paste', function () {
+    setTimeout(() => {
+    this.value = this.value
+    .replace(/\D/g, '')
+    .slice(0, 10);
+    }, 0);
+    });
+
+    /*
+    * Clear field error while user types.
+    */
+    firstNameInput.addEventListener('input', function () {
+    clearFieldError('firstName');
+    });
+
+    lastNameInput.addEventListener('input', function () {
+    clearFieldError('lastName');
+    });
+
+    emailInput.addEventListener('input', function () {
+    clearFieldError('email');
+    });
+
+    queryInput.addEventListener('input', function () {
+    clearFieldError('query');
+    });
+
+    contactForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    clearAllValidation();
+
+    const firstName = firstNameInput.value.trim();
+    const lastName = lastNameInput.value.trim();
+    const email = emailInput.value.trim();
+    const mobile = mobileInput.value.trim();
+    const query = queryInput.value.trim();
+
+    const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
+
+    const mobileRegex = /^[0-9]{10}$/;
+
+    let isValid = true;
+    let firstInvalidField = null;
+
+    if (firstName === '') {
+    showFieldError('firstName');
+    firstInvalidField ??= firstNameInput;
+    isValid = false;
+    }
+
+    if (lastName === '') {
+    showFieldError('lastName');
+    firstInvalidField ??= lastNameInput;
+    isValid = false;
+    }
+
+    if (email === '' || !emailRegex.test(email)) {
+    showFieldError('email');
+    firstInvalidField ??= emailInput;
+    isValid = false;
+    }
+
+    if (!mobileRegex.test(mobile)) {
+    showFieldError('mobile');
+    firstInvalidField ??= mobileInput;
+    isValid = false;
+    }
+
+    if (query === '') {
+    showFieldError('query');
+    firstInvalidField ??= queryInput;
+    isValid = false;
+    }
+
+    if (!isValid) {
+    firstInvalidField?.focus();
+
+    Swal.fire({
+    icon: 'warning',
+    title: 'Please check the form',
+    text: 'Fill in all required fields with valid information.',
+    confirmButtonColor: 'midnightblue'
+    });
+
+    return;
+    }
+
+    setSubmitButtonLoading(true);
+
+    /*
+    * Add the AJAX/controller request here when the backend endpoint
+    * is available. The success message currently appears after
+    * successful client-side validation.
+    */
+    setTimeout(function () {
+
+    setSubmitButtonLoading(false);
+
+    Swal.fire({
+    icon: 'success',
+    title: 'Successfully Submitted!',
+    text: 'Your query has been submitted successfully.',
+    confirmButtonText: 'OK',
+    confirmButtonColor: 'midnightblue',
+    allowOutsideClick: false
+    }).then(function () {
+    contactForm.reset();
+    clearAllValidation();
+    firstNameInput.focus();
+    });
+
+    }, 500);
+    });
+
+    function showFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(fieldId + 'Error');
+
+    field.classList.remove('is-valid');
+    field.classList.add('is-invalid');
+    error.classList.add('show');
+    }
+
+    function clearFieldError(fieldId) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(fieldId + 'Error');
+
+    field.classList.remove('is-invalid');
+    error.classList.remove('show');
+    }
+
+    function clearAllValidation() {
+    const fields = [
+    'firstName',
+    'lastName',
+    'email',
+    'mobile',
+    'query'
+    ];
+
+    fields.forEach(function (fieldId) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(fieldId + 'Error');
+
+    field.classList.remove('is-invalid', 'is-valid');
+    error.classList.remove('show');
+    });
+    }
+
+    function setSubmitButtonLoading(isLoading) {
+    const submitButton = document.getElementById('submitButton');
+    const submitButtonText =
+    document.getElementById('submitButtonText');
+    const submitButtonLoader =
+    document.getElementById('submitButtonLoader');
+
+    submitButton.disabled = isLoading;
+
+    submitButtonText.textContent =
+    isLoading ? 'Submitting...' : 'Send Message';
+
+    submitButtonLoader.classList.toggle('d-none', !isLoading);
+    }
+    });
+</script>

@@ -1,0 +1,1231 @@
+﻿@{
+    ViewData["Title"] = "Create Route";
+}
+
+@model IEnumerable<busnumber>
+
+<style>
+    :root {
+        --trip-primary: midnightblue;
+        --trip-primary-dark:midnightblue;
+        --trip-accent: #2563eb;
+        --trip-success: #16a34a;
+        --trip-warning: #f59e0b;
+        --trip-bg: #f5f7fb;
+        --trip-card: #ffffff;
+        --trip-text: #172033;
+        --trip-muted: #667085;
+        --trip-border: #e4e9f2;
+        --trip-shadow: 0 12px 32px rgba(20, 30, 70, 0.08);
+    }
+
+    .trip-page {
+        min-height: calc(100vh - 70px);
+        padding: 20px;
+        background: radial-gradient(circle at top right, rgba(37, 99, 235, 0.06), transparent 32%), var(--trip-bg);
+    }
+
+        .trip-page * {
+            box-sizing: border-box;
+        }
+
+    .trip-shell {
+        max-width: 1500px;
+        margin: 0 auto;
+    }
+
+    .trip-page-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+        .trip-page-heading h2 {
+            margin: 0;
+            color: var(--trip-text);
+            font-size: 1.55rem;
+            font-weight: 750;
+        }
+
+        .trip-page-heading p {
+            margin: 4px 0 0;
+            color: var(--trip-muted);
+            font-size: 0.9rem;
+        }
+
+    .trip-header-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 17px;
+        border: 1px solid #cfd8ee;
+        border-radius: 12px;
+        background: #fff;
+        color: var(--trip-primary);
+        font-weight: 650;
+        text-decoration: none;
+        box-shadow: 0 5px 14px rgba(24, 37, 96, 0.06);
+        transition: 0.2s ease;
+    }
+
+        .trip-header-action:hover {
+            color: #fff;
+            background: var(--trip-primary);
+            border-color: var(--trip-primary);
+            transform: translateY(-1px);
+        }
+
+    .trip-steps {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0;
+        margin-bottom: 18px;
+        padding: 17px 18px;
+        border: 1px solid var(--trip-border);
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: var(--trip-shadow);
+    }
+
+    .trip-step {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+        padding: 7px 15px;
+        border-right: 1px solid var(--trip-border);
+    }
+
+        .trip-step:last-child {
+            border-right: 0;
+        }
+
+    .trip-step-icon {
+        display: grid;
+        place-items: center;
+        width: 39px;
+        height: 39px;
+        flex: 0 0 39px;
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+
+    .step-green {
+        color: #15803d;
+        background: #dcfce7;
+    }
+
+    .step-blue {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .step-orange {
+        color: #c66a05;
+        background: #ffedd5;
+    }
+
+    .step-purple {
+        color: #7e22ce;
+        background: #f3e8ff;
+    }
+
+    .step-teal {
+        color: #0f766e;
+        background: #ccfbf1;
+    }
+
+    .trip-step strong {
+        display: block;
+        overflow: hidden;
+        color: var(--trip-text);
+        font-size: 0.83rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .trip-step span {
+        display: block;
+        margin-top: 2px;
+        color: var(--trip-muted);
+        font-size: 0.73rem;
+        line-height: 1.25;
+    }
+
+    .trip-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 330px;
+        gap: 18px;
+        align-items: start;
+    }
+
+    .trip-card {
+        border: 1px solid var(--trip-border);
+        border-radius: 18px;
+        background: var(--trip-card);
+        box-shadow: var(--trip-shadow);
+    }
+
+    .trip-form-card {
+        padding: 22px;
+    }
+
+    .trip-section + .trip-section {
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid var(--trip-border);
+    }
+
+    .trip-section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 17px;
+        color: var(--trip-text);
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .trip-section-number {
+        display: grid;
+        place-items: center;
+        width: 29px;
+        height: 29px;
+        border-radius: 9px;
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb, #1748c5);
+        font-size: 0.82rem;
+        box-shadow: 0 5px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .trip-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 17px;
+    }
+
+        .trip-form-grid.four-column {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+    .trip-field {
+        min-width: 0;
+    }
+
+        .trip-field.full-width {
+            grid-column: 1 / -1;
+        }
+
+    .trip-label {
+        display: block;
+        margin-bottom: 7px;
+        color: #303a50;
+        font-size: 0.82rem;
+        font-weight: 650;
+    }
+
+    .trip-required {
+        color: #e53935;
+    }
+
+    .trip-input,
+    .trip-select {
+        width: 100%;
+        min-height: 45px;
+        padding: 10px 13px;
+        border: 1px solid #d9e0eb;
+        border-radius: 11px;
+        outline: none;
+        color: var(--trip-text);
+        background: #fbfcff;
+        font-size: 0.88rem;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+        .trip-input:hover,
+        .trip-select:hover {
+            border-color: #bfcbe0;
+            background: #fff;
+        }
+
+        .trip-input:focus,
+        .trip-select:focus {
+            border-color: var(--trip-accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+    .trip-radio-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .trip-choice {
+        position: relative;
+        min-width: 150px;
+        cursor: pointer;
+    }
+
+        .trip-choice input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+    .trip-choice-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 46px;
+        padding: 10px 14px;
+        border: 1px solid #dbe2ee;
+        border-radius: 11px;
+        background: #fbfcff;
+        color: #475467;
+        transition: 0.18s ease;
+    }
+
+        .trip-choice-content::before {
+            width: 16px;
+            height: 16px;
+            flex: 0 0 16px;
+            content: "";
+            border: 2px solid #aab4c5;
+            border-radius: 50%;
+            background: #fff;
+        }
+
+    .trip-choice input:checked + .trip-choice-content {
+        color: var(--trip-primary);
+        border-color: #7da4ff;
+        background: #f2f6ff;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.09);
+    }
+
+        .trip-choice input:checked + .trip-choice-content::before {
+            border: 5px solid var(--trip-accent);
+        }
+
+    .consider-panel {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-height: 45px;
+        padding: 7px 9px;
+        border: 1px solid #d9e0eb;
+        border-radius: 11px;
+        background: #fbfcff;
+    }
+
+    .trip-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0;
+        color: #475467;
+        font-size: 0.79rem;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+        .trip-check input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--trip-accent);
+        }
+
+    .consider-value {
+        width: 70px;
+        min-height: 31px;
+        margin-left: auto;
+        padding: 5px 8px;
+        border: 1px solid #d9e0eb;
+        border-radius: 8px;
+        outline: none;
+        background: #fff;
+        font-size: 0.8rem;
+    }
+
+    .trip-form-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--trip-border);
+    }
+
+    .trip-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 10px 20px;
+        border: 0;
+        border-radius: 11px;
+        font-size: 0.87rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .trip-btn-reset {
+        color: #475467;
+        border: 1px solid #d7deea;
+        background: #fff;
+    }
+
+        .trip-btn-reset:hover {
+            color: var(--trip-primary);
+            border-color: #aebbd2;
+            background: #f8faff;
+        }
+
+    .trip-btn-save {
+        min-width: 170px;
+        color: #fff;
+        background: linear-gradient(135deg, #2f67f4, #1748d4);
+        box-shadow: 0 9px 20px rgba(37, 99, 235, 0.25);
+    }
+
+        .trip-btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
+        }
+
+    .trip-side {
+        display: grid;
+        gap: 18px;
+    }
+
+    .trip-side-card {
+        padding: 18px;
+    }
+
+    .trip-side-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 15px;
+        color: var(--trip-text);
+        font-size: 0.94rem;
+        font-weight: 750;
+    }
+
+        .trip-side-title i {
+            display: grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+        }
+
+    .summary-title i {
+        color: #15803d;
+        background: #dcfce7;
+    }
+
+    .tips-title i {
+        color: #b66a00;
+        background: #fff1cf;
+    }
+
+    .actions-title i {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .summary-list {
+        overflow: hidden;
+        border: 1px solid var(--trip-border);
+        border-radius: 13px;
+        background: #fcfdff;
+    }
+
+    .summary-row {
+        display: grid;
+        grid-template-columns: 44% 56%;
+        gap: 8px;
+        padding: 11px 12px;
+        border-bottom: 1px solid #edf0f5;
+        font-size: 0.78rem;
+    }
+
+        .summary-row:last-child {
+            border-bottom: 0;
+        }
+
+    .summary-label {
+        color: var(--trip-muted);
+    }
+
+    .summary-value {
+        overflow: hidden;
+        color: var(--trip-text);
+        font-weight: 650;
+        text-align: right;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .summary-empty {
+        color: #98a2b3;
+        font-weight: 500;
+    }
+
+    .tips-card {
+        border-color: #f3d898;
+        background: linear-gradient(145deg, #fffdf8, #fff9e9);
+    }
+
+    .tips-list {
+        display: grid;
+        gap: 13px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+        .tips-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            color: #5f6572;
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .tips-list i {
+            margin-top: 2px;
+            color: var(--trip-warning);
+        }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .quick-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        min-height: 41px;
+        padding: 8px;
+        border: 1px solid #dce3ef;
+        border-radius: 10px;
+        color: #344054;
+        background: #fff;
+        font-size: 0.76rem;
+        font-weight: 650;
+        text-decoration: none;
+        transition: 0.18s ease;
+    }
+
+        .quick-action:hover {
+            color: var(--trip-primary);
+            border-color: #9eb7ef;
+            background: #f7f9ff;
+            transform: translateY(-1px);
+        }
+
+    @@media (max-width: 1199.98px) {
+        .trip-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .trip-side {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .trip-steps {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .trip-step:nth-child(3) {
+            border-right: 0;
+        }
+
+        .trip-step:nth-child(n+4) {
+            margin-top: 10px;
+        }
+    }
+
+    @@media (max-width: 991.98px) {
+        .trip-steps {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .trip-step,
+        .trip-step:nth-child(3) {
+            border-right: 1px solid var(--trip-border);
+        }
+
+            .trip-step:nth-child(even) {
+                border-right: 0;
+            }
+
+            .trip-step:nth-child(n+3) {
+                margin-top: 10px;
+            }
+
+        .trip-form-grid.four-column {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .trip-side {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .trip-page {
+            padding: 13px;
+        }
+
+        .trip-page-heading {
+            align-items: flex-start;
+        }
+
+        .trip-header-action span {
+            display: none;
+        }
+
+        .trip-header-action {
+            width: 42px;
+            padding: 0;
+            justify-content: center;
+        }
+
+        .trip-form-card {
+            padding: 17px;
+        }
+
+        .trip-steps,
+        .trip-form-grid,
+        .trip-form-grid.four-column {
+            grid-template-columns: 1fr;
+        }
+
+        .trip-step,
+        .trip-step:nth-child(3),
+        .trip-step:nth-child(even) {
+            border-right: 0;
+            border-bottom: 1px solid var(--trip-border);
+        }
+
+            .trip-step:last-child {
+                border-bottom: 0;
+            }
+
+            .trip-step:nth-child(n+2) {
+                margin-top: 4px;
+            }
+
+        .trip-form-actions {
+            align-items: stretch;
+            flex-direction: column-reverse;
+        }
+
+        .trip-btn {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 430px) {
+        .consider-panel {
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .consider-value {
+            width: 100%;
+            margin-left: 0;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="trip-page">
+    <div class="trip-shell">
+        <div class="trip-page-heading">
+            <div>
+                <p>Plan and schedule a new trip for your selected bus.</p>
+            </div>
+
+            @* <a href="/tracking" class="trip-header-action" title="Open Tracking">
+                <i class="bi bi-geo-alt"></i>
+                <span>Tracking</span>
+            </a> *@
+        </div>
+
+        <div class="trip-steps">
+            <div class="trip-step">
+                <div class="trip-step-icon step-green"><i class="bi bi-signpost-split"></i></div>
+                <div>
+                    <strong>Plan Route</strong>
+                    <span>Enter route and select a bus</span>
+                </div>
+            </div>
+
+            <div class="trip-step">
+                <div class="trip-step-icon step-blue"><i class="bi bi-clock"></i></div>
+                <div>
+                    <strong>Set Schedule</strong>
+                    <span>Define start and end time</span>
+                </div>
+            </div>
+
+            <div class="trip-step">
+                <div class="trip-step-icon step-orange"><i class="bi bi-pin-map"></i></div>
+                <div>
+                    <strong>Consider Points</strong>
+                    <span>Choose stoppage or idle</span>
+                </div>
+            </div>
+
+            <div class="trip-step">
+                <div class="trip-step-icon step-purple"><i class="bi bi-bus-front"></i></div>
+                <div>
+                    <strong>Trip Type</strong>
+                    <span>Choose pickup or drop</span>
+                </div>
+            </div>
+
+            <div class="trip-step">
+                <div class="trip-step-icon step-teal"><i class="bi bi-shield-check"></i></div>
+                <div>
+                    <strong>Review &amp; Save</strong>
+                    <span>Verify details before saving</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="trip-layout">
+            <main class="trip-card trip-form-card">
+                <form id="createTripForm"
+                      asp-controller="Route"
+                      asp-action="addRoute"
+                      method="post">
+
+                    <section class="trip-section">
+                        <div class="trip-section-title">
+                            <span class="trip-section-number">1</span>
+                            Trip Information
+                        </div>
+
+                        <div class="trip-form-grid">
+                            <div class="trip-field">
+                                <label class="trip-label" for="tripCreationType">
+                                    Trip Creation Type <span class="trip-required">*</span>
+                                </label>
+                                <select id="tripCreationType"
+                                        class="trip-select"
+                                        required>
+                                    <option value="" selected disabled>Select trip creation type</option>
+                                    <option value="Playback">Playback</option>
+                                </select>
+                            </div>
+
+                            <div class="trip-field">
+                                <label class="trip-label" for="veh_reg">
+                                    Select Bus <span class="trip-required">*</span>
+                                </label>
+                                <select id="veh_reg"
+                                        name="veh_reg"
+                                        class="trip-select"
+                                        required>
+                                    <option value="" selected disabled>Select Bus</option>
+                                    @if (Model != null)
+                                    {
+                                        foreach (var bus in Model)
+                                        {
+                                            <option value="@bus.id">@bus.veh_reg</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="trip-field">
+                                <label class="trip-label" for="route_name">
+                                    Route Name <span class="trip-required">*</span>
+                                </label>
+                                <input id="route_name"
+                                       name="route_name"
+                                       type="text"
+                                       class="trip-input"
+                                       placeholder="Enter route name"
+                                       maxlength="100"
+                                       autocomplete="off"
+                                       required />
+                            </div>
+
+                            <div class="trip-field">
+                                <label class="trip-label">
+                                    Trip Type <span class="trip-required">*</span>
+                                </label>
+
+                                <div class="trip-radio-group">
+                                    <label class="trip-choice" for="pick">
+                                        <input type="radio"
+                                               value="pick"
+                                               id="pick"
+                                               name="option"
+                                               required />
+                                        <span class="trip-choice-content">
+                                            <i class="bi bi-arrow-up-circle"></i>
+                                            Pickup
+                                        </span>
+                                    </label>
+
+                                    <label class="trip-choice" for="drop">
+                                        <input type="radio"
+                                               value="drop"
+                                               id="drop"
+                                               name="option" />
+                                        <span class="trip-choice-content">
+                                            <i class="bi bi-arrow-down-circle"></i>
+                                            Drop
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="trip-section">
+                        <div class="trip-section-title">
+                            <span class="trip-section-number">2</span>
+                            Schedule &amp; Timing
+                        </div>
+
+                        <div class="trip-form-grid four-column">
+                            <div class="trip-field">
+                                <label class="trip-label" for="start_time_up">
+                                    Start Time <span class="trip-required">*</span>
+                                </label>
+                                <input id="start_time_up"
+                                       name="start_time_up"
+                                       type="time"
+                                       class="trip-input"
+                                       required />
+                            </div>
+
+                            <div class="trip-field">
+                                <label class="trip-label" for="end_time_up">
+                                    End Time <span class="trip-required">*</span>
+                                </label>
+                                <input id="end_time_up"
+                                       name="end_time_up"
+                                       type="time"
+                                       class="trip-input"
+                                       required />
+                            </div>
+
+                            <div class="trip-field full-width">
+                                <label class="trip-label">Consider Point</label>
+                                <div class="consider-panel">
+                                    <label class="trip-check" for="option4">
+                                        <input type="checkbox"
+                                               id="option4"
+                                               name="option_"
+                                               onchange="togglecheck1(this)" />
+                                        <span>Stoppage</span>
+                                    </label>
+
+                                    <label class="trip-check" for="option5">
+                                        <input type="checkbox"
+                                               id="option5"
+                                               name="option_"
+                                               onchange="togglecheck1(this)" />
+                                        <span>Idle</span>
+                                    </label>
+
+                                    <input type="number"
+                                           id="considerPointValue"
+                                           class="consider-value"
+                                           value="0"
+                                           min="0"
+                                           aria-label="Consider point value" />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="trip-form-actions">
+                        <button type="reset" class="trip-btn trip-btn-reset" id="resetTripForm">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                            Reset
+                        </button>
+
+                        <button type="submit" class="trip-btn trip-btn-save">
+                            <span>Save Trip</span>
+                            <i class="bi bi-floppy"></i>
+                        </button>
+                    </div>
+                </form>
+            </main>
+
+            <aside class="trip-side">
+
+                <div class="trip-card trip-side-card tips-card">
+                    <div class="trip-side-title tips-title">
+                        <i class="bi bi-lightbulb"></i>
+                        Tips for Better Planning
+                    </div>
+
+                    <ul class="tips-list">
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Use a clear and unique route name for easier identification.</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Confirm the selected bus before creating the trip.</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Set appropriate start and end times for the route.</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Review all details in the summary before saving.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="trip-card trip-side-card">
+                    <div class="trip-side-title actions-title">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        Quick Actions
+                    </div>
+
+                    <div class="quick-actions">
+                        <a href="/Route/Trip" class="quick-action">
+                            <i class="bi bi-list-ul"></i>
+                            View All Routes
+                        </a>
+                        <a href="/tracking" class="quick-action">
+                            <i class="bi bi-geo-alt"></i>
+                            Tracking
+                        </a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+        const $form = $('#createTripForm');
+        const redirectUrl = '@Url.Action("Trip", "Route")';
+        const submitUrl = $form.attr('action');
+
+        function formatTime(value) {
+        if (!value) {
+        return 'Not selected';
+        }
+
+        const parts = value.split(':');
+        const date = new Date();
+        date.setHours(Number(parts[0]), Number(parts[1]), 0, 0);
+
+        return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit'
+        });
+        }
+
+        function escapeHtml(value) {
+        return $('<div>').text(value ?? '').html();
+        }
+
+        function getFormValues() {
+        const tripCreationType = $('#tripCreationType').val();
+        const busId = $('#veh_reg').val();
+        const busText = busId
+        ? $('#veh_reg option:selected').text()
+        : '';
+
+        return {
+        tripCreationType: tripCreationType,
+        busId: busId,
+        busText: busText,
+        routeName: $('#route_name').val().trim(),
+        startTime: $('#start_time_up').val(),
+        endTime: $('#end_time_up').val(),
+        stoppage: $('#option4').is(':checked'),
+        idle: $('#option5').is(':checked'),
+        considerValue: $('#considerPointValue').val() || '0',
+        tripType: $('input[name="option"]:checked').val()
+        };
+        }
+
+        function validateForm(values) {
+        if (!values.tripCreationType) {
+        showRequired('Trip Creation is required.', '#tripCreationType');
+        return false;
+        }
+
+        if (!values.busId) {
+        showRequired('Select Bus is required.', '#veh_reg');
+        return false;
+        }
+
+        if (!values.routeName) {
+        showRequired('Route Name is required.', '#route_name');
+        return false;
+        }
+
+        if (!values.startTime) {
+        showRequired('Start Time is required.', '#start_time_up');
+        return false;
+        }
+
+        if (!values.endTime) {
+        showRequired('End Time is required.', '#end_time_up');
+        return false;
+        }
+
+        if (values.startTime >= values.endTime) {
+        showRequired('Start Time must be earlier than End Time.', '#end_time_up');
+        return false;
+        }
+
+        if (!values.tripType) {
+        showRequired('Trip Type is required.');
+        return false;
+        }
+
+        return true;
+        }
+
+        function showRequired(message, selector) {
+        Swal.fire({
+        icon: 'warning',
+        title: 'Required',
+        text: message,
+        confirmButtonColor: '#3085d6'
+        }).then(function () {
+        if (selector) {
+        $(selector).trigger('focus');
+        }
+        });
+        }
+
+        function buildSummaryHtml(values) {
+        const tripTypeText = values.tripType === 'pick' ? 'Pickup' : 'Drop';
+
+        return `
+        <div style="text-align:left;border:1px solid #e4e9f2;border-radius:14px;overflow:hidden;">
+        ${summaryRow('Creation Type', values.tripCreationType)}
+        ${summaryRow('Bus', values.busText)}
+        ${summaryRow('Route Name', values.routeName)}
+        ${summaryRow('Start Time', formatTime(values.startTime))}
+        ${summaryRow('End Time', formatTime(values.endTime))}
+        ${summaryRow('Stoppage', values.stoppage ? 'Yes' : 'No')}
+        ${summaryRow('Idle', values.idle ? 'Yes' : 'No')}
+        ${summaryRow('Consider Value', values.considerValue)}
+        ${summaryRow('Trip Type', tripTypeText, true)}
+        </div>
+        `;
+        }
+
+        function summaryRow(label, value, isLast) {
+        return `
+        <div style="
+        display:grid;
+        grid-template-columns:44% 56%;
+        gap:12px;
+        padding:11px 13px;
+        ${isLast ? '' : 'border-bottom:1px solid #edf0f5;'}
+        background:#fcfdff;
+        font-size:13px;">
+        <span style="color:#667085;">${escapeHtml(label)}</span>
+        <strong style="
+        color:#172033;
+        text-align:right;
+        overflow-wrap:anywhere;">
+        ${escapeHtml(value)}
+        </strong>
+        </div>
+        `;
+        }
+
+        function getResponseMessage(response, fallback) {
+        if (typeof response === 'string') {
+        try {
+        response = JSON.parse(response);
+        } catch (error) {
+        return response.trim() || fallback;
+        }
+        }
+
+        if (response && typeof response === 'object') {
+        return response.message || response.Message || fallback;
+        }
+
+        return fallback;
+        }
+
+        function submitTrip() {
+        const formElement = $form.get(0);
+        const formData = new FormData(formElement);
+
+        Swal.fire({
+        title: 'Saving Trip',
+        text: 'Please wait while the trip is being created.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: function () {
+        Swal.showLoading();
+        }
+        });
+
+        $.ajax({
+        url: submitUrl,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'json',
+        headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function (response) {
+        if (typeof response === 'string') {
+        try {
+        response = JSON.parse(response);
+        } catch (error) {
+        response = { success: false, message: response.trim() };
+        }
+        }
+
+        const controllerReportedError =
+        response &&
+        typeof response === 'object' &&
+        (response.success === false || response.Success === false ||
+        response.status === false || response.Status === false);
+
+        Swal.close();
+
+        if (controllerReportedError) {
+        Swal.fire({
+        icon: 'error',
+        title: 'Unable to Create Trip',
+        text: getResponseMessage(
+        response,
+        'The trip could not be created.'
+        ),
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+        }).then(function () {
+        window.location.href = redirectUrl;
+        });
+
+        return;
+        }
+
+        Swal.fire({
+        icon: 'success',
+        title: 'Trip Created',
+        text: getResponseMessage(
+        response,
+        'The trip was created successfully.'
+        ),
+        confirmButtonColor: '#2563eb',
+        confirmButtonText: 'OK'
+        }).then(function () {
+        window.location.href = redirectUrl;
+        });
+        },
+        error: function (xhr) {
+        Swal.close();
+        let errorMessage = 'An error occurred while creating the trip.';
+
+        if (xhr.responseJSON) {
+        errorMessage =
+        xhr.responseJSON.message ||
+        xhr.responseJSON.Message ||
+        errorMessage;
+        } else if (xhr.responseText) {
+        errorMessage = getResponseMessage(xhr.responseText, errorMessage);
+        }
+
+        Swal.fire({
+        icon: 'error',
+        title: 'Unable to Create Trip',
+        text: errorMessage,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+        }).then(function () {
+        window.location.href = redirectUrl;
+        });
+        }
+        });
+        }
+
+        const errorMessage = '@TempData["ErrorMessage"]';
+
+        if (errorMessage && errorMessage.trim() !== '') {
+        Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: errorMessage,
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'OK'
+        }).then(function () {
+        window.location.href = redirectUrl;
+        });
+        }
+
+        $form.on('submit', function (e) {
+        e.preventDefault();
+
+        const values = getFormValues();
+
+        if (!validateForm(values)) {
+        return false;
+        }
+
+        Swal.fire({
+        icon: 'bus',
+        html: `
+        <i class="fas fa-bus text-primary" style="font-size:70px;"></i>
+        <br><br>
+        <b>25 Buses are currently running.</b>
+        `,
+        html: buildSummaryHtml(values),
+        width: 580,
+        showCancelButton: true,
+        confirmButtonText: 'Confirm & Save',
+        cancelButtonText: 'Edit Details',
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#667085',
+        reverseButtons: true,
+        focusCancel: true
+        }).then(function (result) {
+        if (result.isConfirmed) {
+        submitTrip();
+        }
+        });
+
+        return false;
+        });
+        });
+    </script>
+}

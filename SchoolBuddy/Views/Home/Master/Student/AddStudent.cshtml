@@ -1,0 +1,589 @@
+﻿@model Students
+
+@{
+    ViewData["Title"] = ViewData["type"];
+    bool isEditMode = (ViewData["type"]?.ToString() == "Edit Student");
+
+    string formattedBirth = "";
+    if (!string.IsNullOrWhiteSpace(Model?.birth ?? ""))
+    {
+        DateTime dobValue;
+        if (DateTime.TryParse(Model?.birth ?? "", out dobValue))
+        {
+            formattedBirth = dobValue.ToString("yyyy-MM-dd");
+        }
+    }
+}
+
+<style>
+    
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-12" style="margin-top:3vmin">
+            <div class="card-header rounded-top py-2 px-3" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">@ViewData["type"]</p> 
+            </div>
+            <div class="card-body rounded ms-2" style="background-color:white;">
+<form asp-action="AddStudent"
+      method="post"
+      id="studentForm"
+      class="form-control"
+      style="overflow:hidden; border:white">                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+
+                            <label asp-for="student_name">Full Name</label><span class="required_">*</span>
+                            <input asp-for="student_name" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Student FullName" value="@(Model?.student_name??"")"  required />
+                            <div>
+                                <span asp-validation-for="student_name" class="text-danger"></span>
+                            </div>
+                            
+
+                        </div>
+                        
+                        @*<div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label asp-for="admission_no">Admission No.</label><span class="required_">*</span>
+                            <input asp-for="admission_no" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Admission No." value="@(Model?.admission_no??"")" />
+                                <div>
+                                    <span asp-validation-for="admission_no" class="text-danger"></span>
+                                </div>
+                        </div>*@
+                       
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <label>Academic Year.</label>
+                            @if (!isEditMode)
+                            {
+                                
+                            }
+
+                            @if (isEditMode)
+                            {
+                                <input class="form-control inputbackgroundcolor" type="month" placeholder="Please Select" id="academicYear"/>
+                            }
+                            else
+                            {
+                                <input class="form-control inputbackgroundcolor" type="month" placeholder="Please Select" id="academicYear" required />
+                            }
+
+                        </div>
+                        
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <label asp-for="admission_no">Admission No.</label><span class="required_">*</span>
+                            <input asp-for="admission_no" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Admission No." value="@(Model?.admission_no??"")" required/>
+                            <div>
+                                <span asp-validation-for="admission_no" class="text-danger"></span>
+                            </div>
+                        </div>
+                       
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label asp-for="class_">Class</label><span class="required_">*</span>
+                            <select asp-for="class_" class="form-control">
+                                @if (ViewBag.class_dropdown!=null)
+                                {
+                                    @foreach (var item in ViewBag.class_dropdown)
+                                    {
+                                        <option value="@item.id" >@item.class_name</option>
+                                    }
+
+                                }
+                                <span asp-validation-for="class_" class="text-danger"></span>
+
+                                
+
+                              
+                                      
+                            </select>
+@*                             <input asp-for="class_" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Class" value="@(Model?.class_??"")" required />
+ *@                             @*<div>
+                            <span asp-validation-for="class_" class="text-danger"></span>
+                        </div>*@
+                        </div>
+                       
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label asp-for = "division">Division</label><span class="required_">*</span>
+                            <input asp-for="division" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Division" value="@(Model?.division??"")" required />
+                             <div>
+                                <span asp-validation-for="division" class="text-danger"></span>
+                            </div>
+                        </div>
+                       
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xl-4">
+                                    <label asp-for="gender">Gender</label><span class="required_">*</span>
+                                    <div style="display:flex;margin-top: 10px;">
+                                        <div>
+                                            @if (isEditMode)
+                                            {
+                                                <input asp-for="gender" type="radio" value="male" />
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="gender" type="radio" value="male" required />
+                                            }
+                                            <label asp-for="gender" style="font-size: 0.8rem;">Male</label>
+                                        </div> &nbsp; &nbsp; &nbsp;
+                                        <div>
+                                            @if (isEditMode)
+                                            {
+                                                <input asp-for="gender" type="radio" value="female" />
+                                            }
+                                            else
+                                            {
+                                                <input asp-for="gender" type="radio" value="female" required />
+                                            }
+                                            <label asp-for="gender" style="font-size: 0.8rem;">Female</label>
+                                        </div>
+                                    </div>
+                                   <div>
+                                          <span asp-validation-for="gender" class="text-danger"></span>
+                                    </div>
+                                    
+
+                                    
+                                </div>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xl-8">
+                                    <label>Attendance Via</label><span class="required_">*</span>
+                                    <div style="display:flex;margin-top: 10px;">
+                                        <div>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="radio" name="attendance_via" />
+                                            }
+                                            else
+                                            {
+                                                <input type="radio" name="attendance_via" required />
+                                            }
+                                            <label style="font-size: 0.8rem;">Attendance App</label>
+                                        </div>
+                                        &nbsp;&nbsp;
+                                        <div>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="radio" name="attendance_via" />
+                                            }
+                                            else
+                                            {
+                                                <input type="radio" name="attendance_via" required />
+                                            }
+                                            <label style="font-size: 0.8rem;">QR Code</label>
+                                        </div>
+                                        &nbsp;&nbsp;
+                                        <div>
+                                            @if (isEditMode)
+                                            {
+                                                <input type="radio" name="attendance_via" checked />
+                                            }
+                                            else
+                                            {
+                                                <input type="radio" name="attendance_via" checked required />
+                                            }
+                                            <label style="font-size: 0.8rem;">RFID Tag</label>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                           
+                           
+
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label asp-for="birth">Student Date Of Birth</label><span class="required_">*</span>
+                            @if (isEditMode)
+                            {
+                                <input asp-for="birth"
+                                       class="form-control inputbackgroundcolor"
+                                       type="date"
+                                       id="birth"
+                                       max="@DateTime.Now.AddYears(-2).ToString("yyyy-MM-dd")"
+                                       value="@formattedBirth"
+                                       required />
+                            }
+                            else
+                            {
+                                <input asp-for="birth"
+                                       class="form-control inputbackgroundcolor datepicker"
+                                       type="date"
+                                      id="birth"
+                                       placeholder="Enter DOB"
+ max="@DateTime.Now.AddYears(-2).ToString("yyyy-MM-dd")"                                       value="@formattedBirth"
+                                       required />
+                            }
+                            <span asp-validation-for="birth" class="text-danger"></span>
+                            <span id="dobError" class="text-danger"></span>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label asp-for="blood_group">Blood Group</label>
+                            <input asp-for="blood_group" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Student Blood Group" value="@(Model?.blood_group??"")" />
+                            <span asp-validation-for="blood_group" class="text-danger"></span>
+
+                        </div>
+                    </div>
+                    <br>
+                    <br />
+                    <div>
+                        <h5 style="color:midnightblue;font-weight:700">
+                            Parent Detail
+                        </h5>
+                    </div>
+                    <hr />
+                    <div class="row" style="margin-top: 15px;">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <label asp-for="parent_name">Parent Name</label><span class="required_">*</span>
+                            <input required asp-for="parent_name" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Parent Name" value="@(Model?.parent_name??"")" />
+                            <div>
+                                <span asp-validation-for="parent_name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <label asp-for="relation_with_std">Relation With Student</label><span class="required_">*</span>
+                            @if (isEditMode)
+                            {
+                                <input asp-for="relation_with_std"
+                                       class="form-control inputbackgroundcolor"
+                                       type="text"
+                                       placeholder="Please Select"
+                                       value="@(Model?.relation_with_std ?? "")" />
+                            }
+                            else
+                            {
+                                <input asp-for="relation_with_std"
+                                       class="form-control inputbackgroundcolor"
+                                       type="text"
+                                       placeholder="Please Select"
+                                       value="@(Model?.relation_with_std ?? "")"
+                                       required />
+                            }
+                            <div>
+                                <span asp-validation-for="relation_with_std" class="text-danger"></span>
+                            </div>
+                        </div>
+                       
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label>Gender</label>
+                            <div style="display:flex;margin-top: 10px;">
+                                <div>
+                                    @if (isEditMode)
+                                    {
+                                        <input type="radio" name="parent_gender" />
+                                    }
+                                    else
+                                    {
+                                        <input type="radio" name="parent_gender" />
+                                    }
+                                    <label style="font-size: 0.8rem;">Male</label>
+                                </div> &nbsp; &nbsp; &nbsp;
+                                <div>
+                                    @if (isEditMode)
+                                    {
+                                        <input type="radio" name="parent_gender" />
+                                    }
+                                    else
+                                    {
+                                        <input type="radio" name="parent_gender"  />
+                                    }
+                                    <label style="font-size: 0.8rem;">Female</label>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label asp-for="mobile_no1">Mobile No.</label><span class="required_">*</span>
+                            @* <input required asp-for="mobile_no1" class="form-control inputbackgroundcolor" type="number" placeholder="Enter Mobile No." value="@(Model?.mobile_no1??"")"
+                                   maxlength="10"
+                                   pattern="^[6-9][0-9]{9}$"
+                                   
+                                   title="Enter a valid 10-digit mobile number starting with 6-9" /> *@
+                                   <input required
+       asp-for="mobile_no1"
+       class="form-control inputbackgroundcolor"
+       type="text"
+       placeholder="Enter Mobile No."
+       value="@(Model?.mobile_no1 ?? "")"
+       maxlength="10"
+       pattern="^[6-9][0-9]{9}$"
+       oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+       title="Enter a valid 10-digit mobile number starting with 6-9" />
+                            <div>
+                                <span asp-validation-for="mobile_no1" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <label asp-for="email">Email</label><span class="required_">*</span>
+
+                            <input required asp-for="email" class="form-control inputbackgroundcolor" type="email" placeholder="Enter Email Address" value="@(Model?.email??"")" />
+                           <div>
+                                <span asp-validation-for="email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
+                            <div class="row">
+
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xl-4">
+                                    <label>Alert</label>
+                                    <div style="margin-top:10px">
+                                        <input type="checkbox" />
+                                        <label style="font-size: 0.8rem;">SMS</label>
+                                    </div>
+                                    
+                                </div>
+                                <div class="col-lg-8 col-md-8 col-sm-8 col-xl-8">
+                                    <label>Verification Via</label>
+                                    <div style="display:flex;margin-top: 10px;">
+                                        <div>
+                                            <input type="radio" name="verification_via" />
+                                            <label style="font-size: 0.8rem;">OTP</label>
+                                        </div> &nbsp; &nbsp; &nbsp;
+                                        <div>
+                                            <input type="radio" name="verification_via" />
+                                            <label style="font-size: 0.8rem;">Password</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+                    <br />
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <label asp-for="rf_id">RFID must be 8 characters (0-9, A-F only).</label>
+                            <input asp-for="rf_id" class="form-control inputbackgroundcolor" type="text" placeholder="Enter RFID (optional)" value="@(Model?.rf_id ?? "")" 
+                                   maxlength="8"
+                                   pattern="^[0-9A-Fa-f]{8}$"
+                                   title="RFID must be exactly 8 characters (0-9, A-F only)"  />
+                            
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <label asp-for="street">Address</label><span class="required_">*</span>
+<input required
+       asp-for="street"
+       class="form-control inputbackgroundcolor"
+       type="text"
+       maxlength="150"
+       placeholder="Complete Address" />                            <div>
+                                <span asp-validation-for="street" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                       
+
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
+                            <label>Student Profile Picture</label>
+                            <input class="form-control inputbackgroundcolor" type="file" placeholder="Complete Address"  />
+                        </div>
+
+                    </div>
+
+                  @*//href="javascript:window.history.back();"*@
+                    <div class="text-center mt-5 styleforsmalldevices">
+                        <a asp-controller="Home" asp-action="Students" asp-route-id="0"
+                           style="border: 2px solid; background-color: midnightblue; border-color:midnightblue;
+       padding-top: 5px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px; border-radius: 4px;">
+                            <i class="bi bi-arrow-left-short" style="color:white"></i>
+                        </a>
+                        <button class="btn" type="submit" id="submitBtn" 
+                                style="border: 2px solid; border-color: midnightblue; color:midnightblue">
+                            @TempData["action"]
+                        </button>
+                    </div>
+
+                    
+
+                </form>
+             
+
+            </div>
+
+
+        </div>
+    </div>
+   
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+    const birthEl = document.getElementById('birth');
+    const acadEl = document.getElementById('academicYear');
+    const errEl = document.getElementById('dobError');
+
+    function validateDOB() {
+
+    if (!birthEl.value || !acadEl.value) {
+    errEl.innerText = '';
+    return;
+    }
+
+    const dob = new Date(birthEl.value);
+    const acadVal = acadEl.value.trim();
+
+    let acadYear;
+
+    if (acadVal.includes(',')) {
+    acadYear = parseInt(acadVal.split(',')[1], 10);
+    }
+    else if (acadVal.includes('-')) {
+    acadYear = parseInt(acadVal.split('-')[0], 10);
+    }
+    else {
+    acadYear = parseInt(acadVal, 10);
+    }
+
+    if (isNaN(acadYear)) {
+    errEl.innerText = 'Invalid Academic Year.';
+    return;
+    }
+
+    const age = acadYear - dob.getFullYear();
+
+    if (age < 2) {
+    errEl.innerText = 'The Difference Between The Acadmic Year and DOB to be at least 2 years';
+    }
+    else {
+    errEl.innerText = '';
+    }
+    }
+
+    birthEl.addEventListener('change', validateDOB);
+    acadEl.addEventListener('change', validateDOB);
+    });
+</script>
+<script>
+
+    $(document).ready(function () {
+        var successMessage = '@TempData["SuccessMessage"]';
+        var errorMessage = '@TempData["ErrorMessage"]';
+
+        if (successMessage && successMessage.trim() !== '') {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: successMessage,
+                confirmButtonColor: '#28a745',
+                confirmButtonText: 'OK'
+            });
+        }
+
+        if (errorMessage && errorMessage.trim() !== '') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'OK'
+            });
+        }
+    });
+
+
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const form = document.getElementById("studentForm");
+
+    if (!form) {
+        return;
+    }
+
+    // Set maximum length for all text and email fields
+    const allTextFields = form.querySelectorAll(
+        'input[type="text"], input[type="email"]'
+    );
+
+    allTextFields.forEach(function (field) {
+
+        // Address already has maximum 150
+        if (field.id === "street" || field.name === "street") {
+            field.maxLength = 150;
+        }
+        // Do not overwrite mobile maxlength=10 or RFID maxlength=8
+        else if (!field.hasAttribute("maxlength")) {
+            field.maxLength = 100;
+        }
+    });
+
+    // Remove whitespace validation error while typing
+    form.addEventListener("input", function (event) {
+
+        const field = event.target;
+
+        if (
+            field.matches(
+                'input[required][type="text"], ' +
+                'input[required][type="email"]'
+            )
+        ) {
+            if (field.value.trim().length > 0) {
+                field.setCustomValidity("");
+                field.classList.remove("is-invalid");
+            }
+        }
+    });
+
+    // Validate before submitting
+    form.addEventListener("submit", function (event) {
+
+        let firstInvalidField = null;
+
+        const requiredFields = form.querySelectorAll(
+            'input[required][type="text"], ' +
+            'input[required][type="email"]'
+        );
+
+        requiredFields.forEach(function (field) {
+
+            // Remove starting and ending spaces
+            field.value = field.value.trim();
+
+            // Block empty or whitespace-only values
+            if (field.value.length === 0) {
+
+                field.setCustomValidity(
+                    "This field cannot contain only spaces."
+                );
+
+                field.classList.add("is-invalid");
+
+                if (!firstInvalidField) {
+                    firstInvalidField = field;
+                }
+            }
+            else {
+                field.setCustomValidity("");
+                field.classList.remove("is-invalid");
+            }
+        });
+
+        if (firstInvalidField) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            firstInvalidField.focus();
+            firstInvalidField.reportValidity();
+        }
+    });
+});
+</script>

@@ -1,0 +1,2076 @@
+﻿@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Dashboard";
+
+}
+@model Dashboard
+
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+</script>*@
+
+<style>
+    /* .select2-container--default .select2-selection--single {
+            background-color: #e9ecef;
+            border: 0px
+        }*/
+    
+    #myChart {
+        width: 50%
+    }
+
+    .inputbackgroundcolor {
+        background-color: ghostwhite;
+    }
+
+    .table_font_size {
+    }
+
+    th, td {
+        text-align: center; /* Centers text horizontally */
+        padding: 8px;
+        border: 1px solid #ddd; /* Adds a border to the table cells */
+        font-size: small;
+    }
+
+    .icon-size {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        padding: 2px;
+    }
+
+    .table thead th {
+        background-color: midnightblue;
+        color: white;
+    }
+
+    .nomarginatbtm {
+        margin-bottom: 0px;
+    }
+
+    .tabletextfont {
+        font-size: 15px;
+    }
+
+    .tabledivp {
+        /* background-color: red;
+            border-radius: 50px;*/
+        text-align: center;
+    }
+
+    .dashboard-error-icon {
+        align-items: center;
+        background: #fff4e5;
+        border: 1px solid #ffd89a;
+        border-radius: 50%;
+        color: #b45309;
+        display: inline-flex;
+        flex: 0 0 44px;
+        height: 44px;
+        justify-content: center;
+        margin-right: 12px;
+        width: 44px;
+    }
+
+    .dashboard-error-modal .modal-subtitle {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin-top: 3px;
+    }
+
+    .dashboard-error-detail {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        color: #475569;
+        display: none;
+        font-size: 0.78rem;
+        margin-top: 14px;
+        padding: 10px 12px;
+        word-break: break-word;
+    }
+
+    .dashboard-error-modal .btn-primary {
+        background-color: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+   
+</style>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+<div class="container-fluid">
+
+    
+    <h3 class="ms-3 mt-2" style="color:midnightblue;font-weight:700">
+        Dashboard
+    </h3>
+
+           
+    @*<div class="card">*@
+
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card rounded-4">
+                <div class="card-body">
+                    <div class="row" style="gap:14px">
+                        <div class="card-body rounded-5 mt-4 col-lg-4 dashboardcard" style="max-height:100%;background-color:#FFE8F2;">
+                           @* total student count *@
+                            <div class="pt-2" style="max-height:100%">
+
+
+                                <div class="d-flex align-content-center justify-content-center icon-size" style="background-color: deeppink;">
+                                    <i class="bi bi-people-fill fs-5 mt-1" style="color: white;"></i>
+
+                                </div>
+                            </div>
+                            <div style="max-height:100%">
+                                <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalstudentcount ?? "0")</p>
+                                <p style="font-size:0.71rem" class=" mt-2 mb-0">Total No. Of Students</p>
+                                @*                                     <a class="fw-bold" style="font-size:0.80rem;color:blue;cursor:pointer" data-bs-toggle="modal" data-bs-target="#totalnumofstudents">View Details</a>
+*@                                <a onclick="getstudentsummary()" class="fw-bold" style="font-size:0.80rem;color:blue;cursor:pointer">View Details</a>
+
+                            </div>
+
+                               
+                        </div>
+                        <div class="card-body rounded-5  mt-4 col-lg-4 dashboardcard" style=" max-height:100%;background-color:#FFEECC;">
+                            <div class="pt-2" style="max-height:100%">
+                                <div class="d-flex align-content-center justify-content-center icon-size" style="background-color: #ef9e0a;">
+                                    <i class="bi bi-file-earmark-richtext fs-5 mt-1" style="color: white;"></i>
+
+                                </div>
+                            </div>
+                            <div style="max-height:100%">
+                                <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.todaynotificationcount ?? "0")</p>
+                                <p style="font-size:0.71rem" class=" mt-2 mb-0">Today's Notification</p>
+                                <a onclick="gettodaynotificationsummary()" class="fw-bold" style="font-size:0.80rem;color:blue;cursor:pointer">View Details</a>
+                            </div>
+
+                                
+                        </div>
+
+
+                        <div class="card-body rounded-5  mt-4 col-lg-4 dashboardcard" style=" max-height:100%;background-color:#F0FFFF;">
+                            <div class="pt-2" style="max-height:100%">
+
+
+                                <div class=" d-flex align-content-center justify-content-center icon-size" style="background-color: #8383db;">
+                                    <i class="bi bi-geo-alt-fill fs-5 mt-1" style="color: white;"></i>
+
+                                </div>
+                            </div>
+                            <div style="max-height:100%">
+                                <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalnotificationcount ?? "0")</p>
+                                <p style="font-size:0.71rem" class="mt-2 mb-0">Total Notification</p>
+                                <a class="fw-bold" style="font-size:0.80rem;color:blue;cursor:pointer" onclick="getnotificationsummary()">View Details</a>
+                            </div>
+
+                        
+                        </div>
+
+
+                  
+                    </div>
+
+                    <div class="row" style="gap:14px">
+                        <div class="card-body rounded-5 mt-4 col-lg-4 dashboardcard" style="max-height:100%;background-color:#ECFADC;">
+                            <div class="pt-2" style="max-height:100%">
+
+                                <div class=" d-flex align-content-center justify-content-center icon-size" style="background-color: #10c000;">
+                            
+                                    <i class="bi bi-bus-front text-white fs-5 mt-1"></i>
+                                </div>
+                            </div>
+                            <div style="max-height:100%">
+                                <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalbuscount ?? "0")</p>
+                                <p style="font-size:0.71rem" class="mt-2 mb-0">Total No. Of Buses</p>
+                                <a class="fw-bold" style="font-size:0.80rem;color:blue;cursor:pointer" onclick="gettodaybusessummary()">View Details</a>
+                            </div>
+
+                                
+                        </div>
+                        <div class="card-body rounded-5  mt-4 col-lg-4 dashboardcard" style="max-height:100%;background-color:#F0FFFF;">
+                            <div class="pt-2" style="max-height:100%">
+
+
+                                <div class=" d-flex align-content-center justify-content-center icon-size" style="background-color: blue;">
+                                    <i class="fas fa-route text-white fs-5 mt-1"></i>
+
+                                </div>
+                            </div>
+                            <div style="max-height:100%">
+                                <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalroutecount ?? "0")</p>
+                                <p style="font-size:0.71rem" class="mt-2 mb-0">Total Routes</p>
+                                <a class="fw-bold" style="font-size:0.80rem;color:blue;cursor:pointer" asp-controller="Route" asp-action="Trip">View Details</a>
+                            </div>
+
+                        
+                        </div>
+
+
+                        <div class="card-body rounded-5 mt-4 col-lg-4 dashboardcard" style="max-height:100%;background-color:#f4ebfe;">
+                            <div class="pt-2" style="width:100%">
+
+
+                                <div class=" d-flex align-content-center justify-content-center icon-size" style="background-color: purple;">
+                                    <i class="bi bi-broadcast-pin text-white fs-5 mt-1"></i>
+
+                                </div>
+                            </div>
+                            <div style="max-height:100%">
+                                <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalliveroutecount ?? "0")</p>
+                                <p style="font-size:0.71rem" class="mt-2 mb-0">Live Routes</p>
+                                <a class="fw-bold" style="font-size:0.80rem;color:blue;cursor:pointer" onclick="getliveroutessummary()">View Details</a>
+                            </div>
+
+                       
+                        </div>
+
+                                   
+                  
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @* <div class="col-lg-6" id="dashboardsummary">
+    <div class="card rounded-4" style="background:#f5f5f5;">
+        <div class="card-body">
+            <div class="row g-4">
+
+                <!-- Students -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 h-100"
+                         style="background:#f3dfe7;border-radius:35px;min-height:190px;">
+                        <div class="card-body p-4">
+
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="width:52px;height:52px;border-radius:50%;background:deeppink;margin-bottom:25px;">
+                                <i class="bi bi-people-fill text-white fs-5"></i>
+                            </div>
+
+                            <h2 class="fw-bold mb-2">@(Model?.totalstudentcount ?? "0")</h2>
+
+                            <p class="mb-2" style="font-size:18px;">
+                                Total No. Of Students
+                            </p>
+
+                            <a onclick="getstudentsummary()"
+                               class="fw-bold"
+                               style="font-size:16px;color:blue;text-decoration:none;cursor:pointer;">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today Notification -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 h-100"
+                         style="background:#efe0bc;border-radius:35px;min-height:190px;">
+                        <div class="card-body p-4">
+
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="width:52px;height:52px;border-radius:50%;background:#f0a500;margin-bottom:25px;">
+                                <i class="bi bi-file-earmark-richtext text-white fs-5"></i>
+                            </div>
+
+                            <h2 class="fw-bold mb-2">@(Model?.todaynotificationcount ?? "0")</h2>
+
+                            <p class="mb-2" style="font-size:18px;">
+                                Today's Notification
+                            </p>
+
+                            <a onclick="gettodaynotificationsummary()"
+                               class="fw-bold"
+                               style="font-size:16px;color:blue;text-decoration:none;cursor:pointer;">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Notification -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 h-100"
+                         style="background:#dfecee;border-radius:35px;min-height:190px;">
+                        <div class="card-body p-4">
+
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="width:52px;height:52px;border-radius:50%;background:#7f7be6;margin-bottom:25px;">
+                                <i class="bi bi-geo-alt-fill text-white fs-5"></i>
+                            </div>
+
+                            <h2 class="fw-bold mb-2">@(Model?.totalnotificationcount ?? "0")</h2>
+
+                            <p class="mb-2" style="font-size:18px;">
+                                Total Notification
+                            </p>
+
+                            <a onclick="getnotificationsummary()"
+                               class="fw-bold"
+                               style="font-size:16px;color:blue;text-decoration:none;cursor:pointer;">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Buses -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 h-100"
+                         style="background:#dfe8cf;border-radius:35px;min-height:190px;">
+                        <div class="card-body p-4">
+
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="width:52px;height:52px;border-radius:50%;background:#10c000;margin-bottom:25px;">
+                                <i class="bi bi-bus-front text-white fs-5"></i>
+                            </div>
+
+                            <h2 class="fw-bold mb-2">@(Model?.totalbuscount ?? "0")</h2>
+
+                            <p class="mb-2" style="font-size:18px;">
+                                Total No. Of Buses
+                            </p>
+
+                            <a onclick="gettodaybusessummary()"
+                               class="fw-bold"
+                               style="font-size:16px;color:blue;text-decoration:none;cursor:pointer;">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Routes -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 h-100"
+                         style="background:#dfecee;border-radius:35px;min-height:190px;">
+                        <div class="card-body p-4">
+
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="width:52px;height:52px;border-radius:50%;background:blue;margin-bottom:25px;">
+                                <i class="fas fa-route text-white"></i>
+                            </div>
+
+                            <h2 class="fw-bold mb-2">@(Model?.totalroutecount ?? "0")</h2>
+
+                            <p class="mb-2" style="font-size:18px;">
+                                Total Routes
+                            </p>
+
+                            <a asp-controller="Route"
+                               asp-action="Trip"
+                               class="fw-bold"
+                               style="font-size:16px;color:blue;text-decoration:none;cursor:pointer;">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Routes -->
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card border-0 h-100"
+                         style="background:#e7dcef;border-radius:35px;min-height:190px;">
+                        <div class="card-body p-4">
+
+                            <div class="d-flex align-items-center justify-content-center"
+                                 style="width:52px;height:52px;border-radius:50%;background:purple;margin-bottom:25px;">
+                                <i class="bi bi-broadcast-pin text-white"></i>
+                            </div>
+
+                            <h2 class="fw-bold mb-2">@(Model?.totalliveroutecount ?? "0")</h2>
+
+                            <p class="mb-2" style="font-size:18px;">
+                                Live Routes
+                            </p>
+
+                            <a onclick="getliveroutessummary()"
+                               class="fw-bold"
+                               style="font-size:16px;color:blue;text-decoration:none;cursor:pointer;">
+                                View Details
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div> *@
+            
+
+        <div class="col-lg-6">
+            <div class="card rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title">Bus Status</h5>
+
+                    <!-- Doughnut Chart -->
+                    <canvas id="doughnutChart1" style="max-height: 296px;"></canvas>
+                    <script>
+
+                                            var totalBuses = @(ViewData["total_bus"]);
+                                            var totalStopBuses = @(ViewData["total_stopped"]);
+                                            var totalIdleBuses = @(ViewData["total_idle"]);
+                                            var totalLiveRoute = @(ViewData["total_running"]);
+
+
+
+
+                                            console.log(totalBuses);
+
+                                            console.log(totalStopBuses);
+
+
+                                            console.log(totalIdleBuses);
+                                            console.log(totalLiveRoute);
+
+                                            // Calculating the 'No Data' value
+                                            var nodata = totalBuses - (totalStopBuses + totalIdleBuses + totalLiveRoute);
+
+
+                                            var nodata_p = (nodata / totalBuses) * 100;
+                                            var totalStopBuses_p = (totalStopBuses / totalBuses) * 100;
+                                            var totalIdleBuses_p = (totalIdleBuses / totalBuses) * 100;
+                                            var totalLiveRoute_p = (totalLiveRoute / totalBuses) * 100;
+
+                                            console.log(nodata_p);
+
+                                            console.log(totalLiveRoute_p);
+
+
+                                            console.log(totalIdleBuses_p);
+                                            console.log(totalLiveRoute_p);
+
+
+                                            var yValues = [totalLiveRoute, totalIdleBuses, totalStopBuses, nodata];
+
+                                            console.log(totalLiveRoute);
+
+
+
+                                                document.addEventListener("DOMContentLoaded", () => {
+                                                    new Chart(document.querySelector('#doughnutChart1'), {
+                                                        type: 'doughnut',
+                                                        data: {
+                                                            labels: [
+                                                                'Running',
+                                                                'Idle',
+                                                                'Stopped',
+                                                                'No Data'
+                                                            ],
+                                                            datasets: [{
+                                                                //label: 'My First Dataset',
+                                                            data: [totalLiveRoute, totalIdleBuses, totalStopBuses, nodata],
+                                                                backgroundColor: [
+                                                                     '#00b300',
+                                                                     '#FF0000',
+                                                                     '#F4AB6A',
+                                                                     '#808080'
+                                                                    //'rgb(255, 99, 132)',
+                                                                    //'rgb(54, 162, 235)',
+                                                                    //'rgb(255, 205, 86)'
+                                                                ],
+                                                                hoverOffset: 4
+                                                            }]
+                                                        }
+                                                    });
+                                                });
+                    </script>
+                    <!-- End Doughnut CHart -->
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card rounded-4">
+                <div class="card-body">
+                    <h5 class="card-title">Attendance</h5>
+
+                    <!-- Doughnut Chart -->
+                    <canvas id="doughnutChart2" style="max-height: 255px;"></canvas>
+                    <script>
+                                            document.addEventListener("DOMContentLoaded", () => {
+                                               var rfidpunched = parseInt('@TempData["RFIDPUNCHED"]') || 1;
+                                               var etapunched = parseInt('@TempData["ETAPUNCHED"]') || 1;
+                                                new Chart(document.querySelector('#doughnutChart2'), {
+                                                    type: 'doughnut',
+                                                    data: {
+                                                        labels: [
+                                                            'Students(ETA)',
+                                                            'Students(BUS)'
+
+                                                        ],
+                                                        datasets: [{
+                                                            //label: 'My First Dataset',
+                                                            data: [etapunched, rfidpunched],
+                                                            backgroundColor: [
+                                                                //'rgb(255, 99, 132)',
+                                                                //'rgb(54, 162, 235)',
+                                                                //'rgb(255, 205, 86)'
+
+                                                                '#add8e6',
+                                                                '#b0c4de',
+                                                            ],
+                                                            hoverOffset: 4
+                                                        }]
+                                                    }
+                                                });
+                                            });
+                    </script>
+                    <!-- End Doughnut Chart -->
+
+                </div>
+            </div>
+        </div>
+
+        
+
+        <div class="col-lg-4">
+            <div class="card rounded-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="fw-bold card-title">Violation & Analysis</p>
+                        </div>
+
+                    </div>
+                    @*<div class="row">
+                            <div class="col-lg-4 ">
+                                <p style="color:#D3D3D3;font-size:1.4rem">#</p>
+
+                            </div>
+                            <div class="col-lg-4">
+                                <p style="color:#D3D3D3;font-size:1.4rem">Name</p>
+
+                            </div>
+                            <div class="col-lg-4" style="text-align:right;font-size:1.4rem">
+                                <p style="margin-right: 25px;color:#D3D3D3" >Times</p>
+                            </div>
+                        </div>
+
+
+                         <div class="row">
+                        <div class="col-lg-4">
+                            <p style="font-size:1rem">
+                                01
+                            </p>
+
+</div>
+                         <div class="col-lg-4">
+                            <p class="" style="font-size:1rem">Stop Wise</p>
+
+</div>
+                            <div class="col-lg-4" style="text-align:center">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite;padding:0px">1</a>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+<div class="col-lg-4">
+                            <p style="font-size:1rem">
+                                02
+                            </p>
+
+</div>
+                        <div class="col-lg-4">
+                            <p style="font-size:1rem">
+                                Route Wise
+                            </p>
+
+</div>
+                            <div class="col-lg-4" style="text-align:center">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite;padding:0px">1</a>
+                        </div>
+                    </div>*@
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th class="text-center">Times</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="tabletextfont" onclick="getStopViolationSummary()" style="cursor:pointer;">01</td>
+                                    <td class="tabletextfont" onclick="getStopViolationSummary()" style="cursor:pointer;">Stop Wise</td>
+                                    <td >
+                                        <div class="tabledivp" >
+                                            <a onclick="getStopViolationSummary()" class="fw-bold" style="cursor:pointer;">
+                                                <p id="stopViolationCount" style="color:black">
+                                                    <i class="fa fa-spinner fa-spin"></i>
+                                                </p>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="tabletextfont">02</td>
+                                    <td class="tabletextfont">Route Efficiency</td>
+                                    <td>
+                                        <div class="tabledivp">
+                                            <p class="nomarginatbtm">
+                                                2
+                                            </p>
+
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+     
+
+        <div class="col-lg-4">
+            <div class="card rounded-4">
+                <div class="card-body">
+                    @*<h5 class="card-title">Alert</h5>*@
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="fw-bold card-title">Alert</p>
+                        </div>
+
+                    </div>
+                    @* <div class="row">
+                            <div class="col-lg-2">
+                                <p style="color:#D3D3D3;font-size:1.4rem">#</p>
+
+                            </div>
+                            <div class="col-lg-6">
+                                <p style="color:#D3D3D3;font-size:1.4rem">Name</p>
+
+                            </div>
+                            <div class="col-lg-4" style="text-align:right">
+                                <p style="margin-right: 25px;color:#D3D3D3;font-size:1.4rem">Times</p>
+                            </div>
+                        </div>
+
+                         <div class="row">
+                        <div class="col-lg-2">
+                             <p class="" style="font-size:1rem">01</p>
+
+</div>
+                        <div class="col-lg-6">
+                            <p class="" style="font-size:1rem">Route Efficiency</p>
+
+                            
+                        </div>
+                        <div class="col-lg-4" style="text-align:center">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite;padding:0px">1</a>
+                        </div>
+                    </div>
+
+
+                     <div class="row">
+                        <div class="col-lg-2">
+                            <p class="" style="font-size:1rem">02</p>
+
+</div>
+                        <div class="col-lg-6">
+                              <p class="" style="font-size:1rem"> Todat Running Wise Data</p>
+
+</div>
+                            <div class="col-lg-4" style="text-align:center">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite; padding:0px">1</a>
+                        </div>
+                    </div>*@
+
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Times</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>01</td>
+                                    <td>Stop Wise</td>
+                                    <td>
+                                        <div>
+                                            2
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>02</td>
+                                    <td>Route Wise</td>
+                                    <td>
+                                        <div>
+                                            5
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card rounded-4">
+                <div class="card-body">
+
+                       
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h5 class="card-title fw-bold">Upcoming Holiday's</h5>
+
+                            @if (ViewBag.Holidays != null && ViewBag.filteredholiday.Count > 0)
+                            {
+                                <table class="table w-100">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:left; border-bottom:1px solid #ccc;">From</th>
+                                            <th style="text-align:left; border-bottom:1px solid #ccc;">To</th>
+                                            <th style="text-align:left; border-bottom:1px solid #ccc;">Description</th>
+                                        </tr>
+                                    </thead>
+
+
+                                    <tbody>
+                                        @foreach (var item in ViewBag.filteredholiday)
+                                        {
+
+                                            <tr>
+                                                
+                                                    <td>@Convert.ToDateTime(item.from_date).ToString("dd/MM/yyyy")</td>
+                                                   
+                                                        <td>@Convert.ToDateTime(item.to_date).ToString("dd/MM/yyyy")</td>
+                                                <td>@item.description</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p class="nomarginatbtm" style="font-weight:400;font-size: 0.9rem;">No Data Found</p>
+                            }
+
+
+
+
+
+                            @*   <p class="nomarginatbtm" style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p>
+                           <hr>
+                            <p class="nomarginatbtm" style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p>
+                           <hr>
+                            <p class="nomarginatbtm" style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p>
+                           <hr>
+                            <p class="nomarginatbtm" style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p> *@
+                          
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card rounded-4">
+                <div class="card-body">
+
+                        
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h5 class="card-title fw-bold">Upcoming Events</h5>
+                            @if (ViewBag.Holidays != null && ViewBag.filteredEvents.Count > 0)
+                            {
+                                <table class="table w-100">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align:left; border-bottom:1px solid #ccc;">From</th>
+                                            <th style="text-align:left; border-bottom:1px solid #ccc;">To</th>
+                                            <th style="text-align:left; border-bottom:1px solid #ccc;">Description</th>
+                                        </tr>
+                                    </thead>
+
+
+                                    <tbody>
+                                        @foreach (var item in ViewBag.filteredEvents)
+                                        {
+
+                                            <tr>
+
+                                                <td>@Convert.ToDateTime(item.from_date).ToString("dd/MM/yyyy")</td>
+
+                                                <td>@Convert.ToDateTime(item.to_date).ToString("dd/MM/yyyy")</td>
+                                                <td>@item.description</td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <p class="nomarginatbtm" style="font-weight:400;font-size: 0.9rem;">No Data Found</p>
+                            }
+
+
+
+                               
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @* </div>*@
+</div>
+
+<div>
+    <figure class="highcharts-figure">
+        <div id="container"></div>
+
+    </figure>
+</div>
+
+<!-- Modal Total Number of Students-->
+<div class="modal fade sb-common-modal " id="totalnumofstudents" tabindex="-1" aria-labelledby="totalnumofstudentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="totalnumofstudentsModalLabel">Students</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+
+                    <div class="card-body">
+                        @*                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        *@ <table class="table table-striped table_font_size" id="tablestudents">
+                        <thead>
+                            <tr>
+                                <th style="text-align:center">S.No.</th>
+                                <th>Student Name</th>
+                                <th>Father Name</th>
+                                <th>Class</th>
+                                <th>Mobile Number</th>
+                                <th>RFID</th>
+                                <th>Admission No.</th>
+                                <th>
+                                    Routes
+                                </th>
+
+                            </tr>
+
+
+                        </thead>
+                        <tbody id="myTable">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a type="button" class="btn btn-primary" asp-controller="Home" asp-action="Students">View Full Details</a>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Modal Today's Notification-->
+<div class="modal fade sb-common-modal" id="todaysnotification" tabindex="-1" aria-labelledby="todaysnotificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="todaysnotificationModalLabel">Today's Notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+
+                    <div class="card-body">
+                        @* <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search.."> *@
+                        <table class="table table-striped table_font_size" id="tablestodaynotifications">
+                            <thead>
+                                <tr>
+                                    <th>SNo</th>
+                                    <th>Student Name</th>
+                                    <th>Admission No</th>
+                                    <th>Mobile No.</th>
+                                    <th>Message</th>
+                                    <th>Date</th>
+                                </tr>
+
+
+                            </thead>
+
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a type="button" class="btn btn-primary" asp-controller="Report" asp-action="Index">View Full Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Total Notification-->
+<div class="modal fade sb-common-modal" id="totalnotifications" tabindex="-1" aria-labelledby="totalnotificationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="totalnotificationsModalLabel">Total Notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+
+                    <div class="card-body">
+                        @*                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        *@                        <table class="table table-striped table_font_size" id="tabletotalnoify">
+                        <thead>
+                            <tr>
+                                <th>SNo</th>
+                                <th>Student Name</th>
+                                <th>Admission No</th>
+                                <th>Mobile No.</th>
+                                <th>Route</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                            </tr>
+
+
+                        </thead>
+
+                    </table>
+                </div>
+                <div class="card-footer">
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <a type="button" class="btn btn-primary" asp-controller="Report" asp-action="Index">View Full Details</a>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Common dashboard message modal -->
+<div class="modal fade sb-common-modal dashboard-error-modal" id="dashboardErrorModal" tabindex="-1" aria-labelledby="dashboardErrorTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="dashboard-error-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </span>
+                <div class="flex-grow-1">
+                    <h5 class="modal-title" id="dashboardErrorTitle">Unable to load data</h5>
+                    <div class="modal-subtitle" id="dashboardErrorContext">Dashboard</div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="dashboardErrorMessage">Please try again.</div>
+                <div class="dashboard-error-detail" id="dashboardErrorDetail"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal total Number of bus -->
+<div class="modal fade sb-common-modal" id="totalnumofbus" tabindex="-1" aria-labelledby="totalnumofbusLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="totalnumofbusLabel">Bus Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+
+                    <div class="card-body">
+                        @*                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        *@                        <table class="table table-striped table_font_size" id="tablebuses">
+                        <thead>
+                            <tr>
+                                <th>S.No</th>
+                                <th>Bus.no</th>
+                                <th>IMEI</th>
+                                <th>Bus Route Name</th>
+
+                            </tr>
+
+
+                        </thead>
+                        <tbody id="myTable">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            @*                <a type="button" class="btn btn-primary" asp-controller="Report" asp-action="Index">View Full Details</a>
+*@
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Modal total Number of Stop Violations -->
+<div class="modal fade sb-common-modal" id="totalnumofstopviolation" tabindex="-1" aria-labelledby="totalnumofstopviolationLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="totalnumofstopviolationLabel">
+                    Stop Violation Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <table class="table table-striped table_font_size" id="tableStopViolation">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Stop ID</th>
+                                    <th>Stop Order</th>
+                                    <th><img style="width:25px;" src="~/images/bus_stop_icon.png" /> Stop Name</th>
+                                    <th>Latitude</th>
+                                    <th>Longitude</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="stopViolationTableBody">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Modal total Number of Route Violations -->
+<div class="modal fade sb-common-modal" id="totalnumofrouteviolation" tabindex="-1" aria-labelledby="totalnumofrouteviolationLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="totalnumofrouteviolationLabel">
+                    Route Violation Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="card">
+
+                    <div class="card-body">
+
+                        <table class="table table-striped table_font_size" id="tableRouteViolation">
+                            <thead>
+                                <tr>
+                                    <th>S.No</th>
+                                    <th>Route ID</th>
+                                    <th>Route Name</th>
+                                    <th>Vechiel Number</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="RouteViolationTableBody">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Modal Live routes -->
+<div class="modal fade sb-common-modal" id="liveroutes" tabindex="-1" aria-labelledby="liveroutesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="liveroutesLabel">Live Routes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+
+                    <div class="table-responsive">
+                        <table class="table_font_size table table-striped" id="tableliveroutes">
+                            <thead>
+                                <tr>
+                                    <th>SNo</th>
+                                    <th>Imei</th>
+                                    <th>Vehicle Reg. Number</th>
+                                    <th>Gps Time</th>
+                                    <th>Address</th>
+                                    @*  <th>Latitude</th>
+                                    <th>Longitude</th> *@
+                                    <th>Speed</th>
+                                    @*  <th>Firmware Version</th> *@
+                                    <th>Ignition</th>
+                                    <th>Battery Voltage</th>
+                                    <th>Signal Strength</th>
+                                </tr>
+
+
+                            </thead>
+                            <tbody id="myTable1">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+@section scripts {
+
+    <script defer>
+
+        var totalBuses = @(ViewData["total_bus"]);
+        var totalStopBuses = @(ViewData["total_stopped"]);
+        var totalIdleBuses = @(ViewData["total_idle"]);
+        var totalLiveRoute = @(ViewData["total_running"]);
+
+
+
+
+        console.log(totalBuses);
+
+        console.log(totalStopBuses);
+
+
+        console.log(totalIdleBuses);
+        console.log(totalLiveRoute);
+
+        // Calculating the 'No Data' value
+        var nodata = totalBuses - (totalStopBuses + totalIdleBuses + totalLiveRoute);
+
+
+        var nodata_p = (nodata/totalBuses)*100;
+        var totalStopBuses_p = (totalStopBuses/totalBuses)*100;
+        var totalIdleBuses_p = (totalIdleBuses/totalBuses)*100;
+        var totalLiveRoute_p = (totalLiveRoute / totalBuses) * 100;
+
+        console.log(nodata_p);
+
+        console.log(totalLiveRoute_p);
+
+
+        console.log(totalIdleBuses_p);
+        console.log(totalLiveRoute_p);
+
+
+        var yValues = [totalLiveRoute, totalIdleBuses, totalStopBuses, nodata];
+
+        console.log(totalLiveRoute);
+        var xValues = ["Running", "Idle", "Stopped", "No Data"];
+
+        var barColors = [
+        "#00b300",
+        "#FF0000",
+        "#F4AB6A",
+        "#808080",
+
+        ];
+
+        new Chart("myChart", {
+        type: "doughnut",
+        data: {
+        labels: xValues,
+        datasets: [{
+        backgroundColor: barColors,
+        data: yValues
+        }]
+        },
+        options: {
+        aspectRatio: 1,
+        plugins: {
+        legend: {
+        display: false // Hide the legend
+        },
+        datalabels: {
+        display: true, // Enable data labels
+        color: 'white', // Label text color
+        font: {
+        weight: 'bold', // Font weight
+        size: 14 // Font size
+        },
+        formatter: function (value, context) {
+        // Display the count or the percentage
+        let total = context.dataset.data.reduce((acc, curr) => acc + curr, 0); // Get the total count
+        let percentage = ((value / total) * 100).toFixed(2); // Calculate percentage
+        return value + ' (' + percentage + '%)'; // Show count and percentage
+        }
+        }
+        }
+
+        },
+
+
+        });
+
+        var xValues1 = ["Worker","Route Wise"];
+        var yValues1 = [55, 49];
+        var barColors1 = [
+        "#add8e6",
+        "#b0c4de",
+
+
+        ];
+
+        new Chart("myChart1", {
+        type: "doughnut",
+        data: {
+        labels: xValues1,
+        datasets: [{
+        backgroundColor: barColors1,
+        data: yValues1
+        }]
+        },
+
+        });
+
+
+
+        $('#drivers').select2({
+        selectOnClose: true
+        });
+
+
+
+
+
+        var chrt = document.getElementById("myChart2").getContext("2d");
+        var chartId = new Chart(chrt, {
+        type: 'bar',
+        data: {
+        labels: ["Overspeed", "Harsh Brake", "Harsh Acceleration", "Rush Tuming"],
+        datasets: [{
+        label: "ALERTS",
+        data: [40, 30, 35,25],
+        backgroundColor: ['pink', 'lightblue', 'yellow', 'fuchsia']
+
+        }],
+        },
+        options: {
+        responsive: true,
+        },
+        });
+
+
+
+
+    </script>
+    @*    <script defer>
+    $(document).ready(function(){
+      $("#myInput").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+         $("#myTable tr").filter(function() {
+         $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+
+
+      });
+    });
+    </script>*@
+    <script>
+        var stopViolationData = @Html.Raw(JsonConvert.SerializeObject(ViewBag.Violations));
+        var stopViolationCount = @ViewBag.StopViolationCount;
+        var RouteViolationData = @Html.Raw(JsonConvert.SerializeObject(ViewBag.RouteViolations));
+        var RouteViolationCount = @ViewBag.RouteViolationCount;
+    </script>
+    <script>
+        const uid = '@Context.Session.GetString("uid")';
+        const db = '@Context.Session.GetString("database")';
+    </script>
+    <script>
+        console.log(uid);
+console.log(db);
+        function showDashboardError(options) {
+
+        const config = options || {};
+        const title = config.title || "Unable to load data";
+        const message = config.message || "Please try again.";
+        const context = config.context || "Dashboard";
+        const detail = config.detail || "";
+
+        $("#dashboardErrorTitle").text(title);
+        $("#dashboardErrorContext").text(context);
+        $("#dashboardErrorMessage").text(message);
+
+        if (detail) {
+        $("#dashboardErrorDetail").text(detail).show();
+        } else {
+        $("#dashboardErrorDetail").hide().text("");
+        }
+
+        const modal = new bootstrap.Modal(
+        document.getElementById("dashboardErrorModal")
+        );
+
+        modal.show();
+        }
+
+        function parseDashboardResponse(response, context) {
+        if (response === null || response === undefined || response === "" || response === "0") {
+        showDashboardError({
+        title: "No data available",
+        context: context,
+        message: "There are no records available for this dashboard section right now."
+        });
+        return null;
+        }
+
+        if (Array.isArray(response)) {
+        if (response.length === 0) {
+        showDashboardError({
+        title: "No data available",
+        context: context,
+        message: "There are no records available for this dashboard section right now."
+        });
+        return null;
+        }
+
+        return response;
+        }
+
+        try {
+        const data = JSON.parse(response);
+
+        if (!Array.isArray(data) || data.length === 0) {
+        showDashboardError({
+        title: "No data available",
+        context: context,
+        message: "There are no records available for this dashboard section right now."
+        });
+        return null;
+        }
+
+        return data;
+        } catch (e) {
+        console.error("Failed to parse JSON:", e);
+        showDashboardError({
+        title: "Unable to parse JSON",
+        context: context,
+        message: "The server returned data in an unexpected format.",
+        detail: e.message
+        });
+        return null;
+        }
+        }
+
+        function showDashboardAjaxError(xhr, status, error, context) {
+        console.error("Error occurred:", error);
+        showDashboardError({
+        title: "Unable to load data",
+        context: context,
+        message: "The request could not be completed. Please refresh the dashboard and try again.",
+        detail: error || status || (xhr && xhr.status ? "Status code: " + xhr.status : "")
+        });
+        }
+
+        function getstudentsummary(){
+        var table = $("#tablestudents").DataTable();
+        table.clear().draw();
+        console.log('ddddsd');
+        $.ajax({
+        //url: '/Home/TotalStudentSummary',
+        url: '/schoolbuddy/Home/TotalStudentSummary',
+
+        type:'GET',
+        success: function (response) {
+        console.log('data');
+        let data = parseDashboardResponse(response, "Students");
+        if (!data) {
+        return;
+        }
+        var sno = 0;
+        // Prepare data array for bulk addition
+        let rows = data.map(item => [
+        ++sno||"",
+        item.student_name || "",
+        item.father_name || "",
+        item.class_name || "",
+        item.mobile_no1 || "",
+        item.rf_id || "",
+
+        item.admission_no || "",
+        item.route_names || ""
+        ]);
+
+        // Add all rows in a single operation
+        table.rows.add(rows).draw();
+        $('#totalnumofstudents').modal('show');
+        },
+        error: function (xhr, status, error) {
+        showDashboardAjaxError(xhr, status, error, "Students");
+        }
+
+        })
+        }
+
+        function gettodaynotificationsummary(){
+        var table = $("#tablestodaynotifications").DataTable();
+        table.clear().draw();
+        
+        $.ajax({
+        url: '/schoolbuddy/Home/TodaynotificationSummary',
+        type:'GET',
+        
+        success: function (response) {
+        let data = parseDashboardResponse(response, "Today's Notifications");
+        if (!data) {
+        return;
+        }
+        console.log(data);
+        var sno = 0;
+        // Prepare data array for bulk addition
+        let rows = data.map(item => [
+        ++sno||"",
+        item.student_name || "",
+        item.admission_no || "",
+        item.mobile_no1 || "",
+        // item.route_name || "",
+        item.message || "",
+
+        item.date_time || ""
+
+        ]);
+
+        // Add all rows in a single operation
+        table.rows.add(rows).draw();
+        $('#todaysnotification').modal('show');
+        },
+        error: function (xhr, status, error) {
+        showDashboardAjaxError(xhr, status, error, "Today's Notifications");
+        }
+
+        })
+        }
+
+
+
+        let page = 1;
+        const pageSize = 1000;
+        let isFirstLoad = true;
+
+        function getnotificationsummary() {
+
+        $.ajax({
+        url: '/schoolbuddy/Home/TotalnotificationSummary',
+        type: 'GET',
+        data: {
+        page: page,
+        pageSize: pageSize
+        },
+        success: function (response) {
+
+        let data = parseDashboardResponse(response, "Total Notifications");
+
+        if (!data || data.length === 0)
+        return;
+
+        var table = $("#tabletotalnoify").DataTable();
+
+        // Clear only first time
+        if (isFirstLoad) {
+        table.clear().draw();
+        $('#totalnotifications').modal('show');
+        isFirstLoad = false;
+        }
+
+        let sno = table.rows().count();
+
+        let rows = data.map(item => [
+        ++sno,
+        item.student_name || "",
+        item.admission_no || "",
+        item.mobile_no1 || "",
+        item.route_name || "",
+        item.message || "",
+        item.date_time || ""
+        ]);
+
+        // Append new rows
+        table.rows.add(rows).draw(false);
+
+        page++;
+
+        // Load next page automatically
+        if (data.length === pageSize) {
+        getnotificationsummary();
+        }
+        }
+        });
+        }
+
+        // let page = 1;
+        // let pageSize = 100;
+
+
+        // function getnotificationsummary() {
+        // var table = $("#tabletotalnoify").DataTable();
+        // table.clear().draw();
+        
+        // $.ajax({
+        // url: '/schoolbuddy/Home/TotalnotificationSummary',
+        // type: 'GET',
+        // data: {
+        // page: page,
+        // pageSize: pageSize
+        // },
+        // success: function (response) {
+        // let data = parseDashboardResponse(response, "Total Notifications");
+        // if (!data) {
+        // return;
+        // }
+        // console.log(data);
+        // var sno = 0;
+        // // Prepare data array for bulk addition
+        // let rows = data.map(item => [
+        // ++sno || "",
+        // item.student_name || "",
+        // item.admission_no || "",
+
+        // item.mobile_no1 || "",
+
+        // item.route_name || "",
+        // item.message || "",
+        // item.date_time || ""
+        // ]);
+
+        // // Add all rows in a single operation
+        // table.rows.add(rows).draw();
+        // $('#totalnotifications').modal('show');
+        // if (data.length > 0) {
+        // page++;
+
+        // if (data.length === pageSize) {
+        // getnotificationsummary();
+        // }
+        // }
+        // },
+        // error: function (xhr, status, error) {
+        // showDashboardAjaxError(xhr, status, error, "Total Notifications");
+        // }
+
+        // })
+        // }
+
+        function gettodaybusessummary(){
+        var table = $("#tablebuses").DataTable();
+        table.clear().draw();
+        $.ajax({
+        url: '/schoolbuddy/Home/TotalBusesSummary',
+        type:'GET',
+        success: function (response) {
+        let data = parseDashboardResponse(response, "Buses");
+        if (!data) {
+        return;
+        }
+        console.log(data);
+        var sno = 0;
+        // Prepare data array for bulk addition
+        let rows = data.map(item => [
+        ++sno||"",
+        item.veh_reg || "",
+        item.imei || "",
+        item.route_name || "",
+
+        ]);
+
+        // Add all rows in a single operation
+        table.rows.add(rows).draw();
+        $('#totalnumofbus').modal('show');
+        },
+        error: function (xhr, status, error) {
+        showDashboardAjaxError(xhr, status, error, "Buses");
+        }
+
+        })
+        }
+
+        // async function getliveroutessummary() {
+        //     var table = $("#tableliveroutes").DataTable();
+        //     table.clear().draw();
+        //     $.ajax({
+        //         url: '/Home/TotalLiveRoutesSummary',
+        //         type:'GET',
+        //          success: function (response) {
+        //             let data;
+        //             try {
+        //                 data = JSON.parse(response);
+        //                 console.log(data);
+        //             } catch (e) {
+        //                 console.error('Failed to parse JSON:', e);
+        //                 alert('Failed to load data.');
+        //                 return;
+        //             }
+
+        //             var sno = 0;
+
+        //             let rows = await Promise.all(data.map(async (item) => {
+        //                 // Fetch the address asynchronously
+        //                 let address = await GetAddress(item.gps_latitude, item.gps_longitude);
+
+        //                 // Return the row with the address
+        //                 return [
+        //                     ++sno || "",  // Increment serial number
+        //                     item.imei || "",
+        //                     item.veh_reg || "",
+        //                     item.gps_time || "",
+        //                     address || "",  // Add the fetched address here
+        //                     item.gps_latitude || "",
+        //                     item.gps_longitude || "",
+        //                     item.gps_speed || "",
+        //                     item.firmware_version || "",
+        //                     item.i2 || "",
+        //                     item.battery_voltage || "",
+        //                     item.signal_strength || ""
+        //                 ];
+        //             }));
+
+        //             // Add all rows in a single operation
+        //             table.rows.add(rows).draw();
+
+        //             // Show the modal after data is loaded
+        //             $('#liveroutes').modal('show');
+
+        async function getliveroutessummary() {
+        var table = $("#tableliveroutes").DataTable();
+        table.clear().draw();
+
+        try {
+        // Fetch the data from the server asynchronously
+        const response = await fetchLiveRoutesSummary();
+
+        let data = parseDashboardResponse(response, "Live Routes");
+        if (!data) {
+        return;
+        }
+        console.log(data);
+
+        var sno = 0;
+
+        // Use Promise.all to handle async GetAddress calls and wait for all addresses to be fetched
+        let rows = await Promise.all(data.map(async (item) => {
+        // Fetch the address asynchronously
+        let address = await GetAddress(item.gps_latitude, item.gps_longitude);
+
+                   
+        // Return the row with the fetched address
+        return [
+        ++sno || "",  // Serial number increment
+        item.imei || "",
+        item.veh_reg || "",
+        item.gps_time || "",
+        address || "",  // Address from GetAddress
+        // item.gps_latitude || "",
+        // item.gps_longitude || "",
+        item.gps_speed || "",
+        // item.firmware_version || "",
+        item.i2 || "",
+        item.battery_voltage || "",
+        item.signal_strength || ""
+        ];
+        }));
+
+        // After all rows are generated, add them to the table and redraw
+        table.rows.add(rows).draw();
+
+        // Show the modal after data is added
+        $('#liveroutes').modal('show');
+        } catch (error) {
+        console.error('Error occurred:', error);
+        showDashboardError({
+        title: "Unable to load data",
+        context: "Live Routes",
+        message: "The request could not be completed. Please refresh the dashboard and try again.",
+        detail: error
+        });
+        }
+        }
+
+        // Async function to fetch data from the server
+        function fetchLiveRoutesSummary() {
+        return new Promise((resolve, reject) => {
+        $.ajax({
+        url: '/schoolbuddy/Home/TotalLiveRoutesSummary',
+        type: 'GET',
+        success: resolve,  // Resolve the promise with the response data
+        error: (xhr, status, error) => {
+        console.error('Error occurred:', error);
+        reject('An error occurred while fetching data.');  // Reject the promise on error
+        }
+        });
+        });
+        }
+
+        // Function to fetch the address based on latitude and longitude
+        async function GetAddress(latitude, longitude) {
+        try {
+        const response = await $.ajax({
+        url: '/schoolbuddy/Home/address',  // Adjust the URL if necessary
+        type: 'GET',
+        data: { latitude: latitude, longitude: longitude },
+        });
+        console.log(response);
+        console.log(typeof(response));
+        var aa = response.split('"');
+
+                
+        if (response.length > 0) {
+
+        return aa[1];
+        // const addressString = response[0][0];
+
+        // // Use a regular expression to extract the text inside the double quotes
+        // const regex = /"([^"]+)"/;  // This will match anything inside the quotes
+        // const match = addressString.match(regex);  // Get the matched text
+
+        // if (match && match[1]) {
+        //     return match[1];  // Return the matched text inside quotes
+        // }
+
+
+        // return response[0][2] || ''; // Assuming address is in the first array element
+        } else {
+        return 'Address not found';
+        }
+        } catch (error) {
+        console.error("Error fetching address:", error);
+        return 'Error fetching address';
+        }
+        }
+
+       
+//         function getStopViolationSummary() {
+// try{
+//         var table = $("#tableStopViolation").DataTable();
+//         table.clear().draw();
+//         if (!stopViolationData || stopViolationData.length === 0) {
+//             showDashboardError({
+//         title: "Unable to load Stop Violations",
+//         context: "StopViolationSummary",
+//         message: "No data Found",
+//         detail: e.message
+//         });
+//         return;
+//         }
+
+//         var sno = 0;
+
+//         let rows = stopViolationData.map(item => [
+//         ++sno || "",
+//         item.stop_id || "",
+//         item.stop_order || "",
+//         item.stop_name || "",
+//         item.stop_latitude || "",
+//         item.stop_longitude || ""
+//         ]);
+
+//         table.rows.add(rows).draw();
+
+//         $('#totalnumofstopviolation').modal('show');
+//         } catch (e) {
+
+//         console.error("Failed to process Stop Violation data:", e);
+
+//         showDashboardError({
+//         title: "Unable to load Stop Violations",
+//         context: "StopViolationSummary",
+//         message: "The data received from the server is invalid or corrupted.",
+//         detail: e.message
+//         });
+//         }
+//         }
+//         function getRouteViolationSummary() {
+//         try{
+//             console.log("Clicked");
+//         var table = $("#tableRouteViolation").DataTable();
+//         table.clear().draw();
+//         if (!RouteViolationData || RouteViolationData.length === 0) {
+//         showDashboardError({
+//         title: "Unable to load Route Violations",
+//         context: "RouteViolationSummary",
+//         message: "No data Found",
+//         detail: "RouteViolationData is empty"
+//         });
+//         return;
+//         }
+
+//         var sno = 0;
+
+//         let rows = RouteViolationData.map(item => [
+//         ++sno || "",
+//         item.route_id || "",
+//         item.route_name || "",
+//         item.vech_reg || "",
+//         ]);
+
+//         table.rows.add(rows).draw();
+
+//         $('#totalnumofrouteviolation').modal('show');
+//         } catch (e) {
+
+//         console.error("Failed to process Stop Violation data:", e);
+
+//         showDashboardError({
+//         title: "Unable to load Route Violations",
+//         context: "RouteViolationSummary",
+//         message: "The data received from the server is invalid or corrupted.",
+//         detail: e.message
+//         });
+//         }
+//         }
+        var stopViolationData = [];
+        var RouteViolationData = [];
+
+        $(document).ready(function () {
+
+        $("#stopViolationCount").html('<i class="fa fa-spinner fa-spin"></i>');
+        $("#routeViolationCount").html('<i class="fa fa-spinner fa-spin"></i>');
+
+        $.ajax({
+        url: 'http://localhost:5156/api/Dashboard/StopWiseVoilation',
+        type: 'POST',
+        contentType: 'application/json',
+        dataType: 'json',
+
+        data: JSON.stringify({
+        user_id: uid,
+        database: db
+        }),
+
+        success: function (response) {
+        console.log(response);
+
+        console.log(response.stopViolationCount);
+        console.log(response.routeViolationCount);
+        console.log(response.violations);
+        console.log(response.routeViolations);
+
+        $("#stopViolationCount").text(response.stopViolationCount);
+        $("#routeViolationCount").text(response.routeViolationCount);
+
+        stopViolationData = response.violations || [];
+        RouteViolationData = response.routeViolations || [];
+
+        sessionStorage.setItem(
+        "ViolationData",
+        JSON.stringify(response)
+        );
+        },
+
+        error: function (xhr) {
+
+        console.log(xhr.responseText);
+
+        $("#stopViolationCount").text("0");
+        $("#routeViolationCount").text("0");
+        }
+        });
+        });
+        function getRouteViolationSummary() {
+
+        try {
+
+        if (!RouteViolationData || RouteViolationData.length === 0) {
+
+        showDashboardError({
+        title: "Unable to load Route Violations",
+        context: "RouteViolationSummary",
+        message: "No data Found",
+        detail: "RouteViolationData is empty"
+        });
+
+        return;
+        }
+
+        var table = $("#tableRouteViolation").DataTable();
+
+        table.clear();
+
+        var sno = 0;
+
+        let rows = RouteViolationData.map(item => [
+        ++sno,
+        item.route_id || "",
+        item.route_name || "",
+        item.vech_reg || ""
+        ]);
+
+        table.rows.add(rows).draw();
+
+        // Bootstrap 5 Modal Open
+        var modal = new bootstrap.Modal(
+        document.getElementById('totalnumofrouteviolation')
+        );
+
+        modal.show();
+
+        }
+        catch (e) {
+
+        console.error(e);
+
+        showDashboardError({
+        title: "Unable to load Route Violations",
+        context: "RouteViolationSummary",
+        message: "No data Found",
+        detail: "RouteViolationData is empty"
+        });
+        }
+        }
+        function getStopViolationSummary() {
+
+    try {
+
+        if (!stopViolationData || stopViolationData.length === 0) {
+
+        showDashboardError({
+        title: "Unable to load Stop Violations",
+        context: "StopViolationSummary",
+        message: "No data Found",
+        detail: "stopViolationData is empty"
+        });
+
+            return;
+        }
+
+        var table = $("#tableStopViolation").DataTable();
+
+        table.clear();
+
+        var sno = 0;
+
+        let rows = stopViolationData.map(item => [
+            ++sno,
+            item.stop_id || "",
+            item.stop_order || "",
+            item.stop_name || "",
+            item.stop_latitude || "",
+            item.stop_longitude || ""
+        ]);
+
+        table.rows.add(rows).draw();
+
+        var modal = new bootstrap.Modal(
+            document.getElementById('totalnumofstopviolation')
+        );
+
+        modal.show();
+
+    }
+    catch (e) {
+
+        console.error(e);
+
+        showDashboardError({
+        title: "Unable to load Stop Violations",
+        context: "StopViolationSummary",
+        message: "The data received from the server is invalid or corrupted.",
+        detail: e.message
+        });
+    }
+}
+    </script>
+}
+
+
+
+
+

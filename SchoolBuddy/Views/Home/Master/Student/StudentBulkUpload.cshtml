@@ -1,0 +1,283 @@
+﻿@{
+    ViewData["Title"] = "Student Bulk Upload";
+}
+
+<style>
+    .inputbackgroundcolor {
+        background-color: ghostwhite;
+        border-radius: 0.4rem;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12" style="margin-top:3vmin">
+            <div class="card-header rounded-top " style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Add Student</p>
+            </div>
+            <div class="card-body rounded " style="background-color:white;">
+                <form id="bulkStudentForm" class="form-control" asp-controller="Home" asp-action="addStudentsInBulk"
+                      style="overflow:hidden;border:white;" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label>Upload File</label><span style="color:red">*</span>
+                            <input id="excelFileInput" name="excelfile" class="form-control inputbackgroundcolor" type="file" accept=".xlsx,.xls" required />
+                            <small id="fileValidationMessage" style="color:red; display:none;"></small>
+                        </div>
+                        <div class="col-lg-6">
+                            <a asp-controller="Home" asp-action="downloadTemp" class="btn"
+                               style="background-color:white;margin-top: 24px;">
+                                Download Sample File
+                                <i class="fa fa-file-excel-o" style="margin-left:5px;color: white;background-color: green;"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <br />
+                    <div style="text-align:center">
+                        <button id="bulkUploadBtn" class="btn" type="submit" style="border: 2px solid; border-color: midnightblue; color:midnightblue">
+                            Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function () {
+
+        var successMessage = '@TempData["SuccessMessage"]';
+        var errorMessage = '@TempData["ErrorMessage"]';
+
+    if (successMessage && successMessage.trim() !== '') {
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: successMessage,
+            confirmButtonColor: '#28a745'
+        });
+    }
+        if (errorMessage && errorMessage.trim() !== '') {
+            alert(errorMessage);
+        }
+
+        const fileInput = document.getElementById("excelFileInput");
+        const form = document.getElementById("bulkStudentForm");
+        const validationMessage = document.getElementById("fileValidationMessage");
+
+        async function validateExcelFile(file) {
+            return new Promise((resolve) => {
+
+                if (!file) {
+                    resolve({ valid: false, message: "Please select an Excel file." });
+                    return;
+                }
+
+                const fileName = file.name.toLowerCase();
+                if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls")) {
+                    resolve({ valid: false, message: "Only .xlsx or .xls files are allowed." });
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    try {
+
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: "array" });
+
+                        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                            resolve({ valid: false, message: "Excel file is empty." });
+                            return;
+                        }
+
+                        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+                        if (!rows || rows.length === 0) {
+                            resolve({ valid: false, message: "Excel file does not contain any data rows." });
+                            return;
+                        }
+
+                        // ===== HEADERS =====
+                        const keys = Object.keys(rows[0]);
+
+                        const classHeader = keys.find(h => h.trim().toLowerCase() === "class");
+                        const admissionHeader = keys.find(h => h.trim().toLowerCase() === "admission_no");
+                        const mobileHeader = keys.find(h => h.trim().toLowerCase() === "mobile_no1");
+
+                        if (!classHeader) {
+                            resolve({ valid: false, message: "Class column not found in Excel sheet." });
+                            return;
+                        }
+
+                        if (!admissionHeader) {
+                            resolve({ valid: false, message: "Admission No column not found in Excel sheet." });
+                            return;
+                        }
+                            if (!mobileHeader) {
+                            resolve({ valid: false, message: "Mobile No column not found in Excel      sheet." });
+                            return;
+                        }
+
+                        // ===== VALIDATION ARRAYS =====
+                        let invalidClassRows = [];
+                        let duplicateAdmissionRows = [];
+                        let invalidMobileRows = [];
+                        let admissionSet = new Set();
+
+                        // ===== LOOP =====
+                        for (let i = 0; i < rows.length; i++) {
+
+                            // ---- CLASS VALIDATION ----
+                            let classValue = rows[i][classHeader];
+
+                            classValue = (classValue || "").toString().trim();
+                            const numericClass = Number(classValue);
+
+                            const isValidClass =
+                                classValue !== "" &&
+                                !isNaN(numericClass) &&
+                                Number.isInteger(numericClass) &&
+                                numericClass >= 1 &&
+                                numericClass <= 18;
+
+                            if (!isValidClass) {
+                                invalidClassRows.push(i + 2);
+                            }
+
+                            // ---- DUPLICATE ADMISSION ----
+                            let admissionNo = rows[i][admissionHeader];
+                            admissionNo = (admissionNo || "").toString().trim();
+
+                            if (admissionNo !== "") {
+                                if (admissionSet.has(admissionNo)) {
+                                    duplicateAdmissionRows.push(i + 2);
+                                } else {
+                                    admissionSet.add(admissionNo);
+                                }
+                            }
+
+                                // ---- MOBILE VALIDATION ----
+                            let mobileNo = rows[i][mobileHeader];
+                            mobileNo = (mobileNo || "").toString().trim();
+                            
+                            // remove spaces if user entered accidentally
+                            mobileNo = mobileNo.replace(/\s+/g, "");
+                            
+                            const isValidMobile = /^[6-9]\d{9}$/.test(mobileNo);
+                            
+                            if (!isValidMobile) {
+                                invalidMobileRows.push(i + 2);
+                            }
+                        }
+
+                        // ===== ERROR HANDLING =====
+
+                        if (invalidClassRows.length > 0) {
+                            let preview = invalidClassRows.slice(0, 10).join(", ");
+                            let extra = invalidClassRows.length > 10 ? " ..." : "";
+
+                            resolve({
+                                valid: false,
+                                message: "Invalid class value found in row(s): " + preview + extra +
+                                    "Class is required and must be a number between 1 and 18."
+                            });
+                            return;
+                        }
+
+                        if (duplicateAdmissionRows.length > 0) {
+                            let preview = duplicateAdmissionRows.slice(0, 10).join(", ");
+                            let extra = duplicateAdmissionRows.length > 10 ? " ..." : "";
+
+                            resolve({
+                                valid: false,
+                                message: "Duplicate Admission No found in row(s): " + preview + extra
+                            });
+                            return;
+                        }
+
+                        if (invalidMobileRows.length > 0) {
+                            let preview = invalidMobileRows.slice(0, 10).join(", ");
+                            let extra = invalidMobileRows.length > 10 ? " ..." : "";
+                        
+                            resolve({
+                                valid: false,
+                                message: "Invalid Mobile No found in row(s): " + preview +    extra + ".      Mobile    No     is      required and must be a  valid   10-digit number."
+                            });
+                            return;
+                        }
+
+                        resolve({ valid: true, message: "" });
+
+                    } catch (error) {
+                        resolve({ valid: false, message: "Invalid Excel format. Please use correct sample file." });
+                    }
+                };
+
+                reader.onerror = function () {
+                    resolve({ valid: false, message: "Error reading file." });
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        // ===== FILE CHANGE =====
+        fileInput.addEventListener("change", async function () {
+
+            validationMessage.style.display = "none";
+            validationMessage.innerText = "";
+
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const result = await validateExcelFile(file);
+
+            if (!result.valid) {
+                validationMessage.style.display = "block";
+                validationMessage.innerText = result.message;
+             Swal.fire({
+                 icon: 'error',
+                 title: 'Validation Error',
+                 text: result.message,
+                 confirmButtonColor: '#3085d6',
+                 confirmButtonText: 'OK'
+             });
+                fileInput.value = "";
+            }
+        });
+
+        // ===== FORM SUBMIT =====
+        form.addEventListener("submit", async function (e) {
+
+            e.preventDefault();
+
+            validationMessage.style.display = "none";
+            validationMessage.innerText = "";
+
+            const file = fileInput.files[0];
+            const result = await validateExcelFile(file);
+
+            if (!result.valid) {
+                validationMessage.style.display = "block";
+                validationMessage.innerText = result.message;
+             Swal.fire({
+                 icon: 'error',
+                 title: 'Validation Error',
+                 text: result.message,
+                 confirmButtonColor: '#3085d6',
+                 confirmButtonText: 'OK'
+             });
+                return false;
+            }
+
+            form.submit();
+        });
+
+    });
+</script>

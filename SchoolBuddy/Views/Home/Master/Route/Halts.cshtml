@@ -1,0 +1,1442 @@
+﻿@model List<SchoolBuddy.Models.Route.routedetails>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var schoolId = ViewBag.SysUserId?.ToString() ?? "";
+}
+@{
+    ViewData["Title"] = "Automatic Stops";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route Visualizer</title>
+    <style>
+            #map {
+                height: 90vh;
+                width: 100%;
+            }
+
+            #controls {
+                padding: 10px;
+            }
+            /* toast-style popup while rendering */
+            /* centered modal while rendering */
+            #renderOverlay {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                background: rgba(0,0,0,.35);
+                backdrop-filter: blur(2px);
+                display: none;
+                align-items: center;
+                justify-content: center;
+            }
+
+                #renderOverlay.show {
+                    display: flex;
+                }
+
+            .render-modal {
+                width: min(560px, calc(100% - 40px));
+                background: #fff;
+                border-radius: 16px;
+                padding: 20px 22px;
+                box-shadow: 0 24px 60px rgba(0,0,0,.25);
+                animation: fadeIn .18s ease-out;
+                font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            }
+
+                .render-modal h3 {
+                    margin: 0 0 6px;
+                    font-size: 18px;
+                }
+
+                .render-modal p {
+                    margin: 0 0 14px;
+                    color: #444;
+                }
+
+            .render-actions {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                justify-content: flex-end;
+            }
+
+            .spinner-lg {
+                width: 28px;
+                height: 28px;
+                margin-right: 10px;
+                border: 3px solid rgba(0,0,0,.15);
+                border-top-color: rgba(0,0,0,.7);
+                border-radius: 50%;
+                display: inline-block;
+                animation: spin .9s linear infinite;
+            }
+
+            @@keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @@keyframes fadeIn {
+                from {
+                    opacity: .0;
+                    transform: translateY(6px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: none;
+                }
+            }
+
+            #submitBar {
+                position: fixed;
+                bottom: 16px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #fff;
+                border-radius: 14px;
+                padding: 10px 14px;
+                box-shadow: 0 10px 30px rgba(0,0,0,.2);
+                z-index: 9999;
+                display: none;
+                align-items: center;
+                gap: 10px;
+                font: 14px/1.35 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+            }
+
+                #submitBar.show {
+                    display: flex;
+                }
+
+            .btn {
+                padding: 8px 12px;
+                border-radius: 10px;
+                cursor: pointer;
+                border: 0;
+            }
+
+            .btn-primary {
+                background: #111;
+                color: #fff;
+            }
+
+            .btn-ghost {
+                background: transparent;
+                color: #333;
+                border: 1px solid #ddd;
+            }
+
+            /* stop form modal */
+            #stopModalOverlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.35);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            }
+
+                #stopModalOverlay.show {
+                    display: flex;
+                }
+
+            .stop-modal {
+                width: min(460px, calc(100% - 40px));
+                background: #fff;
+                border-radius: 14px;
+                padding: 16px 18px;
+                box-shadow: 0 24px 60px rgba(0,0,0,.25);
+            }
+
+                .stop-modal h3 {
+                    margin: 0 0 10px;
+                    font-size: 18px;
+                }
+
+            .field {
+                display: flex;
+                flex-direction: column;
+                margin: 8px 0;
+            }
+
+                .field label {
+                    font-size: 12px;
+                    color: #444;
+                    margin-bottom: 4px;
+                }
+
+                .field input {
+                    padding: 8px 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                }
+
+            .modal-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+                margin-top: 14px;
+            }
+
+            #renderNotice.show {
+                display: flex;
+            }
+
+            #renderNotice .spinner {
+                width: 16px;
+                height: 16px;
+                border: 2px solid rgba(0,0,0,.15);
+                border-top-color: rgba(0,0,0,.6);
+                border-radius: 50%;
+                animation: spin 0.9s linear infinite;
+            }
+
+            /* @@keyframes spin {
+                        to { transform: rotate(360deg); }
+                    } */
+    </style>
+</head>
+<body>
+
+    <div id="controls">
+        <input type="hidden" id="schoolId" value="@schoolId" />
+
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" />
+
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate" />
+
+        <label for="routeSelect">Select Route:</label>
+        <select id="routeSelect">
+            <option value="">-- Select a Route --</option>
+            @foreach (var r in Model)
+            {
+                <option value="@r.id">@r.route_name</option>
+            }
+        </select>
+
+        <div id="legend"></div>
+    </div>
+
+    <div id="map"></div>
+
+    <div id="renderOverlay" role="dialog" aria-modal="true" aria-labelledby="renderTitle" aria-live="polite">
+        <div class="render-modal">
+            <div style="display:flex; align-items:center; margin-bottom:8px;">
+                <span class="spinner-lg"></span>
+                <h3 id="renderTitle">Finding possible stops…</h3>
+            </div>
+            <p>The circles on the map show <b>possible</b> stops for this route. Please click only the valid stops to submit them.</p>
+            <div class="render-actions">
+                <button id="renderOkBtn" type="button" style="padding:8px 12px;border:0;background:#111;color:#fff;border-radius:10px;cursor:pointer;">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom submit bar -->
+    <div id="submitBar">
+        <span id="draftCount">0</span> stop(s) ready
+        <button id="submitAllBtn" class="btn btn-primary">Submit All</button>
+        <button id="clearAllBtn" class="btn btn-ghost">Clear</button>
+    </div>
+
+    <!-- Stop create/edit modal -->
+    <div id="stopModalOverlay" role="dialog" aria-modal="true" aria-labelledby="stopModalTitle">
+        <div class="stop-modal">
+            <h3 id="stopModalTitle">Add stop</h3>
+            <div class="field">
+                <label for="stopName">Stop Name</label>
+                <input id="stopName" type="text" placeholder="e.g. Main Gate" />
+            </div>
+            <div class="field">
+                <label for="stopOrder">Order</label>
+                <input id="stopOrder" type="number" min="1" step="1" />
+            </div>
+            <div class="field">
+                <label>Latitude</label>
+                <input id="stopLat" type="text" readonly />
+            </div>
+            <div class="field">
+                <label>Longitude</label>
+                <input id="stopLng" type="text" readonly />
+            </div>
+            <div class="modal-actions">
+                <button id="stopCancelBtn" class="btn btn-ghost" type="button">Cancel</button>
+                <button id="stopSetBtn" class="btn btn-primary" type="button">Set</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbjIxsdDNnpgJ5afaqhkJqfYGHPeYKBkI"></script>
+
+
+    <script>
+        const uiHaltsUrl = '@Url.Action("GetHaltsMultiDayData", "Route")';
+        const uiStopsUrl = '@Url.Action("GetExistingStopsData", "Route")';
+        const uiSubmitStopsUrl = '@Url.Action("SubmitDraftStops", "Route")';
+
+        let map;
+        let polylines = [];
+        let haltCircles = [];
+        let existingMarkers = [];
+        let lastClusters = [];
+        let draftStops = [];
+        let editingIndex = -1;
+
+        const COLORS = ["#FF0000", "#0000FF", "#00CC00", "#FFA500", "#800080"];
+
+        // ------- math helpers -------
+        const toRad = x => x * Math.PI / 180;
+
+        function haversine(a, b) {
+        const R = 6371e3;
+        const dLat = toRad(b.lat - a.lat);
+        const dLng = toRad(b.lng - a.lng);
+        const s1 = Math.sin(dLat / 2);
+        const s2 = Math.sin(dLng / 2);
+        const A = s1 * s1 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * s2 * s2;
+        return 2 * R * Math.atan2(Math.sqrt(A), Math.sqrt(1 - A));
+        }
+
+        function ll2xy(p) {
+        const mPerDegLat = 111132;
+        const mPerDegLng = 111320 * Math.cos(toRad(p.lat));
+        return { x: p.lng * mPerDegLng, y: p.lat * mPerDegLat };
+        }
+
+        function pointSegDistMeters(p, a, b) {
+        const A = ll2xy(a), B = ll2xy(b), P = ll2xy(p);
+        const ABx = B.x - A.x, ABy = B.y - A.y;
+        const APx = P.x - A.x, APy = P.y - A.y;
+        const ab2 = ABx * ABx + ABy * ABy || 1e-9;
+        let t = (APx * ABx + APy * ABy) / ab2;
+        t = Math.max(0, Math.min(1, t));
+        const Cx = A.x + t * ABx, Cy = A.y + t * ABy;
+        const dx = P.x - Cx, dy = P.y - Cy;
+        return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // ------- polyline simplify -------
+        function rdp(points, epsilonMeters) {
+        if (points.length <= 2) return points.slice();
+
+        const stack = [[0, points.length - 1]];
+        const keep = new Array(points.length).fill(false);
+        keep[0] = keep[points.length - 1] = true;
+
+        while (stack.length) {
+        const [start, end] = stack.pop();
+        let maxDist = -1, idx = -1;
+
+        for (let i = start + 1; i < end; i++) {
+        const d = pointSegDistMeters(points[i], points[start], points[end]);
+        if (d > maxDist) {
+        maxDist = d;
+        idx = i;
+        }
+        }
+
+        if (maxDist > epsilonMeters) {
+        keep[idx] = true;
+        stack.push([start, idx], [idx, end]);
+        }
+        }
+
+        const out = [];
+        for (let i = 0; i < points.length; i++) {
+        if (keep[i]) out.push(points[i]);
+        }
+        return out;
+        }
+
+        // ------- render modal helpers -------
+        function showRenderNotice() {
+        showRenderSpinner();
+        document.getElementById("renderOverlay")?.classList.add("show");
+        }
+
+        function hideRenderNotice() {
+        document.getElementById("renderOverlay")?.classList.remove("show");
+        }
+
+        function showRenderSpinner() {
+        const sp = document.querySelector('#renderOverlay .spinner-lg');
+        if (sp) sp.style.display = 'inline-block';
+        }
+
+        function hideRenderSpinner() {
+        const sp = document.querySelector('#renderOverlay .spinner-lg');
+        if (sp) sp.style.display = 'none';
+        }
+
+        // ------- draft stop helpers -------
+        function showSubmitBar() {
+        document.getElementById("submitBar")?.classList.add("show");
+        }
+
+        function hideSubmitBar() {
+        document.getElementById("submitBar")?.classList.remove("show");
+        }
+
+        function updateDraftCount() {
+        document.getElementById("draftCount").textContent = String(draftStops.length);
+        }
+
+        function openStopModal({ lat, lng }, existing = null) {
+        editingIndex = existing?.index ?? -1;
+        document.getElementById("stopModalTitle").textContent = editingIndex >= 0 ? "Edit stop" : "Add stop";
+        document.getElementById("stopName").value = existing?.name ?? "";
+        document.getElementById("stopOrder").value = existing?.order ?? (draftStops.length + 1);
+        document.getElementById("stopLat").value = Number(lat).toFixed(6);
+        document.getElementById("stopLng").value = Number(lng).toFixed(6);
+        document.getElementById("stopModalOverlay").classList.add("show");
+        setTimeout(() => document.getElementById("stopName")?.focus(), 0);
+        }
+
+        function closeStopModal() {
+        document.getElementById("stopModalOverlay").classList.remove("show");
+        editingIndex = -1;
+        }
+
+        function makeNumberedMarker(pos, order) {
+        return new google.maps.Marker({
+        position: pos,
+        map,
+        label: {
+        text: String(order),
+        color: "#fff",
+        fontSize: "12px",
+        fontWeight: "700"
+        },
+        icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 12,
+        fillColor: "#1f7aec",
+        fillOpacity: 0.95,
+        strokeColor: "#0d4ea8",
+        strokeWeight: 2
+        },
+        zIndex: 1000
+        });
+        }
+
+        function nearestClusterLatLng(latLng, maxMeters = 60) {
+        if (!lastClusters.length) return null;
+
+        const pt = { lat: latLng.lat(), lng: latLng.lng() };
+        let best = null;
+        let bestD = Infinity;
+
+        for (const c of lastClusters) {
+        const d = haversine(pt, c.center);
+        if (d < bestD) {
+        bestD = d;
+        best = c.center;
+        }
+        }
+
+        return bestD <= maxMeters ? best : null;
+        }
+
+        function clearExistingMarkers() {
+        existingMarkers.forEach(m => m.setMap(null));
+        existingMarkers = [];
+        }
+
+        async function fetchExistingStops(routeId) {
+        const res = await fetch(uiStopsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ route_id: String(routeId) })
+        });
+
+        const txt = await res.text();
+        if (!res.ok) throw new Error(txt);
+
+        let data;
+        try {
+        data = JSON.parse(txt);
+        } catch {
+        data = txt;
+        }
+
+        if (!Array.isArray(data)) return [];
+        return data;
+        }
+
+        function drawExistingStops(stops) {
+        clearExistingMarkers();
+
+        stops.forEach(s => {
+        const lat = parseFloat(s.latitude ?? s.Latitude);
+        const lng = parseFloat(s.longitude ?? s.Longitude);
+        const order = String(s.stop_order ?? s.stopOrder ?? s.Stop_Order ?? "");
+        const name = s.user_stop_name ?? s.stop_name ?? s.Stop_Name ?? "";
+
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        const marker = new google.maps.Marker({
+        position: { lat, lng },
+        map,
+        zIndex: 900,
+        title: `${order}. ${name}`,
+        label: {
+        text: order,
+        color: "#fff",
+        fontSize: "12px",
+        fontWeight: "700"
+        },
+        icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 12,
+        fillColor: "#111",
+        fillOpacity: 0.95,
+        strokeColor: "#222",
+        strokeWeight: 2
+        }
+        });
+
+        const info = new google.maps.InfoWindow({
+        content: `<div style="font:12px/1.4 sans-serif">
+        <b>${order}.</b> ${name}<br/>
+        <small>(${lat.toFixed(6)}, ${lng.toFixed(6)})</small>
+        </div>`
+        });
+
+        marker.addListener("click", () => info.open({ map, anchor: marker }));
+        existingMarkers.push(marker);
+        });
+        }
+
+        // ------- GPS de-noise -------
+        function denoise(points) {
+        const out = [];
+
+        for (let i = 0; i < points.length; i++) {
+        const p = points[i];
+        if (Math.abs(p.lat) < 0.001 && Math.abs(p.lng) < 0.001) continue;
+
+        if (out.length === 0) {
+        out.push(p);
+        continue;
+        }
+
+        const prev = out[out.length - 1];
+        const dt = (p.time - prev.time) / 1000;
+        const d = haversine(prev, p);
+        const v = dt > 0 ? d / dt : 0;
+
+        if (dt < 1) continue;
+        if (d > 250 && dt < 5) continue;
+        if (v > 45) continue;
+
+        out.push(p);
+        }
+
+        return out;
+        }
+
+        function detectStops(points, {
+        driftMeters = 30,
+        minSeconds = 10,
+        minSamples = 2,
+        maxAvgSpeed = 1.5
+        } = {}) {
+        const stops = [];
+        let i = 0;
+
+        while (i < points.length) {
+        const start = points[i];
+        let j = i + 1;
+        let last = start;
+        let distAccum = 0;
+        let prev = start;
+
+        while (j < points.length) {
+        const dFromStart = haversine(start, points[j]);
+        const seg = haversine(prev, points[j]);
+        distAccum += seg;
+        prev = points[j];
+
+        if (dFromStart > driftMeters) break;
+
+        last = points[j];
+        j++;
+        }
+
+        const duration = (last.time - start.time) / 1000;
+        const avgSpeed = duration > 0 ? distAccum / duration : 0;
+        const sampleCount = j - i;
+
+        if (duration >= minSeconds && sampleCount >= minSamples && avgSpeed <= maxAvgSpeed) {
+        const center = {
+        lat: (start.lat + last.lat) / 2,
+        lng: (start.lng + last.lng) / 2
+        };
+        stops.push({ center, start, end: last, durationSec: duration });
+        }
+
+        i = Math.max(j, i + 1);
+        }
+
+        return stops;
+        }
+
+        function clusterStops(stops, mergeRadiusMeters = 60) {
+        const clusters = [];
+
+        for (const s of stops) {
+        let k = -1;
+
+        for (let i = 0; i < clusters.length; i++) {
+        const c = clusters[i];
+        if (haversine(s.center, c.center) <= mergeRadiusMeters) {
+        k = i;
+        break;
+        }
+        }
+
+        if (k >= 0) {
+        const c = clusters[k];
+        const total = c.totalDur + s.durationSec;
+        c.center.lat = (c.center.lat * c.totalDur + s.center.lat * s.durationSec) / total;
+        c.center.lng = (c.center.lng * c.totalDur + s.center.lng * s.durationSec) / total;
+        c.totalDur = total;
+        c.count += 1;
+        } else {
+        clusters.push({
+        center: { ...s.center },
+        totalDur: s.durationSec,
+        count: 1
+        });
+        }
+        }
+
+        return clusters;
+        }
+
+        // ------- draw helpers -------
+        function clearGraphics() {
+        polylines.forEach(p => p.setMap(null));
+        polylines = [];
+
+        haltCircles.forEach(c => c.setMap(null));
+        haltCircles = [];
+
+        clearExistingMarkers();
+        }
+
+        async function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 22.5726, lng: 88.3639 },
+        zoom: 13,
+        clickableIcons: false
+        });
+
+        map.addListener("click", (e) => {
+        const snap = nearestClusterLatLng(e.latLng, 60);
+        const pos = snap ? new google.maps.LatLng(snap.lat, snap.lng) : e.latLng;
+        openStopModal({ lat: pos.lat(), lng: pos.lng() });
+        });
+
+        document.getElementById("stopCancelBtn")?.addEventListener("click", closeStopModal);
+
+        document.getElementById("stopSetBtn")?.addEventListener("click", () => {
+        const name = document.getElementById("stopName").value.trim();
+        const order = parseInt(document.getElementById("stopOrder").value, 10);
+        const lat = parseFloat(document.getElementById("stopLat").value);
+        const lng = parseFloat(document.getElementById("stopLng").value);
+
+        if (!order || isNaN(lat) || isNaN(lng)) return;
+
+        const position = { lat, lng };
+
+        if (editingIndex >= 0) {
+        const item = draftStops[editingIndex];
+        item.name = name;
+        item.order = order;
+        item.lat = lat;
+        item.lng = lng;
+
+        if (item.marker) {
+        item.marker.setPosition(position);
+        item.marker.setLabel({
+        text: String(order),
+        color: "#fff",
+        fontSize: "12px",
+        fontWeight: "700"
+        });
+        }
+        } else {
+        const marker = makeNumberedMarker(position, order);
+        const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+        const idx = draftStops.length;
+
+        draftStops.push({ id, name, order, lat, lng, marker });
+
+        marker.addListener("click", () => {
+        const posNow = marker.getPosition();
+        const item = draftStops[idx];
+        openStopModal(
+        { lat: posNow.lat(), lng: posNow.lng() },
+        { index: idx, name: item.name, order: item.order }
+        );
+        });
+        }
+
+        updateDraftCount();
+        if (draftStops.length) showSubmitBar();
+        else hideSubmitBar();
+
+        closeStopModal();
+        });
+
+        document.getElementById("renderOkBtn")?.addEventListener("click", hideRenderNotice);
+
+        const end = new Date();
+        const start = new Date();
+        start.setDate(end.getDate() - 4);
+
+        document.getElementById("startDate").value = start.toISOString().slice(0, 10);
+        document.getElementById("endDate").value = end.toISOString().slice(0, 10);
+
+        document.getElementById("routeSelect").addEventListener("change", handleRouteChange);
+        document.getElementById("startDate").addEventListener("change", handleRouteChange);
+        document.getElementById("endDate").addEventListener("change", handleRouteChange);
+        }
+
+        async function handleRouteChange() {
+        const schoolId = document.getElementById("schoolId").value;
+        const routeId = document.getElementById("routeSelect").value;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        if (schoolId && routeId && startDate && endDate) {
+        await loadMultiDayRoute(schoolId, routeId, startDate, endDate);
+        }
+        }
+
+        async function loadMultiDayRoute(schoolId, routeId, startDate, endDate) {
+        showRenderNotice();
+
+        try {
+        clearGraphics();
+
+        const res = await fetch(uiHaltsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+        schoolId: schoolId,
+        routeId: routeId,
+        startDate: startDate,
+        endDate: endDate
+        })
+        });
+
+        if (!res.ok) {
+        console.error("Halts API error:", res.status, await res.text());
+        return;
+        }
+
+        const daysData = await res.json();
+        const allStops = [];
+        const bounds = new google.maps.LatLngBounds();
+
+        daysData.forEach((day, idx) => {
+        const color = COLORS[idx % COLORS.length];
+        const raw = (day.points || []).map(p => ({
+        lat: p.latitude,
+        lng: p.longitude,
+        time: new Date(p.gpsTime)
+        }));
+
+        const cleaned = denoise(raw);
+        const simplified = rdp(cleaned, 25);
+
+        if (simplified.length) {
+        simplified.forEach(pt => bounds.extend(pt));
+
+        const polyline = new google.maps.Polyline({
+        path: simplified,
+        geodesic: true,
+        strokeColor: color,
+        strokeOpacity: 0.7,
+        strokeWeight: 2
+        });
+
+        polyline.setMap(map);
+        polylines.push(polyline);
+        }
+
+        const stops = detectStops(cleaned, {
+        driftMeters: 30,
+        minSeconds: 10,
+        minSamples: 2,
+        maxAvgSpeed: 1.5
+        });
+
+        for (const s of stops) {
+        allStops.push({ ...s, day: idx });
+        }
+        });
+
+        const clusters = clusterStops(allStops, 60);
+        lastClusters = clusters;
+
+        clusters.forEach(c => {
+        const r = Math.min(30 + (c.totalDur / 60) * 5, 120);
+
+        const circle = new google.maps.Circle({
+        map,
+        center: c.center,
+        radius: r,
+        strokeColor: "#FF3B30",
+        strokeOpacity: 0.95,
+        strokeWeight: 2,
+        fillColor: "#FF3B30",
+        fillOpacity: 0.25
+        });
+
+        const info = new google.maps.InfoWindow({
+        content: `<div style="font:12px/1.4 sans-serif">
+        <b>Stop cluster</b><br/>
+        Occurrences: ${c.count}<br/>
+        Total duration: ${(c.totalDur / 60).toFixed(1)} min
+        </div>`
+        });
+
+        circle.addListener("click", () => {
+        openStopModal({ lat: c.center.lat, lng: c.center.lng });
+        info.setPosition(c.center);
+        info.open({ map });
+        });
+
+        haltCircles.push(circle);
+        });
+
+        if (!bounds.isEmpty()) map.fitBounds(bounds);
+
+        try {
+        const existing = await fetchExistingStops(routeId);
+        drawExistingStops(existing);
+        } catch (e) {
+        console.warn("Existing stops fetch failed:", e);
+        }
+
+        } catch (err) {
+        console.error("Render error:", err);
+        } finally {
+        hideRenderSpinner();
+        }
+        }
+
+        document.getElementById("submitAllBtn")?.addEventListener("click", async () => {
+        const routeId = document.getElementById("routeSelect").value;
+        const schoolId = document.getElementById("schoolId").value;
+
+        if (!routeId || !schoolId || !draftStops.length) return;
+
+        const payload = draftStops.map(s => ({
+        route_id: routeId,
+        stop_name: s.name || `Stop ${s.order}`,
+        latitude: String(s.lat),
+        longitude: String(s.lng),
+        stop_order: String(s.order)
+        }));
+
+        const res = await fetch(uiSubmitStopsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+        alert(`Submitted ${result.saved}/${result.total} stops.`);
+        } else {
+        alert(result.message || "Failed to save stops");
+        }
+        });
+
+        document.getElementById("clearAllBtn")?.addEventListener("click", () => {
+        draftStops.forEach(s => s.marker?.setMap(null));
+        draftStops = [];
+        updateDraftCount();
+        hideSubmitBar();
+        });
+
+        window.onload = initMap;
+    </script>
+
+
+
+
+
+    @* <script>
+
+        const uiHaltsUrl = '@Url.Action("GetHaltsMultiDayData", "Route")';
+        const uiStopsUrl = '@Url.Action("GetExistingStopsData", "Route")';
+        const uiSubmitStopsUrl = '@Url.Action("SubmitDraftStops", "Route")';
+
+        //let haltCircles = haltCircles || []; // you already have this
+        let lastClusters = [];               // store clusters for snapping
+        let draftStops = [];                 // {id, name, order, lat, lng, marker}
+        let editingIndex = -1;               // -1 = adding new; otherwise index in draftStops
+        let existingMarkers = [];      // markers for already-saved stops
+
+        // Build API base for Stop/addStop
+        const apiRoot = (apiBase && apiBase.length)
+        ? apiBase.replace(/\/$/, "")
+        : "@Url.Content("~/api")"; // will become '/api' on same host
+
+
+
+        let map;
+        let polylines = [];
+        let haltCircles = [];         // all drawn halt circles (clustered)
+        const COLORS = ["#FF0000", "#0000FF", "#00CC00", "#FFA500", "#800080"];
+
+        // ------- math helpers -------
+        const toRad = x => x * Math.PI / 180;
+        function haversine(a, b) {
+        const R=6371e3;
+        const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+        const s1=Math.sin(dLat/2), s2=Math.sin(dLng/2);
+        const A = s1*s1 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*s2*s2;
+        return 2*R*Math.atan2(Math.sqrt(A), Math.sqrt(1-A));  // meters
+        }
+        // quick lat/lng -> meters in local plane (enough for small distances)
+        function ll2xy(p) {
+        const mPerDegLat = 111132;
+        const mPerDegLng = 111320 * Math.cos(toRad(p.lat));
+        return { x: p.lng * mPerDegLng, y: p.lat * mPerDegLat };
+        }
+        function pointSegDistMeters(p, a, b) {
+        // distance p to segment ab in meters (using planar approx)
+        const A = ll2xy(a), B = ll2xy(b), P = ll2xy(p);
+        const ABx = B.x - A.x, ABy = B.y - A.y;
+        const APx = P.x - A.x, APy = P.y - A.y;
+        const ab2 = ABx*ABx + ABy*ABy || 1e-9;
+        let t = (APx*ABx + APy*ABy) / ab2;
+        t = Math.max(0, Math.min(1, t));
+        const Cx = A.x + t*ABx, Cy = A.y + t*ABy;
+        const dx = P.x - Cx, dy = P.y - Cy;
+        return Math.sqrt(dx*dx + dy*dy);
+        }
+
+
+        function clearExistingMarkers() {
+        existingMarkers.forEach(m => m.setMap(null));
+        existingMarkers = [];
+        }
+
+
+        async function fetchExistingStops(routeId) {
+        const res = await fetch(uiStopsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ route_id: String(routeId) })
+        });
+
+        const txt = await res.text();
+        if (!res.ok) throw new Error(txt);
+
+        let data;
+        try { data = JSON.parse(txt); } catch { data = txt; }
+        if (!Array.isArray(data)) return [];
+        return data;
+        }
+
+
+
+        function drawExistingStops(stops) {
+        clearExistingMarkers();
+
+        // Accept either camelCase or PascalCase from API
+        stops.forEach(s => {
+        const lat = parseFloat(s.latitude ?? s.Latitude);
+        const lng = parseFloat(s.longitude ?? s.Longitude);
+        const order = String(s.stop_order ?? s.stopOrder ?? s.Stop_Order ?? s.stopOrderNumber ?? "");
+        const name  = s.stop_name ?? s.Stop_Name ?? "";
+
+        // black/gray marker with white order label
+        const marker = new google.maps.Marker({
+        position: { lat, lng },
+        map,
+        zIndex: 900,
+        title: `${order}. ${name}`,
+        label: { text: order, color: "#fff", fontSize: "12px", fontWeight: "700" },
+        icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 12,
+        fillColor: "#111",
+        fillOpacity: 0.95,
+        strokeColor: "#222",
+        strokeWeight: 2
+        }
+        });
+
+        const info = new google.maps.InfoWindow({
+        content: `<div style="font:12px/1.4 sans-serif">
+        <b>${order}.</b> ${name}<br/>
+        <small>(${lat.toFixed(6)}, ${lng.toFixed(6)})</small>
+        </div>`
+        });
+        marker.addListener("click", () => info.open({ map, anchor: marker }));
+
+        existingMarkers.push(marker);
+        });
+        }
+
+
+        // ------- polyline simplify (Ramer–Douglas–Peucker Algorithm) -------
+        function rdp(points, epsilonMeters) {
+        if (points.length <= 2) return points.slice();
+        const stack = [[0, points.length - 1]];
+        const keep = new Array(points.length).fill(false);
+        keep[0] = keep[points.length - 1] = true;
+
+        while (stack.length) {
+        const [start, end] = stack.pop();
+        let maxDist = -1, idx = -1;
+        for (let i = start + 1; i < end; i++) {
+        const d = pointSegDistMeters(points[i], points[start], points[end]);
+        if (d > maxDist) { maxDist = d; idx = i; }
+        }
+        if (maxDist > epsilonMeters) {
+        keep[idx] = true;
+        stack.push([start, idx], [idx, end]);
+        }
+        }
+        const out = [];
+        for (let i = 0; i < points.length; i++) if (keep[i]) out.push(points[i]);
+        return out;
+        }
+
+        function showRenderNotice(){
+        showRenderSpinner();                                  // show spinner at start
+        document.getElementById("renderOverlay")?.classList.add("show");
+        }
+        function hideRenderNotice(){
+        document.getElementById("renderOverlay")?.classList.remove("show");
+        }
+
+
+        function showRenderSpinner() {
+        const sp = document.querySelector('#renderOverlay .spinner-lg');
+        if (sp) sp.style.display = 'inline-block';
+        }
+        function hideRenderSpinner() {
+        const sp = document.querySelector('#renderOverlay .spinner-lg');
+        if (sp) sp.style.display = 'none';
+        }
+
+
+        function showSubmitBar(){ document.getElementById("submitBar")?.classList.add("show"); }
+        function hideSubmitBar(){ document.getElementById("submitBar")?.classList.remove("show"); }
+        function updateDraftCount(){ document.getElementById("draftCount").textContent = String(draftStops.length); }
+
+        function openStopModal({lat, lng}, existing = null){
+        editingIndex = existing?.index ?? -1;
+        document.getElementById("stopModalTitle").textContent = editingIndex >= 0 ? "Edit stop" : "Add stop";
+        document.getElementById("stopName").value  = existing?.name  ?? "";
+        document.getElementById("stopOrder").value = existing?.order ?? (draftStops.length + 1);
+        document.getElementById("stopLat").value   = lat.toFixed(6);
+        document.getElementById("stopLng").value   = lng.toFixed(6);
+        document.getElementById("stopModalOverlay").classList.add("show");
+        setTimeout(()=>document.getElementById("stopName").focus(),0);
+        }
+        function closeStopModal(){
+        document.getElementById("stopModalOverlay").classList.remove("show");
+        editingIndex = -1;
+        }
+
+        function makeNumberedMarker(pos, order){
+        // simple labeled marker
+        return new google.maps.Marker({
+        position: pos,
+        map,
+        label: { text: String(order), color:"#fff", fontSize:"12px", fontWeight:"700" },
+        icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 12,
+        fillColor: "#1f7aec",
+        fillOpacity: 0.95,
+        strokeColor: "#0d4ea8",
+        strokeWeight: 2
+        },
+        zIndex: 1000
+        });
+        }
+
+        function nearestClusterLatLng(latLng, maxMeters = 60){
+        if (!lastClusters.length) return null;
+        const pt = { lat: latLng.lat(), lng: latLng.lng() };
+        let best = null, bestD = Infinity;
+        for (const c of lastClusters) {
+        const d = haversine(pt, c.center);
+        if (d < bestD){ bestD = d; best = c.center; }
+        }
+        return bestD <= maxMeters ? best : null;
+        }
+
+
+
+
+
+        // ------- GPS de-noise -------
+        function denoise(points) {
+        // drops zero coords, duplicate-timestamps, teleports & absurd speeds
+        const out = [];
+        for (let i = 0; i < points.length; i++) {
+        const p = points[i];
+        if (Math.abs(p.lat) < 0.001 && Math.abs(p.lng) < 0.001) continue;
+
+        if (out.length === 0) { out.push(p); continue; }
+
+        const prev = out[out.length - 1];
+        const dt = (p.time - prev.time) / 1000;         // sec
+        const d  = haversine(prev, p);                  // meters
+        const v  = dt > 0 ? d / dt : 0;                 // m/s
+
+        // drop duplicates or crazy hops
+        if (dt < 1) continue;                           // duplicate stamp
+        if (d > 250 && dt < 5) continue;                // teleport spike
+        if (v > 45) continue;                           // >162 km/h — impossible for school bus
+
+        out.push(p);
+        }
+        return out;
+        }
+
+
+        function detectStops(points, {
+        driftMeters = 30,     // how far the bus can drift and still be considered stationary
+        minSeconds  = 10,     // your requirement
+        minSamples  = 2,      // need at least 2 telemetry points inside the stop window
+        maxAvgSpeed = 1.5     // m/s ~ 5.4 km/h to filter creeping
+        } = {}) {
+        const stops = [];
+        let i = 0;
+
+        while (i < points.length) {
+        const start = points[i];
+        let j = i + 1;
+        let last = start;
+        let distAccum = 0;
+        let prev = start;
+
+        while (j < points.length) {
+        const dFromStart = haversine(start, points[j]);   // meters from the start point
+        const seg = haversine(prev, points[j]);           // segment distance for avg speed
+        distAccum += seg;
+        prev = points[j];
+
+        if (dFromStart > driftMeters) break;
+
+        last = points[j];
+        j++;
+        }
+
+        const duration = (last.time - start.time) / 1000;   // seconds
+        const avgSpeed = duration > 0 ? distAccum / duration : 0;
+        const sampleCount = j - i;
+
+        if (duration >= minSeconds && sampleCount >= minSamples && avgSpeed <= maxAvgSpeed) {
+        const center = { lat: (start.lat + last.lat) / 2, lng: (start.lng + last.lng) / 2 };
+        stops.push({ center, start, end: last, durationSec: duration });
+        }
+
+        i = Math.max(j, i + 1);
+        }
+        return stops;
+        }
+
+
+
+
+        // ------- cluster stops so overlapping circles become one -------
+        function clusterStops(stops, mergeRadiusMeters = 60) {
+        const clusters = [];
+        for (const s of stops) {
+        let k = -1;
+        for (let i = 0; i < clusters.length; i++) {
+        const c = clusters[i];
+        if (haversine(s.center, c.center) <= mergeRadiusMeters) { k = i; break; }
+        }
+        if (k >= 0) {
+        const c = clusters[k];
+        const total = c.totalDur + s.durationSec;
+        // weighted centroid by duration
+        c.center.lat = (c.center.lat * c.totalDur + s.center.lat * s.durationSec) / total;
+        c.center.lng = (c.center.lng * c.totalDur + s.center.lng * s.durationSec) / total;
+        c.totalDur = total;
+        c.count += 1;
+        } else {
+        clusters.push({ center: { ...s.center }, totalDur: s.durationSec, count: 1 });
+        }
+        }
+        return clusters;
+        }
+
+        // ------- draw helpers -------
+        function clearGraphics() {
+        polylines.forEach(p => p.setMap(null)); polylines = [];
+        haltCircles.forEach(c => c.setMap(null)); haltCircles = [];
+        clearExistingMarkers();
+        }
+
+
+        async function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 22.5726, lng: 88.3639 },
+        zoom: 13,
+        clickableIcons: false
+        }); // <-- close the Map init here
+
+        // Map click: snap to nearest cluster within 60m, or use the click point
+        map.addListener("click", (e) => {
+        const snap = nearestClusterLatLng(e.latLng, 60);
+        const pos = snap ? new google.maps.LatLng(snap.lat, snap.lng) : e.latLng;
+        openStopModal({ lat: pos.lat(), lng: pos.lng() });
+        });
+
+        // Stop modal buttons
+        document.getElementById("stopCancelBtn")?.addEventListener("click", closeStopModal);
+
+        document.getElementById("stopSetBtn")?.addEventListener("click", () => {
+        const name  = document.getElementById("stopName").value.trim();
+        const order = parseInt(document.getElementById("stopOrder").value, 10);
+        const lat   = parseFloat(document.getElementById("stopLat").value);
+        const lng   = parseFloat(document.getElementById("stopLng").value);
+        if (!order || isNaN(lat) || isNaN(lng)) return;
+
+        const position = { lat, lng };
+
+        if (editingIndex >= 0) {
+        // update existing
+        const item = draftStops[editingIndex];
+        item.name = name; item.order = order; item.lat = lat; item.lng = lng;
+        if (item.marker) {
+        item.marker.setPosition(position);
+        item.marker.setLabel({ text: String(order), color:"#fff", fontSize:"12px", fontWeight:"700" });
+        }
+        } else {
+        // create new
+        const marker = makeNumberedMarker(position, order);
+        const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+        const idx = draftStops.length;
+        draftStops.push({ id, name, order, lat, lng, marker });
+
+        marker.addListener("click", () => {
+        const posNow = marker.getPosition();
+        const item   = draftStops[idx];
+        openStopModal(
+        { lat: posNow.lat(), lng: posNow.lng() },
+        { index: idx, name: item.name, order: item.order }
+        );
+        });
+        }
+
+        updateDraftCount();
+        if (draftStops.length) showSubmitBar(); else hideSubmitBar();
+        closeStopModal();
+        });
+
+        // “Got it” on the render modal
+        document.getElementById("renderOkBtn")?.addEventListener("click", hideRenderNotice);
+
+        // Default last 5 days
+        const end = new Date();
+        const start = new Date(); start.setDate(end.getDate() - 4);
+        document.getElementById("startDate").value = start.toISOString().slice(0,10);
+        document.getElementById("endDate").value   = end.toISOString().slice(0,10);
+
+        // Inputs
+        document.getElementById("routeSelect").addEventListener("change", handleRouteChange);
+        document.getElementById("startDate").addEventListener("change", handleRouteChange);
+        document.getElementById("endDate").addEventListener("change", handleRouteChange);
+        }
+
+
+
+        document.getElementById("renderOkBtn")?.addEventListener("click", hideRenderNotice);
+
+        // default last 5 days
+        const end = new Date();
+        const start = new Date(); start.setDate(end.getDate() - 4);
+        document.getElementById("startDate").value = start.toISOString().slice(0,10);
+        document.getElementById("endDate").value   = end.toISOString().slice(0,10);
+
+        document.getElementById("routeSelect").addEventListener("change", handleRouteChange);
+        document.getElementById("startDate").addEventListener("change", handleRouteChange);
+        document.getElementById("endDate").addEventListener("change", handleRouteChange);
+        
+
+        async function handleRouteChange() {
+        const schoolId = document.getElementById("schoolId").value;
+        const routeId  = document.getElementById("routeSelect").value;
+        const startDate= document.getElementById("startDate").value;
+        const endDate  = document.getElementById("endDate").value;
+
+        if (schoolId && routeId && startDate && endDate) {
+        await loadMultiDayRoute(schoolId, routeId, startDate, endDate);
+        }
+        }
+
+        async function loadMultiDayRoute(schoolId, routeId, startDate, endDate) {
+        // NEW: show popup while rendering
+        showRenderNotice();
+
+        try {
+        clearGraphics();
+
+        const res = await fetch(uiHaltsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+        schoolId: schoolId,
+        routeId: routeId,
+        startDate: startDate,
+        endDate: endDate
+        })
+        });
+        if (!res.ok) {
+        console.error("Halts API error:", res.status, await res.text());
+        return;
+        }
+        const daysData = await res.json();
+
+        const allStops = [];
+        const bounds = new google.maps.LatLngBounds();
+
+        daysData.forEach((day, idx) => {
+        const color = COLORS[idx % COLORS.length];
+        const raw = (day.points || []).map(p => ({ lat: p.latitude, lng: p.longitude, time: new Date(p.gpsTime) }));
+
+        // 1) de-noise
+        const cleaned = denoise(raw);
+        // 2) simplify (20–30m tolerance works well in cities)
+        const simplified = rdp(cleaned, 25);
+
+        // draw a lighter polyline
+        if (simplified.length) {
+        simplified.forEach(pt => bounds.extend(pt));
+        const polyline = new google.maps.Polyline({
+        path: simplified, geodesic: true,
+        strokeColor: color, strokeOpacity: 0.7, strokeWeight: 2
+        });
+        polyline.setMap(map);
+        polylines.push(polyline);
+        }
+
+        // detect stops on cleaned data (>=10s)
+        const stops = detectStops(cleaned, { driftMeters: 30, minSeconds: 10, minSamples: 2, maxAvgSpeed: 1.5 });
+        for (const s of stops) allStops.push({ ...s, day: idx });
+        });
+
+        // 3) cluster overlapping stops across all days
+        const clusters = clusterStops(allStops, 60); // merge radius ~60m
+
+        // lastClusters = clusters;
+
+        lastClusters = clusters;
+        // draw one circle per cluster, size by total duration
+        clusters.forEach(c => {
+        const r = Math.min(30 + (c.totalDur/60)*5, 120); // scale with minutes
+        const circle = new google.maps.Circle({
+        map, center: c.center, radius: r,
+        strokeColor: "#FF3B30", strokeOpacity: 0.95, strokeWeight: 2,
+        fillColor: "#FF3B30", fillOpacity: 0.25
+        });
+        const info = new google.maps.InfoWindow({
+        content: `<div style="font:12px/1.4 sans-serif">
+        <b>Stop cluster</b><br/>
+        Occurrences: ${c.count}<br/>
+        Total duration: ${(c.totalDur/60).toFixed(1)} min
+        </div>`
+        });
+        circle.addListener("click", () => {
+        openStopModal({ lat: c.center.lat, lng: c.center.lng });
+        info.setPosition(c.center); info.open({ map }); });
+        haltCircles.push(circle);
+        });
+
+        if (!bounds.isEmpty()) map.fitBounds(bounds);
+
+
+        try {
+        const existing = await fetchExistingStops(routeId);
+        drawExistingStops(existing);
+        } catch (e) {
+        console.warn("Existing stops fetch failed:", e);
+        }
+
+            
+        } catch (err) {
+        console.error("Render error:", err);
+        } finally {
+        hideRenderSpinner();
+        }
+        }
+
+        window.onload = initMap;
+
+
+        document.getElementById("submitAllBtn")?.addEventListener("click", async () => {
+        const routeId = document.getElementById("routeSelect").value;
+        const schoolId = document.getElementById("schoolId").value;
+        if (!routeId || !schoolId || !draftStops.length) return;
+
+       
+
+
+        const payload = draftStops.map(s => ({
+        route_id: routeId,
+        stop_name: s.name || `Stop ${s.order}`,
+        latitude: String(s.lat),
+        longitude: String(s.lng),
+        stop_order: String(s.order)
+        }));
+
+        const res = await fetch(uiSubmitStopsUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+        alert(`Submitted ${result.saved}/${result.total} stops.`);
+        } else {
+        alert(result.message || "Failed to save stops");
+        }
+
+
+        alert(`Submitted ${okCount}/${draftStops.length} stops.`);
+        
+        });
+
+        document.getElementById("clearAllBtn")?.addEventListener("click", () => {
+        draftStops.forEach(s => s.marker?.setMap(null));
+        draftStops = [];
+        updateDraftCount();
+        hideSubmitBar();
+        });
+
+
+    </script> *@
+</body>
+</html>

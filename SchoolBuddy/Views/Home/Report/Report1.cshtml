@@ -1,0 +1,861 @@
+﻿@{
+    ViewData["Title"] = "Report";
+}
+@model notification
+
+
+<style>
+    .select2-container--default .select2-selection--single {
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: .375rem;
+        min-height: 38px;
+        padding: 4px 8px;
+    }
+
+    #ddl_student_search + .select2-container {
+        width: 260px !important;
+    }
+
+    #ddl_student_search + .select2-container .select2-selection__rendered {
+        line-height: 28px;
+    }
+
+    #ddl_student_search + .select2-container .select2-selection__arrow {
+        height: 36px;
+    }
+
+    /* Only style headers for regular Bootstrap tables and DataTables */
+    .table thead th,
+    table.dataTable thead th {
+        background-color: midnightblue !important;
+        color: white !important;
+        text-align: center;
+        vertical-align: middle !important;
+        font-size: 12px;
+        font-weight: 600;
+        padding-right: 25px !important;
+        white-space: nowrap;
+    }
+
+        table thead th *,
+        table.dataTable thead th * {
+            color: white !important;
+        }
+    /* Reset datepicker/calendar table headers so they are not affected */
+    .datepicker table thead th,
+    .ui-datepicker table thead th,
+    .gj-datepicker table thead th,
+    .gj-datepicker-bootstrap table thead th {
+        background-color: transparent !important;
+        color: inherit !important;
+    }
+</style>
+<div class="card container-fluid">
+    <div class="row">
+
+
+        <div class="col-lg-12" style="margin-top:3vmin">
+            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Report</p>
+            </div>
+            <div class="card-body rounded">
+                <div class="row">
+                    <div class="col-lg-12 col-xs-12">
+                        @*<div class="justify-content-center">*@
+                        <ul class="nav nav-tabs nav-justified d-flex justify-content-center align-content-center mt-1" style="border:0px;cursor: pointer; font-weight: 600;margin-left:0px;gap:5px;" role="tablist" id="main">
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A1" role="tab" href="#NotificationLog" aria-expanded="false" class="tabstyle" onclick="changebg()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Notification Log</a>
+                            </li>
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A2" role="tab" href="#StudentNotificationLog" aria-expanded="false" class="tabstyle" onclick="changebg1()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Student Notification Log</a>
+                            </li>
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A3" role="tab" href="#NoGPS" aria-expanded="false" class="tabstyle" onclick="changebg2();tblNoData();" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">No GPS</a>
+                            </li>
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A4" role="tab" href="#LoginReport" aria-expanded="false" class="tabstyle" onclick="changebg3()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Login Report</a>
+                            </li>
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A55" role="tab" href="#RFIDReport" aria-expanded="false" class="tabstyle" onclick="changebg4()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">RFID Report</a>
+                            </li>
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A6" role="tab" href="#StopViolation" aria-expanded="false" class="tabstyle" onclick="changebg5()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Stop Violation</a>
+                            </li>
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A7" role="tab" href="#UHFReport" aria-expanded="false" class="tabstyle" onclick="changebg6()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">UHF Report</a>
+                            </li>
+
+                        </ul>
+                        @*</div>*@
+
+                    </div>
+                </div>
+
+                
+       
+                <div class="tab-content">
+                    <div class="tab-pane" id="NotificationLog">
+                        <div class="row mt-2">
+
+                            <div class="d-flex mt-2" style="gap:5vmin">
+                                <div>
+                                    <label class="control-label">Date To</label>
+                                </div>
+                                <div>
+                                    <input asp-for="date" placeholder="mm-dd-yyyy" id="datepicker" type="text" class="form-control datepicker" style="">
+
+                                </div>
+                                <div class="">
+                                    <button class="btn btn-sm" onclick="bindSms()" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+                                </div>
+
+                            </div>
+
+                            
+                            
+                            <div class="row">
+                                @*<div class="col-4 d-flex">
+                                           <div>
+                                           </div>
+                                          @* <div style="margin-left: -28px;margin-top: 4px;">
+                                        <span><i class="bi bi-calendar-check" id="datepicker1" style="font-size:3vmin;cursor:pointer"></i></span>
+                                           </div>*@
+
+                                @*@</div>*@
+                                @*  <div class="col-3">
+
+                                    <button class="btn btn-sm" onclick="bindSms()" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+                                        </div>*@
+                                <div class="mt-2 ms-2 me-5 table-responsive">
+                                    <table style="width:100%" id="tblSms" class="table table-striped table-bordered table-hover no-footer table-sm" role="grid" aria-describedby="dataTables-example_info">
+                                        <thead style="">
+                                            @* <tr role="row" style="background-color: #C8D7E3">
+                                                        <th>Student Name</th>
+                                                        <th>Admission No</th>
+                                                        <th>Route Name</th>
+                                                        <th>Mobile No</th>
+                                                        <th>Message </th>
+                                                        <th>Status</th>
+                                                    </tr>*@
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+    
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div id="StudentNotificationLog" class="tab-pane">
+
+                        <div class="d-flex mt-3" style="gap:3vmin">
+
+                            <div>
+                                <label>Students<span class="required_">*</span></label>
+
+                            </div>
+                            <div style="width:260px;">
+                                <select title="Select Students"
+                                        class="form-control"
+                                        id="ddl_student_search"
+                                        style="width:100%;">
+                                </select>
+                            </div>
+                            <div>
+                                <label>Date From<span class="required_">*</span></label>
+
+                            </div>
+                            <div>
+                                <input id="date_picker1" type="text" class="form-control" placeholder="mm-dd-yyyy" />
+
+                            </div>
+                            <div>
+                                <label>Date To<span class="required_">*</span></label>
+
+                            </div>
+                            <div>
+                                <input id="date_picker2" type="text" class="form-control " placeholder="mm-dd-yyyy" />
+
+
+                            </div>
+                            <div>
+
+                                <button class="btn btn-sm" onclick="tbl_student_sms_func()" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+
+                            </div>
+
+                            @*<input type="text" class="form-control inputbackgroundcolor" placeholder="Please Select Student" />*@
+
+                            
+                        </div>
+                        <div class="mt-2 ms-2">
+                            <table id="tbl_student_sms" style="width:100%" class="table table-striped table-bordered table-hover no-footer" role="grid" aria-describedby="dataTables-example_info">
+                                <thead>
+                                </thead>
+                            </table>
+                        </div>
+
+                        
+                      
+
+                    </div>
+                    <div id="NoGPS" class="tab-pane mt-2">
+                        <div class="row">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="layout divmarginoutsideicon">
+                                    <a href="" class="iconlayout"> <i class="fa fa-file-excel-o icon_color center" aria-hidden="true"></i></a>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-2 ms-2">
+                            <table id="tblNoData" style="width:100%" class="table table-striped table-bordered table-hover no-footer" role="grid" aria-describedby="dataTables-example_info">
+                                <thead>
+                                    <tr role="row" style="background-color: #C8D7E3">
+                                        <th>Vehicle</th>
+                                        <th>Last Updated</th>
+                                    </tr>
+
+                                </thead>
+
+                                
+                            </table>
+                        </div>
+                    </div>
+                    <div id="LoginReport" class="tab-pane">
+
+                        <div class="d-flex mt-3" style="gap:2vmin">
+                            <div>
+                                <label style="">Date <span class="required_">*</span></label>
+
+                            </div>
+                            <div>
+                                <input asp-for="date" id="datepicker3" placeholder="" type="date" class="form-control datepicker " style="">
+
+                            </div>
+                            <div>
+                                <button class="btn btn-sm" onclick="report()" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="layout divmarginoutsideicon">
+
+                                   
+                                    <a href="" class="iconlayout"> <i class="fa fa-file-excel-o icon_color center" aria-hidden="true"></i></a>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-2 ms-2">
+                            <table id="tbl_login_report" style="width:100%" class="table table-striped  table-bordered table-hover no-footer" role="grid" aria-describedby="dataTables-example_info" style="margin-top: 25px">
+                            </table>
+                        </div>
+                    </div>
+                    <div id="RFIDReport" class="tab-pane">
+                        <div class="d-flex mt-3" style="gap:2vmin">
+                            <div>
+                                <label style="">Date <span class="required_">*</span></label>
+
+                            </div>
+                            <div>
+                                <input asp-for="date" id="datepicker4" placeholder="" type="date" class="form-control datepicker " style="">
+
+                            </div>
+                            <div>
+                                <button class="btn btn-sm" onclick="rfidreport()" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+
+                            </div>
+
+                            
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="layout divmarginoutsideicon">
+
+                                   
+                                    <a href="" class="iconlayout"> <i class="fa fa-file-excel-o icon_color center" aria-hidden="true"></i></a>
+
+                                </div>
+
+
+                                <div class="mt-2">
+                                    <table id="rfidreport" style="width:100%" class="table  table-striped table-bordered table-hover no-footer">
+                                        <thead>
+                                        </thead>
+                                    </table>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div id="StopViolation" class="tab-pane">
+                        <div class="row mt-4">
+                            <div class="col-4">
+                                <div class="d-flex" style="gap:2vmin;">
+                                    <div>
+                                        <label>Route<span class="required_">*</span></label>
+
+                                    </div>
+                                    <div style="width:100%">
+                                        <select title="Select Routes" selected="Select Students" class="form-control dropdownwithsearch " id="ddl_route_search" data-live-search="true" multiple="multiple">
+                                            @*<option>Select Students</option>*@
+
+
+                                        </select>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-3">
+                                <div class="d-flex" style="gap:2vmin;">
+                                    <div>
+                                        <label>Date<span class="required_">*</span></label>
+
+                                    </div>
+                                    <div>
+                                        <input asp-for="date" id="date_picker3" type="date" class="form-control datepicker " placeholder="" />
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <button onclick="tb_alert_func()" class="btn btn-sm" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+                            </div>
+
+                        </div>
+
+                        <div class="mt-2">
+
+                           
+                            <table style="width:100%" class="table table-striped  table-bordered table-hover no-footer" style="width: calc(150%)" id="tbl_stop_voilation">
+                                <thead>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+                    <div id="UHFReport" class="tab-pane">
+                        <div class="d-flex mt-3" style="gap:15px">
+
+                            <div>
+                                <label style="">Date To <span class="required_">*</span></label>
+                            </div>
+
+                                
+                            <div>
+                                <input id="modified" placeholder="Select date" type="datetime-local" class="form-control" style="" />
+                            </div>
+                            <div>
+                                <button class="btn btn-sm" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+                            </div>
+
+                                
+                            
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/report.js"></script>
+
+    <script>
+        $(document).ready(function () {
+        $('#ddl_student_search').select2({
+            width: '100%',
+            placeholder: 'Select student',
+            allowClear: true,
+            minimumResultsForSearch: 0
+        });
+
+        if (!$.fn.DataTable.isDataTable('#tblSms')) {
+        $('#tblSms').DataTable({
+        columns: [
+        { title: "Student Name" },
+        { title: "Admission No" },
+        { title: "Route Name" },
+        { title: "Mobile No" },
+        { title: "Message" },
+        { title: "Status" }
+        ]
+        });
+        }
+
+        $('#datepicker').val('@DateTime.Now.ToString("MM-dd-yyyy")');
+
+        $('#A1').tab('show');
+
+        bindSms();
+        });
+        $(document).ready(function () {
+        $("#tbl_student_sms").DataTable({
+        columns:[
+        { title: "Student Name" },
+        { title: "Admission No" },
+        { title: "Route Name"},
+        { title: "Mobile No"},
+        { title: "Message" },
+        { title: "Status"},
+        { title: "Date"}
+        ],
+        language: {
+            emptyTable: 'Data not found',
+            zeroRecords: 'Data not found'
+        },
+        layout: {
+        topStart: {
+        buttons: ['copy', 'excel', 'pdf']
+        }
+        }
+
+        });
+        })
+        $(document).ready(function () {
+        $("#tbl_login_report").DataTable({
+        columns:[
+        { title: "Student Name" },
+        { title: "Class" },
+        { title: "Admission No"},
+        { title: "Login Time"},
+        { title: "Source" }
+
+        ],
+        layout: {
+        topStart: {
+        buttons: ['copy', 'excel', 'pdf']
+        }
+        }
+
+        });
+        })
+        $(document).ready(function () {
+        $("#rfidreport").DataTable({
+        columns:[
+        { title: "Route Name" },
+        { title: "Total Students" },
+        { title: "Punched"},
+        { title: "Not Punched"},
+        { title: "Other Punched" },
+
+        ],
+        layout: {
+        topStart: {
+        buttons: ['copy', 'excel', 'pdf']
+        }
+        }
+
+        });
+        })
+
+        $(document).ready(function () {
+        $("#tbl_stop_voilation").DataTable({
+        columns: [
+        { title: "S.No" },
+        { title: "Route Name" },
+        { title: "Count" }
+
+                    
+        ],
+        layout: {
+        topStart: {
+        buttons: ['copy', 'excel', 'pdf']
+        }
+        }
+
+        });
+        })
+
+        function bindSms() {
+
+    var table = $('#tblSms').DataTable();
+
+    table.clear().draw();
+
+    var from = $('#datepicker').val();
+
+    if (!from) {
+        Swal.fire('Please select the date');
+        return false;
+    }
+
+    $.ajax({
+        url: '@Url.Action("Index", "Report")',
+        type: 'POST',
+        data: {
+            fdate: from
+        },
+        success: function (response) {
+
+            let data = response;
+
+            if (typeof response === 'string') {
+                data = JSON.parse(response);
+            }
+
+            if (!data || data.length === 0) {
+                Swal.fire('No data found');
+                return;
+            }
+
+            let rows = data.map(item => [
+                item.student_name || '',
+                item.admission_no || '',
+                item.route_name || '',
+                item.mobile_no || '',
+                item.message || '',
+                'Sent'
+            ]);
+
+            table.rows.add(rows).draw();
+        },
+        error: function (xhr, status, error) {
+            console.error(error);
+            Swal.fire('An error occurred while fetching data.');
+        }
+    });
+}
+
+        function rfidreport() {
+        // Clear existing data
+        var table = $("#rfidreport").DataTable();
+        table.clear().draw();
+
+        var from = $("#datepicker4").val();
+        if (!from) {
+        Swal.fire('Please select the date');
+        return false;
+        }
+
+        $.ajax({
+        url: '/schoolbuddy/Report/GetRFIDReport', // Ensure this URL matches your endpoint
+        type: 'POST',
+        data: { fDate: from },
+        success: function (response) {
+        let data;
+        try {
+               data = JSON.parse(response);
+        if (!data || data.length === 0) {
+        Swal.fire('No data found');
+        return;
+        }
+        } catch (e) {
+        console.error('Failed to parse JSON:', e);
+        Swal.fire('Failed to load data.');
+        return;
+        }
+
+        // Prepare data array for bulk addition
+        let rows = data.map(item => [
+        item.route_name || "",
+        item.total || "",
+        item.punched || "",
+        item.not_punched || "",
+        item.other || ""
+        ]);
+
+        // Add all rows in a single operation
+        table.rows.add(rows).draw();
+        },
+        error: function (xhr, status, error) {
+        console.error('Error occurred:', error);
+        Swal.fire('An error occurred while fetching data.');
+        }
+        });
+        }
+        function report() {
+        var from = $("#datepicker3").val();
+        if (!from) {
+        Swal.fire('Please select the date');
+        return false;
+        }
+
+        // Access the DataTable instance
+        var table = $("#tbl_login_report").DataTable();
+
+        // Clear existing data
+        table.clear().draw();
+
+        $.ajax({
+        url: '/schoolbuddy/Report/GetLoginReport',
+        type: 'POST',
+        data: { fdate: from },
+        success: function (response) {
+        let data;
+           data = JSON.parse(response);
+        try {
+        if (!data || data.length === 0) {
+        Swal.fire('No data found');
+        return;
+        }
+        } catch (e) {
+        console.error('Failed to parse JSON:', e);
+        Swal.fire('Failed to load data.');
+        return;
+        }
+
+        // Prepare data array for bulk addition
+        let rows = data.map(item => [
+        item.student_name || "",
+        (item.class_name || "") + (item.class || ""),
+        item.admission_no || "",
+        item.login_time || "",
+        item.source || ""
+        ]);
+
+        // Add all rows in a single operation
+        table.rows.add(rows).draw();
+        },
+        error: function (xhr, status, error) {
+        console.error('Error occurred:', error);
+        Swal.fire('An error occurred while fetching data.');
+        }
+        });
+        }
+
+        function tblNoData() {
+        var table = $("#tblNoData").DataTable();
+
+        // Clear existing data
+        table.clear().draw();
+
+        $.ajax({
+        url: '/schoolbuddy/Report/GetNoGps',
+        type: 'POST',
+        // data: { uid: "5415" },
+        success: function (response) {
+        let data;
+           data = JSON.parse(response);
+        try {
+        if (!data || data.length === 0) {
+        Swal.fire('No data found');
+        return;
+        }
+        } catch (e) {
+        console.error('Failed to parse JSON:', e);
+        Swal.fire('Failed to load data.');
+        return;
+        }
+
+        // Prepare data array for bulk addition
+        let rows = data.map(item => [
+        item.veh_reg || "",
+        item.last_updated || ""
+        ]);
+
+        // Add all rows in a single operation
+        table.rows.add(rows).draw();
+        },
+        error: function (xhr, status, error) {
+        console.error('Error occurred:', error);
+        Swal.fire('An error occurred while fetching data.');
+        }
+        });
+        }
+
+        function parseApiResponse(response) {
+            if (typeof response !== 'string') {
+                return response;
+            }
+
+            try {
+                return JSON.parse(response);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function getApiRecords(response) {
+            response = parseApiResponse(response);
+
+            if (!response || response.status === false || String(response.message || '').toLowerCase().includes('data not found')) {
+                return [];
+            }
+
+            if (Array.isArray(response)) {
+                return response;
+            }
+
+            if (Array.isArray(response.response)) {
+                return response.response;
+            }
+
+            if (Array.isArray(response.data)) {
+                return response.data;
+            }
+
+            if (response.data && Array.isArray(response.data.response)) {
+                return response.data.response;
+            }
+
+            return [];
+        }
+
+        function tbl_student_sms_func(){
+            var table = $("#tbl_student_sms").DataTable();
+            table.clear().draw();
+
+            var from = $("#date_picker1").val();
+            var to = $("#date_picker2").val();
+            var selectedValue = $('#ddl_student_search').val();
+
+            if (!from || !to) {
+                Swal.fire('Please select the date');
+                return false;
+            }
+
+            if (!selectedValue) {
+                Swal.fire('Please select a student');
+                return false;
+            }
+
+            var dataToSend = {
+                // The existing backend binds SelectedValues as List<string>.
+                selectedValues: [selectedValue],
+                from: from,
+                to: to
+            };
+
+            $.ajax({
+                url: '/schoolbuddy/Report/GetStudentReport',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(dataToSend),
+                success: function (response) {
+                    var records = getApiRecords(response);
+
+                    if (!records.length) {
+                        table.clear().draw();
+                        return;
+                    }
+
+                    var rows = records.map(function (item) {
+                        return [
+                            item.student_name || 'N/A',
+                            item.admission_no || 'N/A',
+                            item.route_name || 'N/A',
+                            item.mobile_no || 'N/A',
+                            item.message || 'N/A',
+                            item.status || 'sent',
+                            item.date_time || 'N/A'
+                        ];
+                    });
+
+                    table.rows.add(rows).draw(false);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error occurred:', error);
+                    Swal.fire('An error occurred while fetching data.');
+                }
+            });
+        }
+        function tb_alert_func(){
+        console.log('cdc');
+        //$('#ddl_student_search').empty();
+        var table = $("#tbl_stop_voilation").DataTable();
+        table.clear().draw();
+
+        var from = $("#date_picker3").val();
+
+        if (!from) {
+        Swal.fire('Please select the date');
+        return false;
+        }
+        var selectedValues = $('#ddl_route_search').val();
+
+        var dataToSend = {
+        selectedValues: selectedValues,
+        from: from,
+
+        };
+
+        $.ajax({
+        url: '/schoolbuddy/Report/GetAlertReport', // Ensure this URL matches your endpoint
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify(dataToSend),
+        success: function (response) {
+        let data;
+        try {
+               data = JSON.parse(response);
+        if (!data || data.length === 0) {
+        Swal.fire('No data found');
+        return;
+        }
+        console.log(data);
+        } catch (e) {
+        console.error('Failed to parse JSON:', e);
+        Swal.fire('Failed to load data.');
+        return;
+        }
+
+        // Prepare data array for bulk addition
+        let rows = data.map(item => [
+        item.student_name || "",
+        item.admission_no || "",
+        item.route_name || "",
+        item.mobile_no || "",
+        item.message || "",
+        "sent",
+        item.date_time || ""
+        ]);
+
+        // Add all rows in a single operation
+        table.rows.add(rows).draw();
+        },
+        error: function (xhr, status, error) {
+        console.error('Error occurred:', error);
+        Swal.fire('An error occurred while fetching data.');
+        }
+        });
+        }
+
+        $('#allstudents').select2({
+        selectOnClose: true
+        });
+
+        
+
+  
+    </script>
+}
+
+
+
+
+

@@ -1,0 +1,695 @@
+﻿@{
+    ViewData["Title"] = "Stops";
+}
+@model IEnumerable<getstop>
+
+<style>
+    input[type=radio] {
+        width: 10px;
+        height: auto;
+        border: 2px solid midnightblue
+    }
+
+
+    .layout {
+        display: flex
+    }
+
+    .iconlayout {
+        border: 2px solid;
+        border-radius: 50%;
+        border-color: midnightblue;
+        padding: 1px;
+        width: 3%;
+        height: 3%;
+        text-align: center;
+        margin: 0 5px;
+    }
+
+    .fontsize {
+        font-size: 12px
+    }
+
+    .inputbackgroundcolor {
+        background-color: ghostwhite;
+        /*f7f7f7*/ border-radius: 0.4rem;
+        font-size:14px;
+    }
+    .labelfontsize{
+        font-size:14px;
+    }
+
+    .icon_color {
+        color: midnightblue
+    }
+
+    .center {
+        /*text-align: center;
+            font-size: 20px*/
+    }
+
+    .divmarginoutsideicon {
+        margin: 5px
+    }
+
+    .labelfontsizeincheckbox{
+        font-size: 10px;
+    }
+    .form-control-backcolor{
+        background-color:#fbfbfc;
+    }
+    .loader{
+    width: 100%;
+
+    text-align: center;
+    position: absolute;
+    z-index: 99999;
+    top: 52%;
+    }
+    .loader img{
+        width:50px;
+    }
+</style>
+
+
+
+<div class="modal fade sb-common-modal" id="exampleModal12" tabindex="-1" aria-labelledby="assignStudentToStopModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignStudentToStopModalLabel">Assign Student to stop</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+
+                <form method="post" asp-controller="Route" asp-action="assign_student">
+                    <input id="routeid" name="routeid" value="@ViewData["r_id"]" type="hidden" class="form-control mt-2" />
+
+                   @*  <input name="rid" type="hidden" id="" /> *@
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control" style="border:none;">Student Name<span class="required_">*</span></label>
+                            <input name="StudentName" class="form-control inputbackgroundcolor" placeholder="Enter Student Name" type="text"  required/>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control" style="border:none;">Admission Number<span class="required_">*</span></label>
+                            <input name="AdmissionNumber" id="positions" class="form-control inputbackgroundcolor" onchange="stoplatlongchangemanually()" placeholder="Enter Admission Number" type="text"  required/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control" style="border:none;">Stop Id<span class="required_">*</span></label>
+                            <input name="StopId" class="form-control inputbackgroundcolor" placeholder="Enter Stop Id" type="text" required/>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control" style="border:none;">RF Id<span ></span></label>
+                            <input name="RFId" class="form-control inputbackgroundcolor" placeholder="Enter RF-Id (Optional)" type="text" />
+                        </div>
+                    </div>
+                    <div class="mb-2" style="display:flex;justify-content:center;gap:20px">
+                        <div>
+                            <button class="btn btn-sm" type="submit" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</button>
+
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" data-bs-dismiss="modal" style="border: 2px solid;border-color: midnightblue;color:midnightblue">CANCEL</button>
+
+                        </div>
+
+                    </div>
+                </form>
+
+
+            </div>
+            @* <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div> *@
+        </div>
+    </div>
+</div>
+<div class=" card container-fluid">
+    <div class="row">
+
+
+        <div class="col-lg-12" style="margin-top:3vmin">
+            <div class="card-header rounded-top ms-2" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Stops</p>
+            </div>
+            <div class="card-body rounded" style="background-color:#fbfbfc;padding:0px;">
+                @* <div id="googleMap" style="width:100%;height:270px;"></div>
+                <div id="googleMapwithmarkers" style="width:100%;height:270px; display:none"></div> *@
+                
+                    
+                      <div class="row">
+                           @* <div class="col-lg-1">
+                                
+                            </div>*@
+                            <div class="col-lg-2">
+                                <button type="button" onclick="addStop()" class="btn ms-2 mb-3 mt-2 me-2 btn-sm fw-bold text-light" style="background-color:darkcyan">Add Stop</button>
+                            </div>
+                            <div class="col-lg-10">
+                                <div class="row">
+                                    <div class="col-lg-5" style="display:flex;justify-content:end;">
+                                    <label class="mt-2">Assign students to stops <i style="font-size:24px" class="ri-arrow-right-line"></i></label>
+
+                                    </div>
+                                    <div class = "col-lg-7">
+                                        <form asp-controller="Route" asp-action="AssignStudents" id="uploadForm" method="post" enctype="multipart/form-data">
+                                            <div class="row">
+                                                <div class="col-lg-7">
+                                            <input name="excelfile" type="file" class="form-control mt-2" required />
+                                                    <input id="routeid__" name="routeid" value="@ViewData["r_id"]" type="hidden" class="form-control mt-2" />
+                                                </div>
+                                                <div class="col-lg-2">
+                                            <a asp-controller="Home" asp-action="downloadSampleExcelForAssigningAtudents" class="btn bi bi-upload mt-2" title="Download Sample" style="background-color:#fbfbfc;margin-top: 24px;">
+                                                <i class="fa fa-file-excel-o" style="margin-left:5px;color: white;background-color: green;"></i>
+                                            </a>
+                                                </div>
+                                                <div class="col-lg-3">
+                                                    <button type="submit" id="uploadButton" class="btn btn-sm mt-2 text-light fw-bold" style="background-color:darkcyan">Upload</button>
+                                                </div>
+                                            </div>
+                                            
+                                        </form>
+
+                                
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                      </div>
+                            
+                            @*<button class="btn bg-info mt-2 me-2 btn-sm" style="color:white" onclick="showvias();">Show Vias</button>
+                                <button class="btn bg-danger mt-2 me-2 btn-sm" style="color:white" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="Addstop();">Delete Vias</button>*@
+
+
+                           
+                            @*<div class=" ms-1 mt-3 d-flex">
+                                <div>
+                                    <img style="width:25px" src="~/images/startpoint.png" />
+                                </div>
+                                <div class="ms-3">
+                                    <p style="font-size:small">Start Point</p>
+                                    <p style="line-height:0px;font-size:small">Address</p>
+                                </div>
+
+                            </div>*@
+                    <div class=" ms-2 col-lg-12 table-responsive">
+                        <table id="stop" class=" table table-striped table-hover" style="width:100%">
+                                <thead>
+                                    <tr class="text-center" style="font-size:12px;background-color:midnightblue;color:white">
+                                        @*<th class="text-center">S.No</th>*@
+                                        <th class="text-center">Stop ID</th>
+                                        <th class="text-center">Stop Order</th>
+                                        <th class="text-center"> <img style="width:25px;" src="~/images/bus_stop_icon.png" /> Stop Name</th>
+                                        <th class="text-center">Latitude</th>
+                                        <th class="text-center">Longitude</th>
+                                        <th class="text-center">Action</th>
+                                    
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int sno = 1;
+                                        if (Model!=null)
+                                        {
+                                            foreach (var stop in Model)
+                                            {
+                                                <tr id=@stop.id>
+                                                
+                                                    <td class="text-center">@stop.id</td>
+                                                <td class="text-center">@stop.stop_order</td>
+                                                    <td class="text-center"> @stop.user_stop_name</td>
+                                                    <td class="text-center"> @stop.latitude</td>
+                                                   <td class="text-center"> @stop.longitude</td>
+                                                    <td class="text-center">
+                                                    <a><i onclick="addsingalstudent(@stop.id);" class="bi bi-person-bounding-box text-primary tableicon" aria-hidden="true" title="Assign Student"></i></a>
+                                                    <a><i onclick="addStudent(@stop.id);" class='bi bi-view-list text-info tableicon' title="View Details"></i></a>
+                                                <a onclick="openEditStopModal('@stop.id', '@stop.user_stop_name', '@stop.latitude', '@stop.longitude')" class="me-1">
+                                                    <i class="ri-edit-box-line text-info" title="Edit Stop" style="font-size:1rem;font-weight:500;cursor:pointer;text-align:center"></i>
+                                                </a>
+
+                                                    <a onclick="deletestop(@stop.id);"> <i class="bi bi-trash text-danger tableicon" title="Delete Stop"></i></a>
+                                                    </td>
+                                                </tr>
+                                                sno++;
+                                            }
+                                        
+                                        }
+                                   
+                                    }
+                                </tbody>
+                        </table>
+
+                    </div>
+                    
+
+                           @* <div class=" ms-1 mt-3 d-flex">
+                                <div>
+                                    <img style="width:42px" src="~/images/endpoint.jpg" />
+                                </div>
+                                <div class="ms-3">
+                                    <p style="font-size:small">End Point</p>
+                                    <p style="line-height:0px;font-size:small">Address</p>
+                                </div>
+
+                            </div>*@
+                        
+
+
+                        
+                        @*<div class="loader">
+                            <img src="~/images/loader.gif" style="background-color:#fbfbfc" />
+                        </div>*@
+                    
+
+               
+
+             
+
+                <!-- Modal -->
+                <div class="modal fade sb-common-modal" id="assignstudentmodal" tabindex="-1" aria-labelledby="assignedStudentsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="assignedStudentsModalLabel">Assigned Students With RFID</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="col-lg-12 table-responsive">
+                                    <table id="table_assigned_students" class=" table table-sm table-hover table-striped" style="width:100%">
+                                        <thead>
+                                            <tr class="text-center" style="font-size:12px;background-color:midnightblue;color:white">
+                                               @* <th class="text-center">S.No</th>*@
+                                                <th class="text-center">Student Name</th>
+                                                <th class="text-center">RFID</th>
+                                                
+
+                                            </tr>
+                                        </thead>
+                                       @* <tbody>
+                                            @{
+                                                int sno1 = 1;
+                                                if (Model != null)
+                                                {
+                                                    foreach (var stop in Model)
+                                                    {
+                                                        <tr id=@stop.id>
+                                                            <td class="text-center">@sno1</td>
+                                                            <td class="text-center">@stop.student_name</td>
+                                                            <td class="text-center">@stop.rf_id</td>
+                                                            
+                                                        </tr>
+                                                        sno1++;
+                                                    }
+
+                                                }
+
+                                            }
+                                        </tbody>*@
+                                    </table>
+
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Edit Stop Modal-->
+                <div class="modal fade sb-common-modal" id="editstopmodal" tabindex="-1" aria-labelledby="editStopModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editStopModalLabel">Edit Stop </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body" id="modalbody">
+                                <form asp-controller="Route" asp-action="editstop" method="post">
+                                    <input name="id" id="edit_stop_id" type="hidden" />
+                                    <input name="rid" id="edit_stop_rid" type="hidden" value="@ViewData["r_id"]" />
+
+                                    <div class="row mb-2">
+                                        <div class="col-lg-12">
+                                            <label class="form-control" style="border:none;">Stop Name</label>
+                                            <input name="stopname" id="edit_stopname" class="form-control inputbackgroundcolor" type="text" />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-lg-12">
+                                            <label class="form-control" style="border:none;">Latitude</label>
+                                            <input name="lat" id="edit_lat" class="form-control inputbackgroundcolor" type="number"
+                                                   min="-90"
+                                                   max="90"
+                                                   step="any"
+                                                   required />
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-2">
+                                        <div class="col-lg-12">
+                                            <label class="form-control" style="border:none;">Longitude</label>
+                                            <input name="lng" id="edit_lng" class="form-control inputbackgroundcolor" min="-180"
+                                                   max="180"
+                                                   step="any"
+                                                   type="number"
+                                                   required />
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-2" style="text-align:center">
+                                        <button type="submit" class="btn btn-sm" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</button>
+                                    </div>
+                                </form>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+
+               
+
+                <div id="studentallocatetostop" style="display:none; background-color:white">
+                    <div class="ms-2">
+                        <div class="mt-4">
+                            <h3>Allocate Students</h3>
+                        </div>
+
+
+
+                    </div>
+                    <div class="d-flex">
+                        <div class="d-flex">
+                            <div>
+                                <p class="ms-3">Point Allocation Via</p>
+                            </div>
+                            <div class="ms-3">
+                                <input type="radio" name="allocationvia" />
+                                <label style="font-weight:300;font-size:14px">Parent App</label>
+                            </div>
+                            <div class="ms-3">
+                                <input type="radio" name="allocationvia" />
+                                <label style="font-weight:300;font-size:14px">Manual</label>
+                            </div>
+
+
+                        </div>
+                        <div class="d-flex flex-row-reverse">
+
+                            <div class="ms-5">
+                                <button id ="uploadstudentsviaexcel" class="btn btn-sm" style="border: 2px solid;border-color: midnightblue;color:midnightblue">Add Students Via Excel<i class="fa fa-upload ms-2" style="font-size:20px" aria-hidden="true"></i></button>
+
+                            </div>
+                            <div class="ms-5">
+                                <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#addstudent" style="border: 2px solid;border-color: midnightblue;color:midnightblue">Add Students</button>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="d-flex me-2 ms-2 mt-3">
+                        <div class="me-2 align-content-center" style="background-color:green;height:34px">
+                            <label class="fw-semibold" style="padding:10px;margin:0px;color:white">Allocated : 10</label>
+                        </div>
+                        <div class="me-2 align-content-center" style="background-color:red;height:34px">
+                            <label class="fw-semibold" style="padding:10px;margin:0px;color:white">Not Allocated : 10</label>
+                        </div>
+                        <div class=" align-content-center" style="background-color:gray;height:34px">
+                            <label class="fw-semibold" style="padding:10px;margin:0px;color:white">Total : 20</label>
+                        </div>
+
+                    </div>
+
+
+                </div>
+            </div>
+
+
+            </div>
+
+        </div>
+</div>
+
+
+
+
+
+@*<!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Launch demo modal
+    </button>*@
+
+    <!-- Modal FOR STOPS-->
+    <div class="modal fade sb-common-modal" id="addstopmodal" tabindex="-1" aria-labelledby="addStopModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="addStopModalLabel">Add Stop</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+                <form method="post" asp-controller="Route" asp-action="addstop">
+                    <input name="rid" type="hidden" id="stop_modal" />
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control" style="border:none;">Stop Name<span class="required_">*</span></label>
+                            <input name="stopname" id="stopname" class="form-control inputbackgroundcolor" placeholder="Enter Stop Name" type="text" required/>
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control" style="border:none;">Latitude<span class="required_">*</span></label>
+                            <input name="lat" id="positions" class="form-control inputbackgroundcolor" onchange="stoplatlongchangemanually()" placeholder="Enter Latitude" type="number"
+                                   min="-90"
+                                   max="90"
+                                   step="any"
+                                   required />
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control" style="border:none;">Longitude<span class="required_">*</span></label>
+                            <input name="lng" id="long" class="form-control inputbackgroundcolor" placeholder="Enter Longitude" min="-180"
+                                   max="180"
+                                   step="any"
+                                   type="number"
+                                   required />
+                        </div>
+                    </div>
+                    <div class="mb-2" style="display:flex;justify-content:center;gap:20px">
+                        <div>
+                            <button class="btn btn-sm" type="submit" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</button>
+
+                        </div>
+                        <div>
+                            <button class="btn btn-sm" data-bs-dismiss="modal" style="border: 2px solid;border-color: midnightblue;color:midnightblue">CANCEL</button>
+
+                        </div>
+
+                    </div>
+              </form>
+               
+               
+
+          </div>
+          @*<div class="modal-footer d-flex justify-content-center">
+                
+          </div>*@
+        </div>
+      </div>
+    </div>
+
+
+<!-- Modal -->
+<div class="modal fade sb-common-modal" id="assignsingalstudentmodal" tabindex="-1" aria-labelledby="assignSingleStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignSingleStudentModalLabel">Assign Student With RFID</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbjIxsdDNnpgJ5afaqhkJqfYGHPeYKBkI&sensor=false"></script>
+
+        <script src="~/js/trip.js"></script>
+        <script>
+
+        $(document).ready(function () {
+
+            $("#stop").DataTable();
+        })
+
+        @if (TempData["res"] != null)
+        {
+            <text>
+                toastr.success('@TempData["res"]');
+            </text>
+        }
+        @if (TempData["result"] != null)
+        {
+            var res = TempData["result"];
+            @if (res.ToString().Contains("wrong"))
+            {
+                <text>
+                    toastr.error('@TempData["result"]');
+                </text>
+            }
+            @if (res.ToString().Contains("valid Excel Sheet"))
+            {
+                <text>
+                    toastr.error('@TempData["result"]');
+                </text>
+            }
+            else
+            {
+                <text>
+                    toastr.success('@TempData["result"]');
+                </text>
+            }
+        }
+        function addStudent(stopid){
+                var table = $('#table_assigned_students').DataTable();
+                table.clear().draw();
+            $.ajax({
+                type:'POST',
+                data:{stopid:stopid},
+                    url: '/schoolbuddy/Route/checkAssignedStudents',
+                success:function(response){
+                    //var sno = 0;
+                    var res = JSON.parse(response);
+                        let rows = res.map(item => [
+
+                            item.student_name || "", // Handle potential missing properties
+                            item.rf_id || ""
+            
+                        ]);
+
+                        table.rows.add(rows).draw();
+                },
+                error:function(){
+                    console.log('opps!!!');
+                }
+            })
+
+
+
+            $('#assignstudentmodal').modal('show')
+        }
+            function addStop(){
+                const url = new URL(window.location.href);
+                const id = url.searchParams.get('id');
+                console.log(id);
+            $('#stop_modal').val(id);
+            $('#addstopmodal').modal('show')
+            }
+            function deletestop(stopid){
+            const url = new URL(window.location.href);
+            const routeid = url.searchParams.get('id');
+            console.log(stopid, routeid);
+            console.log("");
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/schoolbuddy/Route/deleteStop',
+                        data: { stopid: stopid, rid : routeid},
+                        success:function response(){
+                            if(response){
+                                document.getElementById(stopid).remove();
+
+                            }
+                        }
+                        
+                        ,//function response(){
+                        //    if(response){
+                        //        window.location.reload();
+                        //    }
+                        //    window.location.reload();
+                        //},
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: "Something Went Wrong!",
+                                text: error,
+                                icon: "error"
+                            });
+                        }
+                        
+
+                    });
+                }
+            });
+                
+            }
+
+                    function openEditStopModal(stopId, stopName, latitude, longitude) {
+            // Fill the form inputs
+            $('#edit_stop_id').val(stopId);
+            $('#edit_stopname').val(stopName);
+            $('#edit_lat').val(latitude);
+            $('#edit_lng').val(longitude);
+
+            // Show the modal
+            $('#editstopmodal').modal('show');
+        }
+
+
+          function addsingalstudent(stopid){
+              //alert('hii');
+            $('#exampleModal12').modal('show')
+          }
+        
+            
+        </script>
+
+
+
+    
+        
+
+}
+
+

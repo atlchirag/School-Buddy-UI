@@ -1,0 +1,1037 @@
+﻿
+@{
+    ViewData["Title"] = "Dashboard";
+   
+}
+@model SchoolBuddy.Models.Dashboard.Dashboard
+
+
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+</script>*@
+
+<style>
+    .select2-container--default .select2-selection--single {
+        background-color: #e9ecef;
+        border: 0px
+    }
+    #myChart{
+        width:50%
+    }
+     .inputbackgroundcolor {
+        background-color: ghostwhite;
+        
+    }
+   @@media only screen and (max-width: 00px) {
+  #busstatus{
+      margin-left:100px;
+  }
+
+   
+}
+</style>
+
+
+<div class="container-fluid">
+    <div class="card">
+        <div class="row">
+            <div class="col-lg-12">
+                <h3 class="ms-3 mt-2" style="color:midnightblue;font-weight:700">
+                    Dashboard
+                </h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div class="card-body ms-4 rounded-3" style="background-color:white; height:100%">
+                    <div class="rounded">
+                        <div class="row mt-2">
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="card-body rounded-3 me-1" style="background-color:#FFE8F2;width: 134px;height: 148px;">
+                                        <div class="rounded-circle d-flex align-content-center justify-content-center"style="background-color: deeppink;width: 36px;height: 33px">
+                                        <i class="fa fa-users fs-3 mt-1" style="color: white;"></i>
+
+                                        </div>
+                                        <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalstudentcount??"0")</p>
+                                        <p style="font-size:10px" class="mb-0 mt-2">Total No. Of Students</p>
+                                    <a class="fw-bold" style="font-size:11px;color:blue;cursor:pointer" data-bs-toggle="modal" data-bs-target="#totalnumofstudents">View Details</a>
+
+                                    </div>
+                            </div>
+                        
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                    <div class="card-body rounded-3" style="background-color:#FFEECC;width: 134px;height: 148px;">
+                                        <div class="rounded-circle d-flex align-content-center justify-content-center" style="background-color: #ef9e0a;width: 36px;height: 33px;">
+                                        <i class="fa fa-file-text fs-3 mt-1" style="color: white;"></i>
+
+                                        </div>
+                                        <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.todaynotificationcount??"0")</p>
+                                        <p style="font-size:10px" class="mb-0 mt-2">Today's Notifications'</p>
+                                        <a class="fw-bold" style="font-size:11px; color:blue;cursor:pointer" data-bs-toggle="modal" data-bs-target="#todaysnotification">View Details</a>
+
+                                    </div>
+                            </div>
+                        
+                            <div class="col-lg-4 col-md-4 col-sm-4">
+                                <div class=" card-body rounded-3" style="background-color:#F0FFFF;width: 134px;height: 148px;">
+                                    <div class="rounded-circle d-flex align-content-center justify-content-center" style="background-color: #8383db;width: 36px;height: 33px;">
+                                            <i class="fa fa-map-marker fs-3 mt-1" style="color: white;"></i>
+
+                                        </div>
+                                    <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalnotificationcount??"0")</p>
+                                        <p  class="mb-0 mt-2" style="font-size: 10px;margin-bottom: 5px;">Total Notifications</p>
+                                    <a class="fw-bold" style="font-size:11px;color:blue;cursor:pointer" data-bs-toggle="modal" data-bs-target="#totalnotifications">View Details</a>
+
+                                    </div>
+
+                            </div>
+   
+
+                        </div>
+                     
+                        <div class="row mt-4">
+                            <div class="col-lg-4 col-md-4">
+
+                                <div class="card-body rounded-3" style="background-color:#ECFADC;width: 134px;height: 148px;">
+                                    <div class="rounded-circle d-flex align-content-center justify-content-center" style="background-color: #00b300;width: 36px;height: 33px;">
+                                        <i class="fa fa-ban fs-3 mt-1" style="color: white;"></i>
+
+                                    </div>
+                                    <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalbuscount??"0")</p>
+                                    <p class="mb-0 mt-2" style="font-size: 10px;margin-bottom: 5px;">Total No. of Buses</p>
+                                    <a class="fw-bold" style="font-size:11px; color:blue;cursor:pointer" data-bs-toggle="modal" data-bs-target="#totalnumofbus">View Details</a>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="card-body rounded-3" style="background-color:#F0FFFF;width: 134px;height: 148px;">
+                                    <div class="rounded-circle d-flex align-content-center justify-content-center" style="background-color: blue;width: 36px;height: 33px;">
+                                        <i class="fa fa-ban fs-3 mt-1" style="color: white;"></i>
+
+                                    </div>
+                                    <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalroutecount??"0")</p>
+                                    <p class="mb-0 mt-2" style="font-size: 10px;margin-bottom: 5px;">Total Routes</p>
+                                    <a class="fw-bold" style="font-size:11px; color:blue;cursor:pointer" data-bs-toggle="modal" data-bs-target="#totalroutes">View Details</a>
+
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-md-4">
+                                <div class="card-body rounded-3" style="background-color:#f4ebfe;width: 134px;height: 148px;">
+                                    <div class="rounded-circle d-flex align-content-center justify-content-center" style="background-color: purple;width: 36px;height: 33px">
+                                        <i class="fa fa-ban fs-3 mt-1" style="color: white;"></i>
+
+                                    </div>
+                                    <p class="fw-bold mt-2 mb-0 fs-5">@(Model?.totalliveroutecount??"0")</p>
+                                    <p class="mb-0 mt-2" style="font-size: 10px;margin-bottom: 5px;">Total Live Routes</p>
+                                    <a class="fw-bold" style="font-size:11px;color:blue;cursor:pointer" data-bs-toggle="modal" data-bs-target="#liveroutes">View Details</a>
+
+                                </div>
+                            </div>
+
+
+
+                        </div>
+
+                    </div>
+                </div>
+
+                
+            </div>
+            
+            <div class="col-lg-6">
+            
+                <div class="card-body me-4 rounded-3 " style="height:100%;background-color:white;">
+          
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="fw-bold">Bus Status</p>
+                            <div class=" d-flex">
+                                <div class="col-lg-12 d-flex mt-3">
+                                    <div style="width:50%">
+                                        <canvas class="ms-4"id="myChart" style="width:65%;height:auto"></canvas>
+
+                                         
+                                            @*<div id="container" style="position:relative;top:-30px ;height:280px"></div>*@
+                                         
+                                    </div>
+                                   
+                                    <div class="mt-4" id="busstatus" style="margin-left:60px">
+                                        <div class="rounded"style="color:white;background-color:#00b300">
+                                            <p style="padding: 5px 17px 5px 17px;font-weight:600">Running 5</p>
+                                        </div>
+                                        <div class="rounded" style="color:white;background-color:#F4AB6A">
+                                            <p style="padding: 5px 17px 5px 17px;font-weight:600">Idle 8</p>
+                                        </div>
+                                        <div class="rounded" style="color:white;background-color:#FF0000">
+                                            <p style="padding: 5px 17px 5px 17px;font-weight:600">
+                                                Stopped 8
+                                            </p>
+                                        </div >
+                                        <div class="rounded" style="background-color:#808080;color:white">
+                                            <p style ="padding: 5px 17px 5px 17px;font-weight:600">
+                                                No Data 2
+                                            </p>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                                
+
+                            </div>
+                            
+
+                        </div>
+         
+                    </div>
+                  
+            
+                </div>
+      
+       
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-6">
+                <div class="card-body rounded-3 ms-4 mt-4" style="height :345px;background-color:white">
+               
+                    <div class="row" style="margin:auto">
+                        <div class="col-lg-12">
+                           
+                                <p class="fw-bold">Attendance</p>
+                             <div class="d-flex">
+                                <div style="width:55%; height:auto;margin-left:10px">
+                                      <canvas id="myChart1" style="width:100%;max-width:600px;"></canvas>
+                                 </div>
+                               
+                                <div class="mt-5" style="margin-left:40px"> 
+
+                                    <div class="me-5 mt-5" style="">
+                                        <div class="rounded" style="color:white;background-color:#b0c4de; width:132%;">
+                                        <p style="padding: 5px 17px 5px 17px;font-weight:600">Route Wise 5</p>
+                                    </div>
+                                        <div class="rounded" style="color:white;background-color:#add8e6;width:132%;">
+                                        <p style="padding: 5px 17px 5px 17px;font-weight:600">Worker 8</p>
+                                    </div>
+                                    
+
+                                </div>
+                                </div>
+                                
+                            </div>
+                                   
+                      
+                        </div>
+                      
+                    </div>
+                </div>
+                
+            </div>
+            <div class="col-lg-6">
+                <div class="card-body rounded-3 mt-4 me-4" style="background-color:white;">
+                
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <p class="fw-bold">Driver Analysis</p>
+                        </div >
+                        <div class="col-lg-1"></div>
+                        <div class="col-lg-7">
+                            <p style="float:right" class="fw-bold">Total No. of Drivers (20)</p>
+                        </div>
+                    </div>
+                     <div class="row">
+                         <div class="col-lg-12">
+                            <label>Driver</label>
+                            <span style="color:red">*</span>
+                         </div>
+                     </div>
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <select id="drivers" class="form-control">
+                                <option value="">-- Select Engineer --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex">
+                        <div class="mt-3 ms-4">                                                    
+                            <div class="text-center rounded-circle" style="background-color:#C0C0C0;width:65%;margin-left :20px;height:auto"> @*#C0C0C0*@
+                             
+                                <i class="fa fa-user" style="font-size: 581%;color: white;padding:20px;"></i>
+                              
+                            </div>
+                            <div style="margin-left:-28px;text-align:center ">
+                                <div>
+                                      <label class="mt-0"style="color:#C0C0C0;font-size:15px;">Driver Name</label>
+                                </div>
+                                <div>
+                                      <label class="mt-0" style="color:#C0C0C0; font-size:15px;margin-left:-4px">Licence No. XXXXXXXXXXXXXXXX</label>
+                                </div>
+                                <div>
+                                     <label class="mt-0" style="color:#C0C0C0;font-size:15px ;">Address</label>
+                                </div>
+                              
+                               
+                                
+                            </div>
+                                
+                                    
+                                    
+                           
+                          @*  <div class="row">
+                                <div class="col-lg-12" style="text-align:center">
+
+                                    <label style="color:#C0C0C0;font-size:15px">Driver Name</label>
+                                </div>
+                            </div>*@
+                           @* <div class="row">
+                                <div class="col-lg-12" style="text-align:center">
+                                    <label style="color:#C0C0C0; font-size:15px">Licence No. XXXXXXXXXXXXXXXX</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12" style="text-align:center">
+                                    <label style="color:#C0C0C0;font-size:15px">Address</label>
+                                </div>
+                            </div>*@
+                        </div>
+                        <div class="ms-5">
+                            <div style="margin-top:30px;text-align:center">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <p class="mb-0" style="font-weight:700">Rating</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+
+                                        <p style="font-weight:700;font-size:4rem">7.5</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 ">
+                                        <a style="background-color: midnightblue;color: white;" class="btn rounded-pill"> View Alerts</a>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                           
+                    </div>
+
+                    <div style="text-align:center;width:50%">                   
+                    </div>
+
+                </div>
+
+            </div>                          
+        </div>
+
+   
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card-body rounded-3 mt-4 ms-4" style="background-color:white;">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p class="fw-bold">Violation</p>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 ">
+                            <p style="color:#D3D3D3">#</p>
+                          
+                        </div>
+                         <div class="col-lg-4">
+                              <p style="color:#D3D3D3">Name</p>
+                          
+                        </div>
+                        <div class="col-lg-4" style="text-align:right">
+                            <p style="margin-right: 25px;color:#D3D3D3">Times</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-body" style="background-color:white;margin-top:3px;margin-left:24px">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <p style="font-size:10px">
+                                01
+                            </p>
+                            
+                        </div>
+                         <div class="col-lg-4">
+                            <p class="" style="font-size:10px">Stop Wise</p>
+                           
+                        </div>
+                        <div class="col-lg-4" style="">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite;padding:0px">1</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body rounded-3 ms-4" style="background-color:white;border-bottom-left-radius:20px;border-bottom-right-radius:20px;margin-top:3px;margin-left:24px">
+                    <div class="row">
+                        
+                        <div class="col-lg-4">
+                            <p style="font-size:10px">
+                                02
+                            </p>
+                            
+                        </div>
+                        <div class="col-lg-4">
+                            <p style="font-size:10px">
+                                Route Wise
+                            </p>
+                            
+                        </div>
+                        <div class="col-lg-4">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite;padding:0px">1</a>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+             <div class="col-lg-4">
+
+                <div class="card-body rounded-3 mt-4 ms-3" style="background-color:white;border-bottom-left-radius:20px;border-bottom-right-radius:20px;margin-top:3px;margin-left:24px">
+                    <div class="row">
+                        <div class="col-lg-12">
+                             <p class="fw-bold">Analysis</p>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <p style="color:#D3D3D3">#</p>
+                            
+                        </div>
+                        <div class="col-lg-6">
+                            <p style="color:#D3D3D3">Name</p>
+                            
+                        </div>
+                        <div class="col-lg-4" style="text-align:right">
+                            <p style="margin-right: 25px;color:#D3D3D3">Times</p>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card-body ms-3" style="background-color:white;margin-top:3px;margin-left:24px">
+                    <div class="row">
+                        <div class="col-lg-2">
+                             <p class="" style="font-size:10px">01</p>
+                           
+                        </div>
+                        <div class="col-lg-6">
+                            <p class="" style="font-size:10px">Route Efficiency</p>
+
+                            
+                        </div>
+                        <div class="col-lg-4">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite;padding:0px">1</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body rounded-3 ms-3" style="background-color:white;border-bottom-left-radius:20px;border-bottom-right-radius:20px;margin-top:3px;margin-left:24px">
+                    <div class="row">
+                        <div class="col-lg-2">
+                            <p class="" style="font-size:10px">02</p>
+                           
+                        </div>
+                        <div class="col-lg-6">
+                              <p class="" style="font-size:10px"> Todat Running Wise Data</p>
+                           
+                        </div>
+                        <div class="col-lg-4">
+                            <a class="btn rounded-end w-75 h-75 text-center" style="color:red;background-color:antiquewhite; padding:0px">1</a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-lg-4">
+
+                <div class="card-body rounded-3 mt-4" style="background-color:white;height:243px">
+                    <canvas id="myChart2" class="mt-3" style="width:100%;max-width:600px;"></canvas>
+
+                </div>
+                
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card-body rounded-3 mt-4 ms-4" style="background-color:white;">
+                    <div class="row">
+                        <div class="col-lg-12">
+                           <p style="font-weight:700">Upcoming Holiday's</p>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p>
+                           <hr>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p>
+                           <hr>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p>
+                           <hr>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Holiday Name (Total No. of Days-2)</p>
+                          
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-6">
+                <div class="card-body rounded-3 mt-4 ms-4" style="background-color:white;">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <p style="font-weight:700">Upcoming Events</p>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Event Name (Total No. of Days-2)</p>
+                            <hr>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Event Name (Total No. of Days-2)</p>
+                            <hr>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Event Name (Total No. of Days-2)</p>
+                            <hr>
+                            <p style="font-weight:400;font-size: 0.9rem;">18-feb-2024-Event Name (Total No. of Days-2)</p>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="card-body" style="background-color:white;border-radius:20px;margin-top:24px;margin-right:24px;margin-left:24px">
+                    <div class="col-lg-12">
+
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-bar-chart-o fa-fw"></i>Route Live Status
+
+                                <div class="pull-right">
+
+                                    <div class="form-control">
+                                        <ul style="float: left; list-style: none; margin: 0px; padding: 0px">
+                                            <li style="float: left; margin-left: 2px;margin-right:25px;">
+                                                <img src="/images/delay.png" />
+                                                Delay
+                                            </li>
+                                            <li style="float: left; margin-left: 5px;margin-right:25px;">
+                                                <img src="/images/ontime.png" />
+                                                On Time
+                                            </li>
+                                            <li style="float: left; margin-left: 5px;margin-right:25px;">
+                                                <img src="/images/notreach.png" />
+                                                About To Reach
+                                            </li>
+
+                                        </ul>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- /.panel-heading -->
+                            <div class="panel-body">
+
+                                <div id="draw-line" style="width: 100%; height: 300px; overflow-y: scroll"></div>
+
+                            </div>
+                            <!-- /.panel-body -->
+                        </div>
+                        <!-- /.panel -->
+                        <!-- /.panel .chat-panel -->
+                    </div>
+                </div>
+
+                <!-- /.col-lg-8 -->
+                <!-- /.col-lg-4 -->
+            </div>
+        </div>
+      
+</div>
+</div>
+
+<div>
+    <figure class="highcharts-figure">
+    <div id="container"></div>
+   
+</figure>
+</div>
+
+<!-- Modal Total Number of Students-->
+<div class="modal fade sb-common-modal " id="totalnumofstudents" tabindex="-1" aria-labelledby="totalnumofstudentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="totalnumofstudentsModalLabel">Students</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                  
+                    <div class="card-body">
+                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        <table class="table table-striped" id="tablestudents">
+                            <thead>
+                                     <tr>
+                                         <th>S.No.</th>
+                                    <th>Student Name</th>
+                                    <th>Father Name</th>
+                                    <th>Class</th>
+                                    <th>Mobile Number</th>
+                                    <th>RFID</th>
+                                    <th>Admission No.</th>
+                                    <th>
+                                        Route Pick
+                                    </th>
+                                    <th>Route Drop</th>
+                                </tr>
+                                  
+                               
+                            </thead>
+                            <tbody id="myTable">
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a type="button" class="btn btn-primary" href="/students">View Full Details</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Today's Notification-->
+<div class="modal fade sb-common-modal" id="todaysnotification" tabindex="-1" aria-labelledby="todaysnotificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="todaysnotificationModalLabel">Today's Notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+
+                    <div class="card-body">
+                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        <table class="table table-striped" id="tablestudents">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Addmission.no</th>
+                                    <th>Route No</th>
+                                    <th>Mobile No.</th>
+                                    <th>Notification</th>
+                                    <th>Bus Routewise</th>
+                                </tr>
+
+
+                            </thead>
+                            <tbody id="myTable">
+                                <tr>
+                                    <td>xyz</td>
+                                    <td>123</td>
+                                    <td>def</td>
+                                    <td>cscsc</td>
+                                    <td>csdcdsc</td>
+                                </tr>
+                                <tr>
+                                    <td>abc</td>
+                                    <td>456</td>
+                                    <td>swwe</td>
+                                    <td>csdcsdc</td>
+                                    <td>csdcds</td>
+                                </tr>
+                                <tr>
+                                    <td>ghj</td>
+                                    <td>789</td>
+                                    <td>sdcw</td>
+                                    <td>csdc</td>
+                                    <td>dcever</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Total Notification-->
+@*<div class="modal fade sb-common-modal" id="totalnotifications" tabindex="-1" aria-labelledby="totalnotificationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="totalnotificationsModalLabel">Total Notifications</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+                <div class="card">
+
+                    <div class="card-body">
+                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        <table class="table table-striped" id="tablestudents">
+                            <thead">
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Ad.no</th>
+                                    <th>Mobile No</th>
+                                    <th>Class</th>
+                                    <th>Parent Name</th>
+                                </tr>
+
+
+                            </thead>
+                            <tbody id="myTable">
+                                <tr>
+                                    <td>xyz</td>
+                                    <td>123</td>
+                                    <td>def</td>
+                                    <td>cscsc</td>
+                                    <td>csdcdsc</td>
+                                </tr>
+                                <tr>
+                                    <td>abc</td>
+                                    <td>456</td>
+                                    <td>swwe</td>
+                                    <td>csdcsdc</td>
+                                    <td>csdcds</td>
+                                </tr>
+                                <tr>
+                                    <td>ghj</td>
+                                    <td>789</td>
+                                    <td>sdcw</td>
+                                    <td>csdc</td>
+                                    <td>dcever</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+
+                </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+*@
+
+<!-- Modal total Number of bus -->
+<div class="modal fade sb-common-modal" id="totalnumofbus" tabindex="-1" aria-labelledby="totalnumofbusLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="totalnumofbusLabel">Bus Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+         <div class="card">
+                  
+                    <div class="card-body">
+                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        <table class="table table-striped" id="tablestudents">
+                            <thead>
+                                     <tr>
+                                    <th>S.No</th>
+                                    <th>Bus.no</th>
+                                    <th>IMEI</th>
+                                    <th>Bus Route Name</th>
+                                    
+                                </tr>
+                                  
+                               
+                            </thead>
+                            <tbody id="myTable">
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+
+                    </div>
+
+                </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Modal Total Routes-->
+<div class="modal fade sb-common-modal" id="totalroutes" tabindex="-1" aria-labelledby="totalroutesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="totalroutesLabel">Routes</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+         <div class="card">
+                  
+                    <div class="card-body">
+                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        <table class="table table-striped" id="tablestudents">
+                            <thead>
+                                     <tr>
+                                    <th>Student Name</th>
+                                    <th>Ad.no</th>
+                                    <th>Mobile No</th>
+                                    <th>Class</th>
+                                    <th>Parent Name</th>
+                                </tr>
+                                  
+                               
+                            </thead>
+                            <tbody id="myTable">
+                                <tr>
+                                    <td>xyz</td>
+                                    <td>123</td>
+                                    <td>def</td>
+                                    <td>cscsc</td>
+                                    <td>csdcdsc</td>
+                                </tr>
+                                 <tr>
+                                    <td>abc</td>
+                                    <td>456</td>
+                                    <td>swwe</td>
+                                    <td>csdcsdc</td>
+                                    <td>csdcds</td>
+                                </tr>
+                                <tr>
+                                    <td>ghj</td>
+                                    <td>789</td>
+                                    <td>sdcw</td>
+                                    <td>csdc</td>
+                                    <td>dcever</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+
+                    </div>
+
+                </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Live routes -->
+<div class="modal fade sb-common-modal" id="liveroutes" tabindex="-1" aria-labelledby="liveroutesLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="liveroutesLabel">Live Routes</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+
+                    <div class="card-body">
+                        <input class="form-control inputbackgroundcolor" id="myInput" type="text" placeholder="Search..">
+                        <table class="table table-striped" id="tablestudents">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Ad.no</th>
+                                    <th>Mobile No</th>
+                                    <th>Class</th>
+                                    <th>Parent Name</th>
+                                </tr>
+
+
+                            </thead>
+                            <tbody id="myTable">
+                                <tr>
+                                    <td>xyz</td>
+                                    <td>123</td>
+                                    <td>def</td>
+                                    <td>cscsc</td>
+                                    <td>csdcdsc</td>
+                                </tr>
+                                <tr>
+                                    <td>abc</td>
+                                    <td>456</td>
+                                    <td>swwe</td>
+                                    <td>csdcsdc</td>
+                                    <td>csdcds</td>
+                                </tr>
+                                <tr>
+                                    <td>ghj</td>
+                                    <td>789</td>
+                                    <td>sdcw</td>
+                                    <td>csdc</td>
+                                    <td>dcever</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+@section scripts{
+
+    <script defer>
+
+        var yValues = [55, 49, 44, 24];
+        var xValues = ["Running", "Idle", "Stopped", "No Data"];
+
+        var barColors = [
+            "#00b300",
+            "#FF0000",
+            "#F4AB6A",
+            "#808080",
+
+        ];
+
+        new Chart("myChart", {
+            type: "doughnut",
+            data: {
+                labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors,
+                    data: yValues
+                }]
+            },
+            options: {
+                aspectRatio: 1,
+                plugins: {
+            legend: {
+                display: false // Hide the legend
+            },
+            datalabels: {
+                display: false // Hide the data labels (x-axis labels)
+            }
+        }
+            
+            },
+
+
+        });
+
+          var xValues = ["Worker","Route Wise"];
+        var yValues1 = [55, 49];
+        var barColors1 = [
+            "#add8e6",
+            "#b0c4de",
+
+
+        ];
+
+        new Chart("myChart1", {
+            type: "doughnut",
+            data: {
+                //labels: xValues,
+                datasets: [{
+                    backgroundColor: barColors1,
+                    data: yValues1
+                }]
+            },
+
+        });
+
+
+
+        $('#drivers').select2({
+            selectOnClose: true
+        });
+
+
+    
+
+
+      var chrt = document.getElementById("myChart2").getContext("2d");
+      var chartId = new Chart(chrt, {
+      type: 'bar',
+      data: {
+      labels: ["Overspeed", "Harsh Brake", "Harsh Acceleration", "Rush Tuming"],
+      datasets: [{
+      label: "ALERTS",
+      data: [40, 30, 35,25],
+      backgroundColor: ['pink', 'lightblue', 'yellow', 'fuchsia']
+  
+}],
+},
+options: {
+responsive: true,
+},
+      });
+
+
+
+
+    </script>
+
+  <script defer>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+     $("#myTable tr").filter(function() {
+     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+
+   
+  });
+});
+</script>
+}
+
+
+
+
+

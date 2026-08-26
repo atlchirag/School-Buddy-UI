@@ -1,0 +1,497 @@
+@model IEnumerable<SchoolBuddy.Models.Tracking.DeviceIdAndVehiclenew>
+@{
+    ViewData["Title"] = "Tracking";
+}
+
+<style>
+    :root {
+        --tracking-page-bg: var(--sb-page-bg, #f3f4f6);
+        --tracking-card-bg: var(--sb-surface, #ffffff);
+        --tracking-surface-alt: var(--sb-surface-alt, #f8fafc);
+        --tracking-text: var(--sb-text, #0f172a);
+        --tracking-muted-text: var(--sb-text-muted, #64748b);
+        --tracking-border: var(--sb-border, #e2e8f0);
+        --tracking-input-bg: var(--sb-input-bg, #ffffff);
+        --tracking-input-text: var(--sb-text, #0f172a);
+        --tracking-shadow: var(--sb-shadow, 0 12px 32px rgba(15, 23, 42, 0.12));
+        --tracking-primary: var(--bs-primary, midnightblue);
+    }
+
+    .tracking-page {
+        width: 100%;
+        min-height: 100%;
+        padding: clamp(0.75rem, 2vw, 1.5rem);
+        background-color: var(--tracking-page-bg);
+        color: var(--tracking-text);
+        transition: background-color 0.2s ease, color 0.2s ease;
+        scrollbar-color: var(--tracking-primary) var(--tracking-card-bg);
+    }
+
+    .tracking-card {
+        overflow: hidden;
+        border: 1px solid var(--tracking-border);
+        border-radius: 0.85rem;
+        background-color: var(--tracking-card-bg);
+        color: var(--tracking-text);
+        box-shadow: var(--tracking-shadow);
+    }
+
+    .tracking-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.8rem 1rem;
+        color: #ffffff;
+        background: midnightblue;
+    }
+
+    .tracking-card-title {
+        flex: 0 0 auto;
+        margin: 0;
+        color: #ffffff;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .tracking-vehicle-field {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        width: min(100%, 31rem);
+    }
+
+        .tracking-vehicle-field label {
+            flex: 0 0 auto;
+            margin: 0;
+            color: #ffffff;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+    .tracking-select-wrap {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .tracking-select-wrap .select2-container,
+    .tracking-select-wrap select {
+        width: 100% !important;
+    }
+
+    .tracking-page h1,
+    .tracking-page h2,
+    .tracking-page h3,
+    .tracking-page h4,
+    .tracking-page h5,
+    .tracking-page h6,
+    .tracking-page label,
+    .tracking-page .form-label {
+        color: var(--tracking-text);
+    }
+
+    .tracking-page .text-muted,
+    .tracking-page .tracking-muted,
+    .tracking-page .tracking-empty-state {
+        color: var(--tracking-muted-text) !important;
+    }
+
+    .tracking-page .form-control,
+    .tracking-page .form-select,
+    .tracking-page input,
+    .tracking-page select {
+        background-color: var(--tracking-input-bg);
+        color: var(--tracking-input-text);
+        border-color: var(--tracking-border);
+    }
+
+    .tracking-page .form-control:focus,
+    .tracking-page .form-select:focus,
+    .tracking-page input:focus,
+    .tracking-page select:focus {
+        background-color: var(--tracking-input-bg);
+        color: var(--tracking-input-text);
+        border-color: var(--tracking-primary);
+        box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--tracking-primary) 25%, transparent);
+    }
+
+    .tracking-page .form-control::placeholder,
+    .tracking-page input::placeholder {
+        color: var(--tracking-muted-text);
+        opacity: 1;
+    }
+
+    /* Tracking uses Select2's classic theme and its dropdown is appended to body. */
+    .select2-container--classic .select2-selection--single,
+    .select2-container--classic .select2-selection--multiple {
+        background: var(--tracking-input-bg) !important;
+        background-image: none !important;
+        color: var(--tracking-input-text) !important;
+        border-color: var(--tracking-border) !important;
+    }
+
+    .select2-container--classic .select2-selection--single .select2-selection__rendered,
+    .select2-container--classic .select2-selection--multiple .select2-selection__rendered,
+    .select2-container--classic .select2-selection__choice {
+        color: var(--tracking-input-text) !important;
+    }
+
+    .select2-container--classic .select2-selection--single .select2-selection__arrow {
+        background: var(--tracking-surface-alt) !important;
+        background-image: none !important;
+        border-left-color: var(--tracking-border) !important;
+    }
+
+    .select2-container--classic .select2-selection--single .select2-selection__arrow b {
+        border-color: var(--tracking-muted-text) transparent transparent transparent !important;
+    }
+
+    .select2-container--classic.select2-container--open .select2-selection--single .select2-selection__arrow b {
+        border-color: transparent transparent var(--tracking-muted-text) transparent !important;
+    }
+
+    .select2-container--classic.select2-container--open .select2-dropdown,
+    .select2-container--classic .select2-dropdown {
+        background-color: var(--tracking-card-bg) !important;
+        color: var(--tracking-text) !important;
+        border-color: var(--tracking-border) !important;
+    }
+
+    .select2-container--classic .select2-search--dropdown .select2-search__field {
+        background-color: var(--tracking-input-bg) !important;
+        color: var(--tracking-input-text) !important;
+        border-color: var(--tracking-border) !important;
+    }
+
+    .select2-container--classic .select2-results__option {
+        background-color: var(--tracking-card-bg);
+        color: var(--tracking-text);
+    }
+
+    .select2-container--classic .select2-results__option--highlighted[aria-selected],
+    .select2-container--classic .select2-results__option--highlighted[data-selected] {
+        background-color: var(--tracking-primary) !important;
+        color: #ffffff !important;
+    }
+
+    .select2-container--classic .select2-results__option[aria-selected="true"],
+    .select2-container--classic .select2-results__option--selected {
+        background-color: var(--tracking-surface-alt);
+        color: var(--tracking-text);
+    }
+
+    .tracking-card-body,
+    #normal_map,
+    #livetracking {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background-color: var(--tracking-card-bg);
+        color: var(--tracking-text);
+    }
+
+    .tracking-map-wrapper,
+    .tracking-live-wrapper,
+    .tracking-panel,
+    .tracking-loading,
+    .tracking-empty-state {
+        background-color: var(--tracking-card-bg);
+        color: var(--tracking-text);
+        border-color: var(--tracking-border);
+    }
+
+    .tracking-live-wrapper {
+        display: none;
+    }
+
+    .tracking-loading,
+    .tracking-empty-state {
+        padding: 2rem 1rem;
+        text-align: center;
+    }
+
+    .tracking-page .alert {
+        color: var(--tracking-text);
+        border-color: var(--tracking-border);
+    }
+
+    .tracking-page i,
+    .tracking-page svg {
+        color: inherit;
+    }
+
+    .tracking-page .btn-outline-secondary {
+        background-color: var(--tracking-card-bg);
+        color: var(--tracking-text);
+        border-color: var(--tracking-border);
+    }
+
+    .tracking-page .btn-outline-secondary:hover,
+    .tracking-page .btn-outline-secondary:focus {
+        background-color: var(--tracking-primary);
+        color: #ffffff;
+        border-color: var(--tracking-primary);
+    }
+
+    .tracking-map-frame,
+    .tracking-live-frame {
+        display: block;
+        width: 100%;
+        height: 600px;
+        border: 0;
+        background-color: var(--tracking-surface-alt);
+    }
+
+    .tracking-page .table {
+        --bs-table-color: var(--tracking-text);
+        --bs-table-bg: var(--tracking-card-bg);
+        --bs-table-border-color: var(--tracking-border);
+        --bs-table-striped-color: var(--tracking-text);
+        --bs-table-striped-bg: var(--tracking-surface-alt);
+        color: var(--tracking-text);
+        border-color: var(--tracking-border);
+    }
+
+    .tracking-page .dataTables_wrapper,
+    .tracking-page .dt-container,
+    .tracking-page .dataTables_info,
+    .tracking-page .dataTables_filter,
+    .tracking-page .dataTables_length,
+    .tracking-page .dt-info,
+    .tracking-page .dt-search,
+    .tracking-page .dt-length {
+        color: var(--tracking-text) !important;
+    }
+
+    .tracking-page .dataTables_wrapper input,
+    .tracking-page .dataTables_wrapper select,
+    .tracking-page .dt-container .dt-input {
+        background-color: var(--tracking-input-bg) !important;
+        color: var(--tracking-input-text) !important;
+        border-color: var(--tracking-border) !important;
+    }
+
+    .tracking-page .dataTables_paginate .paginate_button,
+    .tracking-page .dt-paging .dt-paging-button {
+        color: var(--tracking-text) !important;
+        border-color: var(--tracking-border) !important;
+    }
+
+    .tracking-page .dataTables_paginate .paginate_button.current,
+    .tracking-page .dataTables_paginate .paginate_button:hover,
+    .tracking-page .dt-paging .dt-paging-button.current,
+    .tracking-page .dt-paging .dt-paging-button:hover {
+        background: var(--tracking-primary) !important;
+        color: #ffffff !important;
+        border-color: var(--tracking-primary) !important;
+    }
+
+    .tracking-page .modal-content,
+    .tracking-modal .modal-content {
+        background-color: var(--tracking-card-bg);
+        color: var(--tracking-text);
+        border-color: var(--tracking-border);
+    }
+
+    .tracking-page .modal-header,
+    .tracking-page .modal-footer,
+    .tracking-modal .modal-header,
+    .tracking-modal .modal-footer {
+        border-color: var(--tracking-border);
+    }
+
+    .tracking-page ::-webkit-scrollbar,
+    .select2-container--classic .select2-results__options::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    .tracking-page ::-webkit-scrollbar-track,
+    .select2-container--classic .select2-results__options::-webkit-scrollbar-track {
+        background: var(--tracking-card-bg);
+    }
+
+    .tracking-page ::-webkit-scrollbar-thumb,
+    .select2-container--classic .select2-results__options::-webkit-scrollbar-thumb {
+        background: var(--tracking-border);
+        border: 2px solid var(--tracking-card-bg);
+        border-radius: 999px;
+    }
+
+    @@media (max-width: 767.98px) {
+        .tracking-page {
+            padding: 0.75rem;
+        }
+
+        .tracking-card-header {
+            align-items: stretch;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .tracking-vehicle-field {
+            align-items: stretch;
+            flex-direction: column;
+            gap: 0.35rem;
+            width: 100%;
+        }
+
+        .tracking-map-frame,
+        .tracking-live-frame {
+            height: clamp(420px, 70vh, 600px) !important;
+        }
+    }
+</style>
+
+<div class="tracking-page">
+    <section class="tracking-card" aria-labelledby="liveTrackingTitle">
+        <header class="tracking-card-header">
+            <h1 id="liveTrackingTitle" class="tracking-card-title" style="color:white">Live Tracking</h1>
+
+            <div class="tracking-vehicle-field">
+                <label for="selected_vehicle" style="color:white">Select Vehicle</label>
+                <div class="tracking-select-wrap">
+                    <select onchange="VehicleLiveTracking(this.value)"
+                            title="Select Vehicle"
+                            class="form-control dropdownwithsearch"
+                            id="selected_vehicle"
+                            data-live-search="true">
+                        <option class="form-control" value="">Select</option>
+                        @foreach (var item in Model)
+                        {
+                            <option class="form-control" value="@item.Id">@item.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <div class="tracking-card-body">
+            <div id="normal_map" class="tracking-map-wrapper">
+                <iframe class="tracking-map-frame"
+                        title="Default Map"
+                        src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d117925.21689654898!2d88.26495024170245!3d22.535564937453938!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1729322053377!5m2!1sen!2sin"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+
+            <div id="livetracking" class="tracking-live-wrapper">
+                <iframe id="liveTrackingIframe"
+                        class="tracking-live-frame"
+                        title="Live Vehicle Tracking"
+                        loading="lazy">
+                </iframe>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/trip.js"></script>
+
+    <script>
+        function VehicleLiveTracking(val) {
+        if (!val) {
+        $('#livetracking').hide();
+        $('#normal_map').show();
+        $('#liveTrackingIframe').attr('src', 'about:blank');
+        return;
+        }
+
+        $.ajax({
+        url: '/schoolbuddy/Tracking/GetImei',
+        type: 'POST',
+        data: { id: val },
+
+        success: function (response) {
+        let jsonData;
+
+        try {
+        jsonData = typeof response === 'string'
+        ? JSON.parse(response)
+        : response;
+        } catch (error) {
+        console.error('Invalid GetImei response:', error);
+        alert('Invalid vehicle response.');
+        return;
+        }
+
+        if (!Array.isArray(jsonData) || jsonData.length === 0) {
+        alert('Vehicle details not found.');
+        return;
+        }
+
+        const imei = jsonData[0].imei;
+
+        if (!imei) {
+        alert('IMEI not found.');
+        return;
+        }
+
+        $.ajax({
+        url: '/schoolbuddy/Tracking/LiveTracking',
+        type: 'GET',
+        data: {
+        imei: imei,
+        t: Date.now()
+        },
+
+        success: function (result) {
+        if (typeof result === 'string') {
+        try {
+        result = JSON.parse(result);
+        } catch (error) {
+        console.error(
+        'Invalid LiveTracking response:',
+        error
+        );
+
+        alert('Invalid tracking response.');
+        return;
+        }
+        }
+
+        if (!result || result.status !== true || !result.url) {
+        alert('Live tracking URL not found.');
+        return;
+        }
+
+        $('#normal_map').hide();
+        $('#livetracking').show();
+
+        $('#liveTrackingIframe').attr(
+        'src',
+        result.url
+        );
+        },
+
+        error: function (xhr, status, error) {
+        console.error('LiveTracking error:', {
+        httpStatus: xhr.status,
+        status: status,
+        error: error,
+        response: xhr.responseText
+        });
+
+        alert('Unable to load live tracking.');
+        }
+        });
+        },
+
+        error: function (xhr, status, error) {
+        console.error('GetImei error:', {
+        httpStatus: xhr.status,
+        status: status,
+        error: error,
+        response: xhr.responseText
+        });
+
+        alert('Unable to get vehicle details.');
+        }
+        });
+        }
+    </script>
+}

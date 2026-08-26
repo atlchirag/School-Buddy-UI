@@ -1,0 +1,464 @@
+﻿@{
+    var userName = Context.Session.GetString("schoolname");
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+        (function () {
+            "use strict";
+
+            const STORAGE_KEY = "schoolBuddyTheme";
+            const root = document.documentElement;
+            let savedTheme = null;
+
+            try {
+                savedTheme = localStorage.getItem(STORAGE_KEY);
+            } catch (error) {
+                savedTheme = null;
+            }
+
+            const hasManualTheme = savedTheme === "light" || savedTheme === "dark";
+            const resolvedTheme = hasManualTheme
+                ? savedTheme
+                : window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+
+            root.setAttribute("data-bs-theme", resolvedTheme);
+            root.setAttribute("data-theme-source", hasManualTheme ? "manual" : "system");
+        })();
+    </script>
+    <title>@ViewData["Title"] - SchoolBuddy</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/_Layout.css" />
+    <link href="~/css/mediaqueries.css" rel="stylesheet" />
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.1.3/css/dataTables.bootstrap5.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/3.1.1/css/buttons.bootstrap5.css">
+    <link rel="stylesheet" href="~/css/datatables-global.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css" integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.11.0/sweetalert2.min.css" integrity="sha512-OWGg8FcHstyYFwtjfkiCoYHW2hG3PDWwdtczPAPUcETobBJOVCouKig8rqED0NMLcT9GtE4jw6IT1CSrwY87uw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+    <style>
+
+        .footer {
+            position: fixed;
+            background-color: #ffffff;
+        }
+
+        /* Fixed sidenav, full height */
+        .sidenav {
+            height: 100%;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            background-color: white;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+            /* Style the sidenav links and the dropdown button */
+            .sidenav a, .dropdown-btn {
+                padding: 6px 8px 6px 16px;
+                text-decoration: none;
+                font-size: 15px;
+                color: #818181;
+                display: block;
+                border: none;
+                background: none;
+                font-weight: 600;
+                text-align: left;
+                cursor: pointer;
+                outline: none;
+            }
+
+                /* On mouse-over */
+
+
+                .sidenav a.active, .dropdown-btn.active {
+                    background-color: midnightblue;
+                    color: white
+                }
+
+                .dropdown-btn a:hover {
+                }
+
+        /* Main content */
+        .main {
+            margin-left: 200px; /* Same as the width of the sidenav */
+            font-size: 20px; /* Increased text to enable scrolling */
+            padding: 0px 10px;
+        }
+
+        /* Add an active class to the active dropdown button */
+
+
+
+        /* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
+        .dropdown-container {
+            display: none;
+            background-color: white;
+        }
+
+        .dt-search {
+            float: right;
+        }
+
+        .dropdown-container a:hover {
+            color: midnightblue
+        }
+
+        .dropdown-container a:active {
+            color: midnightblue
+        }
+
+        .dropdown-container a.active1 {
+            color: midnightblue
+        }
+
+
+
+        /* Optional: Style the caret down icon */
+        .fa-caret-down {
+            float: right;
+            padding-right: 8px;
+        }
+
+        /* Some media queries for responsiveness */
+        @@media screen and (width:600px) {
+            /*.sidenav {padding-top: 15px;}
+                  */
+            #navbarNav1 {
+                display: show;
+            }
+        }
+
+        .inputbackgroundcolor {
+            background-color: ghostwhite;
+            /*f7f7f7*/ border-radius: 0.4rem;
+        }
+
+        .required_ {
+            color: red;
+        }
+
+        .tabstyle {
+            font-size: 14px;
+            border: 1px solid midnightblue;
+            color: black;
+            padding: 5px
+        }
+
+        .layout {
+            display: flex
+        }
+
+        input {
+            cursor: auto;
+        }
+
+        .iconlayout {
+            border: 2px solid;
+            border-radius: 50%;
+            border-color: midnightblue;
+            padding: 1px;
+            /*font-size:24px;*/
+            width: 3%;
+            height: 3%;
+            text-align: center;
+            margin: 0 5px;
+        }
+
+        #modified::placeholder {
+        }
+
+        .icon_color {
+            color: midnightblue
+        }
+
+        .center {
+            /* text-align:center;
+                        font-size:20px*/
+        }
+
+        .divmarginoutsideicon {
+            margin: 5px
+        }
+
+        .inputbackgroundcolor {
+            background-color: ghostwhite;
+            /*f7f7f7*/ border-radius: 0.4rem;
+        }
+
+    </style>
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+</head>
+
+<body>
+
+
+
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: white;height:75px">
+        <div class="container-fluid">
+            <!-- Brand/logo -->
+            <a class="navbar-brand" href="#"><img src="~/images/school-buddy-logo.png" asp-append-version="true" /></a>
+
+            <!-- Toggler/collapsible Button -->
+            <button id="sidebarToggleBtn" class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navbar links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="w-50">
+                    <form class="">
+                        <div class="input-group" style="margin-left:40%">
+                            <span class="input-group-text border-0  "><i class="fa fa-search"></i></span>
+                            <input autocomplete="off" type="search" class="form-control-sm rounded"
+                                   placeholder='Search here...' style="min-width: 200px; background-color: #e9ecef; width: 63%; border: 0px" />
+                        </div>
+                    </form>
+                    
+                </div>
+
+
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item me-lg-2">
+                        <button type="button"
+                                id="themeToggleBtn"
+                                class="theme-toggle-btn"
+                                aria-label="Switch theme"
+                                title="Switch theme">
+                            <i id="themeToggleIcon" class="bi bi-circle-half" aria-hidden="true"></i>
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fa fa-map-marker"></i> Tracking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Language</a>
+                    </li>
+                    <li class="nav-item">
+                        @*                        <a class="nav-link" href="#">@(ViewData.ContainsKey("Admin") ? ViewData["Admin"]: "Admin Name")</a>
+                        *@ <a class="nav-link" href="#">@userName</a>
+
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+
+
+
+    <!-- Sidebar -->
+    <nav class="sidenav w-auto d-md-block d-none" id="sidebarCollapse">
+        <!-- Toggler/collapsible Button -->
+        <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav1"
+                aria-controls="navbarNav1" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbarNav1">
+            <a id="dashboard-link" class="rounded ms-2 me-2 mt-2 activecolor " onclick="setstyleoptions(this)" asp-controller="Home" asp-action="Dashboard" style="width:90%"><i class="fa fa-pie-chart me-2"></i>Dashboard</a>
+
+            <button style="width:90%" class="dropdown-btn button rounded ms-2 me-2 mt-2">
+                <i class="fa fa-gear fa-spin me-2"></i>
+                Master
+                <i class="fa fa-caret-down mx-2 my-1"></i>
+            </button>
+
+
+            <div class="dropdown-container w-auto" id="master">
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="Students">Students</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Route" asp-action="Trip">Route</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="Index">Student Point Allocation</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="EventHoliday">Holiday & Event</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="expenseannouncement">Expense Announcement</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="command">Command</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="teacherdetails">Teacher's Detail</a>
+            </div>
+            <a class="rounded ms-2 me-2 mt-2 activecolor" style="width:90%" asp-controller="Report" asp-action="Index"><i class="fa fa-line-chart me-2"></i>Report</a>
+            <a class="rounded ms-2 me-2 mt-2 activecolor" style="width:94%" asp-controller="Report" asp-action="parentcomplainreport"><i class="fa fa-file-text me-2"></i>Parent Complain Report</a>
+            <button class="dropdown-btn rounded ms-2 mt-2" style="width:90%">
+                <i class="fa fa-map-marker me-2"></i>
+                Indoor Tracking
+                <i class="fa fa-caret-down mx-2 my-1"></i>
+            </button>
+            <div class="dropdown-container w-auto" id="indoortracking">
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="uhfgates">UHF Gates</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="uwbtracking">UWB Tracking</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="bltracking">BL Tracking</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="staffdetails">Staff Details</a>
+                <a class="rounded ms-5 " style="font-size:15px" asp-controller="Home" asp-action="visitordetails">Visitor Details</a>
+            </div>
+            <a class="rounded ms-2 me-2 mt-2 activecolor " asp-controller="Home" asp-action="attendance" style="width:90%"><i class="fa fa-calendar me-2"></i>Attendance</a>
+            <a class="rounded ms-2 me-2 mt-2 activecolor" asp-controller="Home" asp-action="analysis" style="width:90%"><i class="fa fa-search-plus me-2"></i>Analysis</a>
+            <a class="rounded ms-2 me-2  mt-2 activecolor" asp-controller="SignOut" asp-action="Logout" style="width:90%"><i class="fa fa-sign-out me-2"></i>Sign Out</a>
+        </div>
+
+    </nav>
+
+
+    <main role="main" style="overflow:hidden" class="pb-5">
+        @RenderBody()
+    </main>
+
+
+
+
+
+
+    <!-- Sidebar -->
+    <!-- Navbar -->
+    <!-- Navbar -->
+    <!--Main Navigation-->
+    <!--Main layout-->
+
+
+
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    &copy; 2024 - SchoolBuddy - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/theme-manager.js" asp-append-version="true"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    @* <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>*@
+    @*    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js" integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    *@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.1.3/js/dataTables.bootstrap5.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.bootstrap5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.html5.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.print.min.js"></script>
+    <script src="~/js/datatables-global.js" asp-append-version="true"></script>
+
+    <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.11.0/sweetalert2.min.js" integrity="sha512-Wi5Ms24b10EBwWI9JxF03xaAXdwg9nF51qFUDND/Vhibyqbelri3QqLL+cXCgNYGEgokr+GA2zaoYaypaSDHLg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+
+
+    <script>
+        /* Loop through all dropdown buttons to toggle between hiding and showing its dropdown content - This allows the user to have multiple dropdowns without any conflict */
+        var dropdown = document.getElementsByClassName("dropdown-btn");
+        var i;
+
+        for (i = 0; i < dropdown.length; i++) {
+            dropdown[i].addEventListener("click", function () {
+                this.classList.toggle("active");
+                var dropdownContent = this.nextElementSibling;
+                if (dropdownContent.style.display === "block") {
+                    dropdownContent.style.display = "none";
+                } else {
+                    dropdownContent.style.display = "block";
+                }
+            });
+        }
+
+
+
+
+    </script>
+
+    <script type="text/javascript">
+        // Add active class to dashboard link when on the dashboard page
+        document.addEventListener("DOMContentLoaded", function () {
+            var currentLocation = window.location.href;
+            var links = document.querySelectorAll(".sidenav a.activecolor");
+
+
+            links.forEach(function (link) {
+                if (currentLocation.indexOf(link.getAttribute('href')) !== -1) {
+                    link.classList.add("active");
+                }
+            });
+
+            var linkss = document.querySelectorAll("#master a");
+
+            linkss.forEach(function (link) {
+
+                if (currentLocation.indexOf(link.getAttribute('href')) !== -1) {
+                    console.log('hg');
+                    link.classList.add("active1");
+                    document.getElementById("master").style.display = 'block';
+
+                }
+
+
+            })
+
+            var linkss = document.querySelectorAll("#indoortracking a");
+
+            linkss.forEach(function (link) {
+
+                if (currentLocation.indexOf(link.getAttribute('href')) !== -1) {
+                    console.log('hg');
+                    link.classList.add("active1");
+                    document.getElementById("indoortracking").style.display = 'block';
+
+                }
+
+
+            })
+        });
+
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('#sidebarToggleBtn').click(function () {
+                $('#sidebarCollapse').toggle(); // Toggle sidebar visibility
+            });
+        });
+        $(function () {
+            //$(".datepicker").datepicker();
+            $('.datepicker').datepicker({
+                format: 'mm/dd/yyyy',
+                startView: 2,
+                minViewMode: 2,
+                autoclose: true
+            });
+        });
+
+
+
+
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

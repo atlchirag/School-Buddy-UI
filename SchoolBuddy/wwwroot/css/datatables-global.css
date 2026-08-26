@@ -1,0 +1,103 @@
+/* Shared DataTables layout rules. */
+.dataTables_wrapper table.dataTable {
+    width: 100% !important;
+    table-layout: auto;
+}
+
+.dataTables_wrapper table.dataTable thead th,
+.dataTables_wrapper table.dataTable thead td,
+.dataTables_wrapper table.dataTable tbody th,
+.dataTables_wrapper table.dataTable tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* DataTables creates a cloned header when scrollX is enabled. */
+.dataTables_wrapper .dataTables_scrollHead,
+.dataTables_wrapper .dataTables_scrollHeadInner {
+    width: 100% !important;
+    box-sizing: border-box;
+}
+
+.dataTables_wrapper .dataTables_scrollHeadInner table,
+.dataTables_wrapper .dataTables_scrollBody > table {
+    width: 100% !important;
+    margin: 0 !important;
+    table-layout: auto;
+}
+
+.dataTables_wrapper .dataTables_scrollBody {
+    overflow-x: auto;
+}
+
+.dataTables_wrapper .dataTables_scrollBody thead {
+    visibility: collapse !important;
+}
+
+.dataTables_wrapper .dataTables_scrollBody thead th,
+.dataTables_wrapper .dataTables_scrollBody thead td {
+    height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    line-height: 0 !important;
+}
+
+.dataTables_wrapper .dataTables_scrollHead table thead th,
+.dataTables_wrapper .dataTables_scrollHead table thead td {
+    white-space: nowrap;
+}
+
+/* Modal DataTables: keep the header fixed and scroll only the table body. */
+.modal .dataTables_wrapper {
+    width: 100%;
+    max-width: 100%;
+}
+
+.modal .dataTables_scrollHead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: midnightblue;
+}
+
+.modal .dataTables_scrollBody {
+    max-height: 60vh;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+}
+
+.modal .dataTables_scrollHead table.dataTable thead th,
+.modal .dataTables_scrollHead table.dataTable thead td {
+    background: midnightblue !important;
+    color: #fff !important;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.modal .dataTables_scrollHead table.dataTable thead th *,
+.modal .dataTables_scrollHead table.dataTable thead td * {
+    color: #fff !important;
+}
+
+.modal .dataTables_scrollBody > table.dataTable tbody th,
+.modal .dataTables_scrollBody > table.dataTable tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* The header clone in dataTables_scrollHead is the only visible header. */
+.modal .dataTables_scrollBody > table.dataTable thead {
+    visibility: collapse !important;
+}
+
+.modal .dataTables_scrollBody > table.dataTable thead th,
+.modal .dataTables_scrollBody > table.dataTable thead td {
+    height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+}

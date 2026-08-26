@@ -1,0 +1,216 @@
+﻿
+@{
+    ViewData["Title"] = "createCommand";
+}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-12" style="padding:0px">
+            <div class="card-header rounded-top " style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Create Expense</p>
+            </div>
+            <div class="card-body rounded" style="background-color:white;">
+                <div>
+                    <div class="rounded-circle" style="width:3%; height:auto; border:2px solid midnightblue">
+                        <a href="/expenseannouncement"><i class="fa fa-angle-left ms-2" style="font-size: 20px;font-weight: 700;color: midnightblue;"></i></a>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-4">
+                        <label>Device Type</label>
+                        <span style="color:red">*</span>
+                        <select type="text" class="form-control inputbackgroundcolor">
+                            <option>
+                                Please Select Object
+                            </option>
+                            <option>
+                                MDAV
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-4">
+                       
+                            <label>Object</label>
+                            <span style="color:red">*</span>
+                            <select type="text" class="form-control inputbackgroundcolor">
+                                <option>
+                                    Please Select Object
+                                </option>
+                                <option>
+                                    MDAV
+                                </option>
+                            </select>
+                      </div>
+
+                    <div class="col-4">
+                        <label>Type</label> <span style="color:red">*</span>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="radio" class=" inputbackgroundcolor" name="type" />
+                                <label>SMS</label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class=" inputbackgroundcolor" name="type" />
+                                <label>GPRS</label>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-4">
+                        <label>Command</label>
+                        <span style="color:red">*</span>
+                        <input type="text" class="form-control inputbackgroundcolor">
+                    </div>
+
+                    <div class="col-4">
+                        <label>Schedule For</label>
+                        <span style="color:red">*</span>
+                        <select type="text" class="form-control inputbackgroundcolor">
+                            <option>
+                                Please Select Devision
+                            </option>
+                            <option>
+                                MDAV
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <div class="col-4">
+                        <label>Validity</label>
+                        <span style="color:red">*</span>
+                        <input type="text" class="form-control inputbackgroundcolor">
+
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <label>Message</label>
+
+                        <input type="text" class="form-control inputbackgroundcolor" />
+                    </div>
+                  
+
+                </div>
+
+
+
+
+                <div class="row mt-3">
+                   <div class="col-6">
+                       <p id="addnewrow" style="cursor:pointer" onclick="openDivForAddCommand()">Add New +</p>
+                       <table class="table table-striped" id="tableincommandsec">
+                           <thead class="bg-secondary">
+                               <tr>
+                                   <th>
+                                       Condition For
+                                   </th>
+                                    <th>
+                                        Action
+                                    </th>
+                               </tr>
+                           </thead>
+                           <tbody>
+
+                           </tbody>
+                       </table>
+                   </div>
+                    <div class="col-6 d-flex justify-content-center align-content-center">
+                        <div class="w-75;h-auto" style="border:1px solid black;display:none" id="formdiv" >
+                            <div class="card-header d-flex align-content-center justify-content-center"style="background-color:midnightblue;color:white;padding:0px">
+                             <p class="text-light fw-bold">Condition For</p>
+
+                            </div>
+                            <div class="card-body">
+                                <form>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <label>Condition For</label>
+                                            <span style="color:red">*</span>
+                                            <input id="conditionforinput" type="text" class="form-control inputbackgroundcolor">
+
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-12">
+                                            <label>Condition</label>
+                                            <span style="color:red">*</span>
+                                            <input type="text" class="form-control inputbackgroundcolor">
+
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-center align-content-center mt-3">
+                                        <button class="btn" id="commandsavebtn"onclick="saverecord()" style="border:2px solid midnightblue;color:midnightblue">Save</button>
+                                    </div>
+                                    
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+
+                <div class="d-flex justify-content-center align-content-center mt-5">
+                    <button class="btn" style="border:2px solid midnightblue;color:midnightblue">Save</button>
+                </div>
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+</div>
+
+<script>
+    function openDivForAddCommand(){
+        
+        document.getElementById('formdiv').style.display="block";
+    }
+    function saverecord() {
+
+        document.getElementById('formdiv').style.display = "none";
+        var inputvalue = document.getElementById('conditionforinput').value;
+        var gettableaccess = document.getElementById('tableincommandsec')
+        var plusicon = document.getElementById('addnewrow')
+        alert(plusicon)
+    
+
+            //create new row
+            var newRow = document.createElement('tr')
+
+            //generate data for the new row
+
+            var rowData = [inputvalue, '<i class="fa fa-edit"></i>'];
+            // Add data to the new row
+            for (var i = 0; i < rowData.length; i++) {
+
+              
+                var cell = document.createElement("td");
+                cell.innerHTML = rowData[i];
+                newRow.appendChild(cell);
+                alert(rowData[i])
+            }
+
+
+            // Append the new row to the table body
+        gettableaccess.getElementsByTagName("tbody")[0].appendChild(newRow);
+
+     
+
+    
+    }
+</script>
+

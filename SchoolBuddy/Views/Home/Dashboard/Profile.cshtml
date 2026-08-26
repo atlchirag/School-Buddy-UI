@@ -1,0 +1,2942 @@
+﻿@model SchoolBuddy.Models.ProfileApiResponse
+
+@{
+    ViewData["Title"] = "My Profile";
+
+    var profile = Model?.data?.profile ?? new SchoolBuddy.Models.SchoolProfile();
+    var limits = Model?.data?.limits ?? new SchoolBuddy.Models.ProfileLimits();
+    var settings = Model?.data?.settings ?? new SchoolBuddy.Models.ProfileSettings();
+    var maps = Model?.data?.maps?.list ?? new List<SchoolBuddy.Models.MapItem>();
+
+    string fullName = string.IsNullOrWhiteSpace(profile.full_name)
+        ? "N/A"
+        : profile.full_name.Trim();
+
+    string companyName = string.IsNullOrWhiteSpace(profile.company_name)
+        ? "N/A"
+        : profile.company_name.Trim();
+
+    string mobile = string.IsNullOrWhiteSpace(profile.mobile)
+        ? "N/A"
+        : profile.mobile.Trim();
+
+    string email = string.IsNullOrWhiteSpace(profile.email)
+        ? "N/A"
+        : profile.email.Trim();
+
+    string timezone = string.IsNullOrWhiteSpace(profile.timezone)
+        ? "N/A"
+        : profile.timezone.Trim();
+
+    string language = string.IsNullOrWhiteSpace(profile.language)
+        ? "N/A"
+        : profile.language.Trim();
+
+    string currency = string.IsNullOrWhiteSpace(profile.currency)
+        ? "N/A"
+        : profile.currency.Trim();
+
+    string address = string.IsNullOrWhiteSpace(profile.address)
+        ? "N/A"
+        : profile.address.Trim();
+
+    string profileImage = string.IsNullOrWhiteSpace(profile.profile_url)
+        ? Url.Content("~/assets/img/profile.png")
+        : profile.profile_url;
+
+    int deviceUsed = limits.added_device;
+    int smsUsed = limits.used_sms;
+    int subUserUsed = limits.added_subuser;
+    int emailUsed = limits.used_email;
+
+    int devicePercentage = limits.device_limit > 0
+        ? Math.Min(100, (deviceUsed * 100) / limits.device_limit)
+        : 0;
+
+    int smsPercentage = limits.message_limit > 0
+        ? Math.Min(100, (smsUsed * 100) / limits.message_limit)
+        : 0;
+
+    int subUserPercentage = limits.sub_user_limit > 0
+        ? Math.Min(100, (subUserUsed * 100) / limits.sub_user_limit)
+        : 0;
+
+    int emailPercentage = limits.email_limit > 0
+        ? Math.Min(100, (emailUsed * 100) / limits.email_limit)
+        : 0;
+}
+
+<style>
+    .profile-page {
+        padding: 18px;
+    }
+
+    .profile-card {
+        background: #ffffff;
+        border: 1px solid #edf0f5;
+        border-radius: 18px;
+        box-shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
+    }
+
+    .profile-header-card {
+        padding: 28px;
+    }
+
+    .profile-image-wrapper {
+        position: relative;
+        width: 108px;
+        height: 108px;
+        flex-shrink: 0;
+    }
+
+    .profile-image {
+        width: 108px;
+        height: 108px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #ffffff;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.15);
+        background: #f8fafc;
+    }
+
+    .profile-camera-btn {
+        position: absolute;
+        right: -1px;
+        bottom: 5px;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        background: midnightblue;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+    }
+
+        .profile-camera-btn:hover {
+            color: #ffffff;
+            background: #10105c;
+        }
+
+    .profile-school-name {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 1.45rem;
+        font-weight: 700;
+    }
+
+    .profile-company-name {
+        margin-bottom: 22px;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    .profile-heading-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .profile-edit-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        flex-shrink: 0;
+        padding: 9px 16px;
+        color: #ffffff;
+        background: midnightblue;
+        border-color: midnightblue;
+        border-radius: 10px;
+        box-shadow: 0 5px 14px rgba(25, 25, 112, 0.2);
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+        .profile-edit-button:hover,
+        .profile-edit-button:focus {
+            color: #ffffff;
+            background: #10105c;
+            border-color: #10105c;
+        }
+
+    .profile-edit-label {
+        margin-bottom: 7px;
+        color: #334155;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .profile-edit-photo-section {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 22px;
+        padding: 17px;
+        background: #f8fafc;
+        border: 1px solid #e8edf4;
+        border-radius: 14px;
+    }
+
+    .profile-edit-photo-preview {
+        width: 82px;
+        height: 82px;
+        flex-shrink: 0;
+        object-fit: cover;
+        background: #ffffff;
+        border: 4px solid #ffffff;
+        border-radius: 50%;
+        box-shadow: 0 5px 16px rgba(15, 23, 42, 0.15);
+    }
+
+    .profile-edit-photo-content {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .profile-edit-photo-title {
+        margin-bottom: 4px;
+        color: #0f172a;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .profile-edit-photo-note {
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 0.7rem;
+    }
+
+    .profile-edit-photo-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        color: midnightblue;
+        background: #ffffff;
+        border-color: midnightblue;
+        border-radius: 9px;
+        font-size: 0.76rem;
+        font-weight: 700;
+    }
+
+        .profile-edit-photo-button:hover,
+        .profile-edit-photo-button:focus {
+            color: #ffffff;
+            background: midnightblue;
+            border-color: midnightblue;
+        }
+
+    .profile-edit-control {
+        min-height: 43px;
+        color: #0f172a;
+        border-color: #dbe2ea;
+        border-radius: 10px;
+        font-size: 0.85rem;
+    }
+
+        .profile-edit-control:focus {
+            border-color: midnightblue;
+            box-shadow: 0 0 0 0.2rem rgba(25, 25, 112, 0.12);
+        }
+
+        .profile-edit-control[readonly] {
+            color: #475569;
+            background: #f8fafc;
+        }
+
+    textarea.profile-edit-control {
+        min-height: 92px;
+        resize: vertical;
+    }
+
+    .profile-sensitive-input-group .profile-edit-control {
+        min-width: 0;
+        border-radius: 10px 0 0 10px;
+    }
+
+    .profile-change-button {
+        min-width: 82px;
+        color: midnightblue;
+        background: #ffffff;
+        border-color: midnightblue;
+        border-radius: 0 10px 10px 0;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+        .profile-change-button:hover,
+        .profile-change-button:focus {
+            color: #ffffff;
+            background: midnightblue;
+            border-color: midnightblue;
+        }
+
+    .profile-sensitive-note,
+    .profile-unsupported-note {
+        margin-top: 6px;
+        color: #94a3b8;
+        font-size: 0.69rem;
+    }
+
+    .profile-sensitive-note {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .profile-field-error {
+        display: none;
+        margin-top: 5px;
+        line-height: 1.35;
+    }
+
+        .profile-field-error.has-error {
+            display: block;
+        }
+
+    .profile-edit-secondary-button,
+    .profile-edit-primary-button {
+        min-width: 112px;
+        padding: 9px 16px;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 700;
+    }
+
+    .profile-edit-secondary-button {
+        color: #475569;
+        background: #ffffff;
+        border-color: #cbd5e1;
+    }
+
+    .profile-edit-primary-button {
+        color: #ffffff;
+        background: midnightblue;
+        border-color: midnightblue;
+    }
+
+        .profile-edit-primary-button:hover,
+        .profile-edit-primary-button:focus {
+            color: #ffffff;
+            background: #10105c;
+            border-color: #10105c;
+        }
+
+    .profile-edit-form-message {
+        display: none;
+        flex: 1 1 auto;
+        margin: 0;
+        color: #64748b;
+        font-size: 0.76rem;
+    }
+
+        .profile-edit-form-message.has-message {
+            display: block;
+        }
+
+    .profile-secure-intro {
+        margin-bottom: 20px;
+        color: #64748b;
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .profile-secure-current {
+        margin-bottom: 22px;
+        padding: 13px 15px;
+        background: #f8fafc;
+        border: 1px solid #e8edf4;
+        border-radius: 11px;
+    }
+
+    .profile-secure-current-label {
+        display: block;
+        margin-bottom: 3px;
+        color: #94a3b8;
+        font-size: 0.67rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .profile-secure-current-value {
+        color: #0f172a;
+        font-size: 0.86rem;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-otp-group + .profile-otp-group {
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid #e8edf4;
+    }
+
+        .profile-secure-current-value a {
+            color: midnightblue;
+            text-decoration: none;
+        }
+
+    .profile-secure-step {
+        display: none;
+    }
+
+        .profile-secure-step.is-active {
+            display: block;
+        }
+
+    .profile-secure-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 24px;
+    }
+
+    .profile-otp-control {
+        min-height: 52px;
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: 0.55rem;
+    }
+
+        .profile-otp-control::placeholder {
+            color: #cbd5e1;
+        }
+
+    .profile-resend-button {
+        padding: 0;
+        color: midnightblue;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+        .profile-resend-button:hover,
+        .profile-resend-button:focus {
+            color: #10105c;
+            text-decoration: underline;
+        }
+
+    .profile-secure-status:empty {
+        display: none;
+    }
+
+    .profile-information-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .profile-information-column {
+        min-width: 0;
+        padding: 4px 18px;
+        border-left: 1px solid #cbd5e1;
+    }
+
+        .profile-information-column:first-child {
+            padding-left: 0;
+            border-left: none;
+        }
+
+    .profile-detail-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+        margin-bottom: 9px;
+        color: #64748b;
+        font-size: 0.82rem;
+    }
+
+        .profile-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+    .profile-detail-label {
+        flex-shrink: 0;
+    }
+
+    .profile-detail-value {
+        min-width: 0;
+        color: #0f172a;
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .social-card {
+        height: 100%;
+        padding: 24px;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        color: #0f172a;
+        font-size: 0.8rem;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+    }
+
+        .social-link:last-child {
+            margin-bottom: 0;
+        }
+
+        .social-link:hover {
+            color: #2563eb;
+        }
+
+    .social-icon {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: #ffffff;
+        border-radius: 50%;
+        font-size: 1.1rem;
+    }
+
+    .facebook-icon {
+        background: #1877f2;
+    }
+
+    .linkedin-icon {
+        background: #0a66c2;
+    }
+
+    .instagram-icon {
+        background: linear-gradient( 135deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5 );
+    }
+
+    .profile-tab-card {
+        min-height: 310px;
+    }
+
+    .profile-tabs {
+        padding: 0 20px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+        .profile-tabs .nav-item {
+            flex: 1;
+        }
+
+        .profile-tabs .nav-link {
+            width: 100%;
+            padding: 15px 10px 11px;
+            color: #334155;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            border-radius: 0;
+            font-size: 0.82rem;
+        }
+
+            .profile-tabs .nav-link:hover {
+                color: #0284c7;
+            }
+
+            .profile-tabs .nav-link.active {
+                color: #0284c7;
+                background: transparent;
+                border-bottom-color: #0284c7;
+            }
+
+    .profile-tab-content {
+        padding: 24px;
+    }
+
+    .limit-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+    }
+
+    .limit-item {
+        padding: 17px;
+        border: 1px solid #e8edf4;
+        border-radius: 14px;
+        background: #f8fafc;
+    }
+
+    .limit-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .limit-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .limit-icon {
+        width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: midnightblue;
+        background: rgba(25, 25, 112, 0.09);
+        border-radius: 11px;
+        font-size: 1rem;
+    }
+
+    .limit-title {
+        margin: 0;
+        color: #0f172a;
+        font-size: 0.83rem;
+        font-weight: 700;
+    }
+
+    .limit-subtitle {
+        color: #94a3b8;
+        font-size: 0.68rem;
+    }
+
+    .limit-number {
+        color: #0f172a;
+        font-size: 0.82rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .limit-progress {
+        height: 6px;
+        margin-bottom: 12px;
+        background: #e2e8f0;
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .limit-progress-bar {
+        height: 100%;
+        background: midnightblue;
+        border-radius: 20px;
+    }
+
+    .limit-statistics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+
+    .limit-stat {
+        text-align: center;
+    }
+
+    .limit-stat-label {
+        display: block;
+        margin-bottom: 3px;
+        color: #94a3b8;
+        font-size: 0.62rem;
+        text-transform: uppercase;
+    }
+
+    .limit-stat-value {
+        color: #0f172a;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .billing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0;
+    }
+
+    .billing-column {
+        padding: 2px 24px;
+        border-left: 1px solid #e2e8f0;
+    }
+
+        .billing-column:first-child {
+            padding-left: 0;
+            border-left: none;
+        }
+
+    .billing-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+        margin-bottom: 18px;
+        color: #64748b;
+        font-size: 0.8rem;
+    }
+
+    .billing-value {
+        color: #0f172a;
+        font-weight: 700;
+        overflow-wrap: anywhere;
+    }
+
+    .settings-card {
+        padding: 22px;
+    }
+
+    .settings-title {
+        margin-bottom: 18px;
+        color: #0f172a;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .settings-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 0;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+        .settings-item:last-child {
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+    .settings-label {
+        color: #64748b;
+        font-size: 0.78rem;
+    }
+
+    .settings-value {
+        color: #0f172a;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: right;
+    }
+
+    @@media (max-width: 1199.98px) {
+        .profile-information-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px 0;
+        }
+
+        .profile-information-column:nth-child(3) {
+            padding-left: 0;
+            border-left: none;
+        }
+    }
+
+    @@media (max-width: 767.98px) {
+        .profile-page {
+            padding: 12px;
+        }
+
+        .profile-header-card {
+            padding: 20px;
+        }
+
+        .profile-header-layout {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+
+        .profile-image-wrapper,
+        .profile-image {
+            width: 90px;
+            height: 90px;
+        }
+
+        .profile-school-name {
+            font-size: 1.15rem;
+        }
+
+        .profile-heading-row {
+            align-items: stretch;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .profile-edit-button {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .profile-edit-form-message {
+            flex-basis: 100%;
+            width: 100%;
+            text-align: center;
+        }
+
+        .profile-edit-photo-section {
+            align-items: flex-start;
+        }
+
+        .profile-edit-secondary-button,
+        .profile-edit-primary-button {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
+        .profile-secure-actions .profile-edit-secondary-button,
+        .profile-secure-actions .profile-edit-primary-button {
+            flex: 1 1 0;
+        }
+
+        .profile-information-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-information-column,
+        .profile-information-column:nth-child(3) {
+            padding: 0 0 13px;
+            border-left: none;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+            .profile-information-column:last-child {
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+        .limit-grid,
+        .billing-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .billing-column {
+            padding: 14px 0;
+            border-left: none;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+            .billing-column:first-child {
+                padding-top: 0;
+            }
+
+            .billing-column:last-child {
+                border-bottom: none;
+            }
+    }
+
+    @@media (max-width: 399.98px) {
+        .profile-edit-photo-section {
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-edit-photo-button {
+            width: 100%;
+        }
+
+        .profile-sensitive-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .profile-sensitive-input-group .profile-edit-control,
+        .profile-sensitive-input-group .profile-change-button {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .profile-secure-actions {
+            align-items: stretch;
+            flex-direction: column-reverse;
+        }
+
+        .profile-secure-actions .btn {
+            width: 100%;
+        }
+
+        .profile-otp-control {
+            padding-right: 8px;
+            padding-left: 8px;
+            letter-spacing: 0.35rem;
+        }
+    }
+    /* Edit Profile Modal - Scrollable */
+#editProfileModal .modal-content {
+    max-height: calc(100vh - 2rem);
+    overflow: hidden;
+}
+
+#editProfileModal #editProfileForm {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: calc(100vh - 2rem);
+}
+
+#editProfileModal .modal-header {
+    flex-shrink: 0;
+}
+
+#editProfileModal .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#editProfileModal .modal-footer {
+    flex-shrink: 0;
+}
+
+/* Scrollbar */
+#editProfileModal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+#editProfileModal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#editProfileModal .modal-body::-webkit-scrollbar-thumb {
+    background: #b6b6b6;
+    border-radius: 10px;
+}
+
+#editProfileModal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #909090;
+}
+</style>
+
+<div class="profile-page">
+
+    @if (!string.IsNullOrWhiteSpace(ViewBag.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            @ViewBag.ErrorMessage
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close">
+            </button>
+        </div>
+    }
+
+    <!-- Profile header -->
+    <section class="profile-card profile-header-card mb-4">
+        <div class="profile-header-layout d-flex align-items-center gap-4">
+
+            <div class="profile-image-wrapper">
+                <img src="@profileImage"
+                     id="schoolProfileImage"
+                     class="profile-image"
+                     alt="@fullName"
+                     onerror="this.onerror=null; this.src='@Url.Content("~/assets/img/profile.png")';" />
+
+                
+            </div>
+
+            <div class="flex-grow-1 w-100">
+                <div class="profile-heading-row">
+                    <div>
+                        <h1 class="profile-school-name">@fullName</h1>
+
+                        <p class="profile-company-name">@companyName</p>
+                    </div>
+
+                    <button type="button"
+                            class="btn profile-edit-button"
+                            onclick="openPasswordVerificationModal()">
+                        <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                        <span>Edit Profile</span>
+                    </button>
+                </div>
+
+                <div class="profile-information-grid">
+
+                    <div class="profile-information-column">
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Name:</span>
+                            <span class="profile-detail-value">@fullName</span>
+                        </div>
+
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Company:</span>
+                            <span class="profile-detail-value">@companyName</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-information-column">
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Mobile:</span>
+                            <span class="profile-detail-value">@mobile</span>
+                        </div>
+
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Email:</span>
+                            <span class="profile-detail-value">@email</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-information-column">
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Timezone:</span>
+                            <span class="profile-detail-value">@timezone</span>
+                        </div>
+
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Language:</span>
+                            <span class="profile-detail-value">@language</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-information-column">
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Currency:</span>
+                            <span class="profile-detail-value">@currency</span>
+                        </div>
+
+                        <div class="profile-detail-row">
+                            <span class="profile-detail-label">Address:</span>
+                            <span class="profile-detail-value">@address</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="row g-4">
+
+        <!-- Social links -->
+        <div class="col-xl-4">
+            <section class="profile-card social-card">
+
+                <a href="https://www.facebook.com/trackofy1/"
+                   class="social-link link-primary link-light-emphasis"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <span class="social-icon facebook-icon">
+                        <i class="bi bi-facebook"></i>
+                    </span>
+
+                    <span>https://www.facebook.com/trackofy1/</span>
+                </a>
+
+                <a href="https://www.linkedin.com/company/trackofy/"
+                   class="social-link link-primary link-light-emphasis"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <span class="social-icon linkedin-icon">
+                        <i class="bi bi-linkedin"></i>
+                    </span>
+
+                    <span>https://www.linkedin.com/company/trackofy/</span>
+                </a>
+
+                <a href="https://www.instagram.com/trackofy/"
+                   class="social-link link-primary link-light-emphasis"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    <span class="social-icon instagram-icon">
+                        <i class="bi bi-instagram"></i>
+                    </span>
+
+                    <span>https://www.instagram.com/trackofy/</span>
+                </a>
+
+            </section>
+        </div>
+
+        <!-- Tabs -->
+        <div class="col-xl-8">
+            <section class="profile-card profile-tab-card">
+
+                <ul class="nav nav-tabs profile-tabs"
+                    id="profileTabs"
+                    role="tablist">
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active"
+                                id="overview-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#overview"
+                                type="button"
+                                role="tab"
+                                aria-controls="overview"
+                                aria-selected="true">
+                            Overview
+                        </button>
+                    </li>
+
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link"
+                                id="billing-tab"
+                                data-bs-toggle="tab"
+                                data-bs-target="#billing"
+                                type="button"
+                                role="tab"
+                                aria-controls="billing"
+                                aria-selected="false">
+                            Billing Information
+                        </button>
+                    </li>
+
+                </ul>
+
+                <div class="tab-content profile-tab-content">
+
+                    <!-- Overview -->
+                    <div class="tab-pane fade show active"
+                         id="overview"
+                         role="tabpanel"
+                         aria-labelledby="overview-tab">
+
+                        <div class="limit-grid">
+
+                            <!-- Devices -->
+                            <div class="limit-item">
+                                <div class="limit-header">
+                                    <div class="limit-title-wrapper">
+                                        <span class="limit-icon">
+                                            <i class="bi bi-bus-front-fill"></i>
+                                        </span>
+
+                                        <div>
+                                            <h6 class="limit-title">Devices</h6>
+                                            <span class="limit-subtitle">
+                                                Device usage limit
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <span class="limit-number">
+                                        @deviceUsed / @limits.device_limit
+                                    </span>
+                                </div>
+
+                                <div class="limit-progress">
+                                    <div class="limit-progress-bar"
+                                         style="width:@devicePercentage%">
+                                    </div>
+                                </div>
+
+                                <div class="limit-statistics">
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Total</span>
+                                        <span class="limit-stat-value">
+                                            @limits.device_limit
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Added</span>
+                                        <span class="limit-stat-value">
+                                            @limits.added_device
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Remaining</span>
+                                        <span class="limit-stat-value">
+                                            @limits.device_limit_left
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SMS -->
+                            <div class="limit-item">
+                                <div class="limit-header">
+                                    <div class="limit-title-wrapper">
+                                        <span class="limit-icon">
+                                            <i class="bi bi-chat-text-fill"></i>
+                                        </span>
+
+                                        <div>
+                                            <h6 class="limit-title">SMS</h6>
+                                            <span class="limit-subtitle">
+                                                Message usage limit
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <span class="limit-number">
+                                        @smsUsed / @limits.message_limit
+                                    </span>
+                                </div>
+
+                                <div class="limit-progress">
+                                    <div class="limit-progress-bar"
+                                         style="width:@smsPercentage%">
+                                    </div>
+                                </div>
+
+                                <div class="limit-statistics">
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Total</span>
+                                        <span class="limit-stat-value">
+                                            @limits.message_limit
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Used</span>
+                                        <span class="limit-stat-value">
+                                            @limits.used_sms
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Remaining</span>
+                                        <span class="limit-stat-value">
+                                            @limits.message_limit_left
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub users -->
+                            <div class="limit-item">
+                                <div class="limit-header">
+                                    <div class="limit-title-wrapper">
+                                        <span class="limit-icon">
+                                            <i class="bi bi-people-fill"></i>
+                                        </span>
+
+                                        <div>
+                                            <h6 class="limit-title">Sub Users</h6>
+                                            <span class="limit-subtitle">
+                                                Sub-user account limit
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <span class="limit-number">
+                                        @subUserUsed / @limits.sub_user_limit
+                                    </span>
+                                </div>
+
+                                <div class="limit-progress">
+                                    <div class="limit-progress-bar"
+                                         style="width:@subUserPercentage%">
+                                    </div>
+                                </div>
+
+                                <div class="limit-statistics">
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Total</span>
+                                        <span class="limit-stat-value">
+                                            @limits.sub_user_limit
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Added</span>
+                                        <span class="limit-stat-value">
+                                            @limits.added_subuser
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Remaining</span>
+                                        <span class="limit-stat-value">
+                                            @limits.sub_user_limit_left
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="limit-item">
+                                <div class="limit-header">
+                                    <div class="limit-title-wrapper">
+                                        <span class="limit-icon">
+                                            <i class="bi bi-envelope-fill"></i>
+                                        </span>
+
+                                        <div>
+                                            <h6 class="limit-title">Email</h6>
+                                            <span class="limit-subtitle">
+                                                Email usage limit
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <span class="limit-number">
+                                        @emailUsed / @limits.email_limit
+                                    </span>
+                                </div>
+
+                                <div class="limit-progress">
+                                    <div class="limit-progress-bar"
+                                         style="width:@emailPercentage%">
+                                    </div>
+                                </div>
+
+                                <div class="limit-statistics">
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Total</span>
+                                        <span class="limit-stat-value">
+                                            @limits.email_limit
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Used</span>
+                                        <span class="limit-stat-value">
+                                            @limits.used_email
+                                        </span>
+                                    </div>
+
+                                    <div class="limit-stat">
+                                        <span class="limit-stat-label">Remaining</span>
+                                        <span class="limit-stat-value">
+                                            @limits.email_limit_left
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- Billing -->
+                    <div class="tab-pane fade"
+                         id="billing"
+                         role="tabpanel"
+                         aria-labelledby="billing-tab">
+
+                        <div class="billing-grid">
+
+                            <div class="billing-column">
+                                <div class="billing-row">
+                                    <span>Company:</span>
+                                    <span class="billing-value">Atlanta Systems Private Limited</span>
+                                </div>
+
+                                <div class="billing-row">
+                                    <span>Address:</span>
+                                    <span class="billing-value">Atlanta Systems Private Limited</span>
+                                </div>
+                            </div>
+
+                            <div class="billing-column">
+                                <div class="billing-row">
+                                    <span>Plan:</span>
+                                    <span class="billing-value">
+                                        @(string.IsNullOrWhiteSpace(profile.plan_name)
+                                            ? "N/A"
+                                            : profile.plan_name)
+                                    </span>
+                                </div>
+
+                                <div class="billing-row">
+                                    <span>Payment Type:</span>
+                                    <span class="billing-value">
+                                        @(string.IsNullOrWhiteSpace(profile.payment_type)
+                                            ? "N/A"
+                                            : profile.payment_type)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="billing-column">
+                                <div class="billing-row">
+                                    <span>Billing Cycle:</span>
+                                    <span class="billing-value">
+                                        @(string.IsNullOrWhiteSpace(profile.bill_type)
+                                            ? "N/A"
+                                            : profile.bill_type)
+                                    </span>
+                                </div>
+
+                                <div class="billing-row">
+                                    <span>TIN/GST No:</span>
+                                    <span class="billing-value">
+                                        @(string.IsNullOrWhiteSpace(profile.gst_no)
+                                            ? "N/A"
+                                            : profile.gst_no)
+                                    </span>
+                                </div>
+
+                                <div class="billing-row">
+                                    <span>PAN No:</span>
+                                    <span class="billing-value">
+                                        @(string.IsNullOrWhiteSpace(profile.pan_no)
+                                            ? "N/A"
+                                            : profile.pan_no)
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
+        
+
+    </div>
+</div>
+
+<!-- Edit profile modal submitted through the profile controller. -->
+<div class="modal fade sb-common-modal profile-edit-modal"
+     id="editProfileModal"
+     tabindex="-1"
+     aria-labelledby="editProfileModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <form id="editProfileForm" novalidate onsubmit="saveProfileChanges(event)">
+                @Html.AntiForgeryToken()
+
+                <div class="modal-header profile-edit-modal-header">
+                    <h2 class="modal-title" id="editProfileModalLabel">
+                        <i class="bi bi-person-gear" aria-hidden="true"></i>
+                        Edit Profile
+                    </h2>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="profile-edit-photo-section">
+                        <img src="@profileImage"
+                             id="editProfileImagePreview"
+                             class="profile-edit-photo-preview"
+                             data-current-src="@profileImage"
+                             alt="Profile image preview"
+                             onerror="this.onerror=null; this.src='@Url.Content("~/assets/img/profile.png")';" />
+
+                        <div class="profile-edit-photo-content">
+                            <div class="profile-edit-photo-title">Profile Picture</div>
+                            <p class="profile-edit-photo-note">
+                                JPG or PNG, maximum 2 MB. Uploaded when you save changes.
+                            </p>
+
+                            <button type="button"
+                                    class="btn profile-edit-photo-button"
+                                    onclick="document.getElementById('editProfileImageInput').click()">
+                                <i class="bi bi-camera-fill" aria-hidden="true"></i>
+                                Change Photo
+                            </button>
+
+                            <input type="file"
+                                   id="editProfileImageInput"
+                                   accept=".jpg,.jpeg,.png,image/jpeg,image/png"
+                                   hidden
+                                   onchange="previewEditProfileImage(this)" />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="profileImageError"
+                                 role="alert">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="profileFullName" class="form-label profile-edit-label">
+                                Full Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control profile-edit-control"
+                                   id="profileFullName"
+                                   name="full_name"
+                                   value="@profile.full_name"
+                                   data-profile-field
+                                   data-field="full_name"
+                                   data-current="@profile.full_name"
+                                   autocomplete="name"
+                                   maxlength="150"
+                                   required />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="fullNameError"
+                                 role="alert">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="profileCompanyName" class="form-label profile-edit-label">
+                                Company Name
+                            </label>
+
+                            <input type="text"
+                                   class="form-control profile-edit-control"
+                                   id="profileCompanyName"
+                                   name="company_name"
+                                   value="@profile.company_name"
+                                   data-profile-field
+                                   data-field="company_name"
+                                   data-current="@profile.company_name"
+                                   autocomplete="organization"
+                                   maxlength="200" />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="companyError"
+                                 role="alert">
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="profileMobile" class="form-label profile-edit-label">
+                                Mobile Number
+                            </label>
+
+                            <input type="tel"
+                                   class="form-control profile-edit-control"
+                                   id="profileMobile"
+                                   name="mobile"
+                                   value="@profile.mobile"
+                                   data-profile-field
+                                   data-field="mobile"
+                                   data-current="@profile.mobile"
+                                   autocomplete="tel"
+                                   inputmode="numeric"
+                                   maxlength="15"
+                                   required />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="mobileError"
+                                 role="alert">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="profileEmail" class="form-label profile-edit-label">
+                                Email
+                            </label>
+
+                            <input type="email"
+                                   class="form-control profile-edit-control"
+                                   id="profileEmail"
+                                   name="email"
+                                   value="@profile.email"
+                                   data-profile-field
+                                   data-field="email"
+                                   data-current="@profile.email"
+                                   autocomplete="email"
+                                   maxlength="254"
+                                   required />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="emailError"
+                                 role="alert">
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="profileTimezone" class="form-label profile-edit-label">
+                                Timezone
+                            </label>
+
+                            <input type="text"
+                                   class="form-control profile-edit-control"
+                                   id="profileTimezone"
+                                   name="timezone"
+                                   value="@profile.timezone"
+                                   maxlength="100"
+                                   readonly
+                                   aria-describedby="timezoneUnsupportedNote" />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="timezoneError"
+                                 role="alert">
+                            </div>
+
+                            <div class="profile-unsupported-note" id="timezoneUnsupportedNote">
+                                Update mapping is not configured yet.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="profileLanguage" class="form-label profile-edit-label">
+                                Language
+                            </label>
+
+                            <input type="text"
+                                   class="form-control profile-edit-control"
+                                   id="profileLanguage"
+                                   name="language"
+                                   value="@profile.language"
+                                   maxlength="100"
+                                   readonly
+                                   aria-describedby="languageUnsupportedNote" />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="languageError"
+                                 role="alert">
+                            </div>
+
+                            <div class="profile-unsupported-note" id="languageUnsupportedNote">
+                                Update mapping is not configured yet.
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="profileCurrency" class="form-label profile-edit-label">
+                                Currency
+                            </label>
+
+                            <input type="text"
+                                   class="form-control profile-edit-control"
+                                   id="profileCurrency"
+                                   name="currency"
+                                   value="@profile.currency"
+                                   maxlength="50"
+                                   readonly
+                                   aria-describedby="currencyUnsupportedNote" />
+
+                            <div class="profile-field-error text-danger small"
+                                 id="currencyError"
+                                 role="alert">
+                            </div>
+
+                            <div class="profile-unsupported-note" id="currencyUnsupportedNote">
+                                Update mapping is not configured yet.
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="profileAddress" class="form-label profile-edit-label">
+                                Address
+                            </label>
+
+                            <textarea class="form-control profile-edit-control"
+                                      id="profileAddress"
+                                      name="address"
+                                      data-profile-field
+                                      data-field="address"
+                                      data-current="@profile.address"
+                                      autocomplete="street-address"
+                                      maxlength="500">@profile.address</textarea>
+
+                            <div class="profile-field-error text-danger small"
+                                 id="addressError"
+                                 role="alert">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <p class="profile-edit-form-message"
+                       id="profileEditFormMessage"
+                       role="status"
+                       aria-live="polite">
+                    </p>
+
+                    <button type="button"
+                            class="btn profile-edit-secondary-button"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                            id="saveProfileChangesButton"
+                            class="btn profile-edit-primary-button">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Password verification is required before the edit form opens. -->
+<div class="modal fade sb-common-modal profile-secure-modal"
+     id="profilePasswordModal"
+     tabindex="-1"
+     aria-labelledby="profilePasswordModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header profile-edit-modal-header">
+                <h2 class="modal-title" id="profilePasswordModalLabel">
+                    <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                    Verify Password
+                </h2>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="profile-secure-intro">
+                    Verify your current password before editing your profile.
+                </p>
+
+                <label for="profileCurrentPassword" class="form-label profile-edit-label">
+                    Current Password
+                </label>
+
+                <input type="password"
+                       class="form-control profile-edit-control"
+                       id="profileCurrentPassword"
+                       autocomplete="current-password"
+                       onkeydown="submitProfilePasswordOnEnter(event)" />
+
+                <div class="profile-field-error text-danger small"
+                     id="passwordError"
+                     role="alert">
+                </div>
+
+                <div class="profile-secure-actions">
+                    <button type="button"
+                            class="btn profile-edit-secondary-button"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="button"
+                            class="btn profile-edit-primary-button"
+                            id="verifyProfilePasswordButton"
+                            onclick="verifyProfilePassword()">
+                        Verify &amp; Continue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- OTP is requested only for sensitive fields changed in the edit form. -->
+<div class="modal fade sb-common-modal profile-secure-modal"
+     id="profileOtpModal"
+     tabindex="-1"
+     aria-labelledby="profileOtpModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header profile-edit-modal-header">
+                <h2 class="modal-title" id="profileOtpModalLabel">
+                    Verify Sensitive Changes
+                </h2>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="profile-secure-intro" id="profileOtpInstruction">
+                    Enter the OTP sent for the changed contact information.
+                </p>
+
+                <div id="profileMobileOtpGroup" class="profile-otp-group d-none">
+                    <div class="profile-secure-current">
+                        <span class="profile-secure-current-label">New Mobile</span>
+                        <span class="profile-secure-current-value"
+                              id="profileOtpMobileTarget">
+                        </span>
+                    </div>
+
+                    <label for="profileMobileOtp" class="form-label profile-edit-label">
+                        Mobile OTP
+                    </label>
+
+                    <input type="text"
+                           class="form-control profile-edit-control profile-otp-control"
+                           id="profileMobileOtp"
+                           inputmode="numeric"
+                           autocomplete="one-time-code"
+                           maxlength="6"
+                           placeholder="000000" />
+
+                    <div class="profile-field-error text-danger small"
+                         id="mobileOtpError"
+                         role="alert">
+                    </div>
+
+                    <div class="profile-secure-status text-success small"
+                         id="mobileOtpStatus"
+                         role="status">
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-link profile-resend-button mt-2"
+                            id="resendMobileOtpButton"
+                            onclick="resendProfileOtp('mobile')">
+                        Resend Mobile OTP
+                    </button>
+                </div>
+
+                <div id="profileEmailOtpGroup" class="profile-otp-group d-none">
+                    <div class="profile-secure-current">
+                        <span class="profile-secure-current-label">New Email</span>
+                        <span class="profile-secure-current-value"
+                              id="profileOtpEmailTarget">
+                        </span>
+                    </div>
+
+                    <label for="profileEmailOtp" class="form-label profile-edit-label">
+                        Email OTP
+                    </label>
+
+                    <input type="text"
+                           class="form-control profile-edit-control profile-otp-control"
+                           id="profileEmailOtp"
+                           inputmode="numeric"
+                           autocomplete="one-time-code"
+                           maxlength="6"
+                           placeholder="000000" />
+
+                    <div class="profile-field-error text-danger small"
+                         id="emailOtpError"
+                         role="alert">
+                    </div>
+
+                    <div class="profile-secure-status text-success small"
+                         id="emailOtpStatus"
+                         role="status">
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-link profile-resend-button mt-2"
+                            id="resendEmailOtpButton"
+                            onclick="resendProfileOtp('email')">
+                        Resend Email OTP
+                    </button>
+                </div>
+
+                <div class="profile-field-error text-danger small"
+                     id="otpError"
+                     role="alert">
+                </div>
+
+                <div class="profile-secure-actions">
+                    <button type="button"
+                            class="btn profile-edit-secondary-button"
+                            data-bs-dismiss="modal">
+                        Back
+                    </button>
+
+                    <button type="button"
+                            class="btn profile-edit-primary-button"
+                            id="verifyProfileOtpButton"
+                            onclick="verifyChangedProfileOtps()">
+                        Verify &amp; Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="profileEditEndpoints"
+     data-validate-password-url="@Url.Action("VerifyProfilePassword", "Profile")"
+     data-send-otp-url="@Url.Action("SendProfileOtp", "Profile")"
+     data-verify-otp-url="@Url.Action("VerifyProfileOtp", "Profile")"
+     data-update-field-url="@Url.Action("UpdateProfileField", "Profile")"
+     data-update-image-url="@Url.Action("UpdateProfileImage", "Profile")"
+     hidden>
+</div>
+
+<script>
+    const editProfileModalElement = document.getElementById("editProfileModal");
+    const profilePasswordModalElement =
+        document.getElementById("profilePasswordModal");
+    const profileOtpModalElement = document.getElementById("profileOtpModal");
+    const endpointElement = document.getElementById("profileEditEndpoints");
+
+    const profileEditEndpoints = {
+        validatePassword: endpointElement.dataset.validatePasswordUrl,
+        sendOtp: endpointElement.dataset.sendOtpUrl,
+        verifyOtp: endpointElement.dataset.verifyOtpUrl,
+        updateField: endpointElement.dataset.updateFieldUrl,
+        updateImage: endpointElement.dataset.updateImageUrl
+    };
+
+    const supportedProfileFields = new Set([
+        "full_name",
+        "company_name",
+        "address",
+        "mobile",
+        "email"
+    ]);
+
+    const sensitiveProfileFields = new Set(["mobile", "email"]);
+
+    const profileFieldErrorMap = {
+        full_name: ["fullNameError", "profileFullName"],
+        company_name: ["companyError", "profileCompanyName"],
+        address: ["addressError", "profileAddress"],
+        mobile: ["mobileError", "profileMobile"],
+        email: ["emailError", "profileEmail"],
+        profile_image: ["profileImageError", null]
+    };
+
+    const otpElementMap = {
+        mobile: {
+            groupId: "profileMobileOtpGroup",
+            targetId: "profileOtpMobileTarget",
+            inputId: "profileMobileOtp",
+            errorId: "mobileOtpError",
+            statusId: "mobileOtpStatus",
+            resendButtonId: "resendMobileOtpButton"
+        },
+        email: {
+            groupId: "profileEmailOtpGroup",
+            targetId: "profileOtpEmailTarget",
+            inputId: "profileEmailOtp",
+            errorId: "emailOtpError",
+            statusId: "emailOtpStatus",
+            resendButtonId: "resendEmailOtpButton"
+        }
+    };
+
+    let selectedProfileImageFile = null;
+    const maximumProfileImageSize = 2 * 1024 * 1024;
+    const allowedProfileImageTypes = new Set(["image/jpeg", "image/png"]);
+    const allowedProfileImageExtensions = new Set(["jpg", "jpeg", "png"]);
+    let pendingProfileChanges = [];
+    let requiredOtpTypes = [];
+    let verifiedOtpTypes = new Set();
+    let passwordTransitionToEdit = false;
+    let editTransitionToOtp = false;
+    let otpReturnToEdit = false;
+
+    function getProfileModalInstance(modalElement) {
+        return bootstrap.Modal.getInstance(modalElement) ||
+            new bootstrap.Modal(modalElement);
+    }
+
+    function getAntiForgeryToken() {
+        return document.querySelector(
+            "#editProfileForm input[name='__RequestVerificationToken']"
+        )?.value || "";
+    }
+
+    async function postProfileJson(url, payload) {
+        return requestProfileEndpoint(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": getAntiForgeryToken()
+            },
+            body: JSON.stringify(payload)
+        });
+    }
+
+    async function requestProfileEndpoint(url, options) {
+        let response;
+
+        try {
+            response = await fetch(url, options);
+        } catch (networkError) {
+            const error = new Error(
+                "Unable to contact the server. Please check your connection and try again."
+            );
+            error.payload = null;
+            throw error;
+        }
+
+        let payload = null;
+
+        try {
+            payload = await response.json();
+        } catch (parseError) {
+            payload = {
+                success: false,
+                message: "The server returned an invalid response."
+            };
+        }
+
+        if (!response.ok || payload?.success !== true) {
+            const error = new Error(
+                payload?.message ||
+                "Unable to complete the request. Please try again."
+            );
+            error.payload = payload;
+            error.status = response.status;
+            throw error;
+        }
+
+        return payload;
+    }
+
+    function setButtonLoading(buttonId, isLoading, loadingText) {
+        const button = document.getElementById(buttonId);
+
+        if (!button) {
+            return;
+        }
+
+        if (!button.dataset.defaultContent) {
+            button.dataset.defaultContent = button.innerHTML;
+        }
+
+        button.disabled = isLoading;
+        button.innerHTML = isLoading
+            ? '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>' +
+                loadingText
+            : button.dataset.defaultContent;
+    }
+
+    function setFieldError(errorId, message, inputId) {
+        const errorElement = document.getElementById(errorId);
+
+        if (!errorElement) {
+            return;
+        }
+
+        errorElement.textContent = message || "";
+        errorElement.classList.toggle("has-error", Boolean(message));
+
+        if (inputId) {
+            document.getElementById(inputId)?.classList.toggle(
+                "is-invalid",
+                Boolean(message)
+            );
+        }
+    }
+
+    function clearFieldError(errorId, inputId) {
+        setFieldError(errorId, "", inputId);
+    }
+
+    function showProfileFieldError(field, message) {
+        const mapping = profileFieldErrorMap[field];
+
+        if (mapping) {
+            setFieldError(mapping[0], message, mapping[1]);
+        }
+    }
+
+    function clearProfileErrors() {
+        Object.values(profileFieldErrorMap).forEach(function (mapping) {
+            clearFieldError(mapping[0], mapping[1]);
+        });
+
+        clearFieldError("timezoneError", "profileTimezone");
+        clearFieldError("languageError", "profileLanguage");
+        clearFieldError("currencyError", "profileCurrency");
+    }
+
+    function setProfileFormMessage(message) {
+        const messageElement = document.getElementById("profileEditFormMessage");
+        messageElement.textContent = message || "";
+        messageElement.classList.toggle("has-message", Boolean(message));
+    }
+
+    function openPasswordVerificationModal() {
+        resetProfileForm();
+        resetProfilePasswordModal();
+        resetProfileOtpModal();
+        getProfileModalInstance(profilePasswordModalElement).show();
+    }
+
+    function submitProfilePasswordOnEnter(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            verifyProfilePassword();
+        }
+    }
+
+    async function verifyProfilePassword() {
+        const passwordInput = document.getElementById(
+            "profileCurrentPassword"
+        );
+        const verifyButton = document.getElementById(
+            "verifyProfilePasswordButton"
+        );
+
+        if (verifyButton.disabled) {
+            return;
+        }
+
+        clearFieldError("passwordError", "profileCurrentPassword");
+
+        if (!passwordInput.value) {
+            setFieldError(
+                "passwordError",
+                "Please enter your current password.",
+                "profileCurrentPassword"
+            );
+            passwordInput.focus();
+            return;
+        }
+
+        setButtonLoading(
+            "verifyProfilePasswordButton",
+            true,
+            "Verifying..."
+        );
+
+        try {
+            await postProfileJson(
+                profileEditEndpoints.validatePassword,
+                { currentPassword: passwordInput.value }
+            );
+
+            passwordTransitionToEdit = true;
+            getProfileModalInstance(profilePasswordModalElement).hide();
+        } catch (error) {
+            setFieldError(
+                "passwordError",
+                error.message || "Unable to verify your password.",
+                "profileCurrentPassword"
+            );
+            passwordInput.focus();
+        } finally {
+            setButtonLoading(
+                "verifyProfilePasswordButton",
+                false,
+                ""
+            );
+        }
+    }
+
+    async function previewEditProfileImage(input) {
+        clearFieldError("profileImageError");
+
+        if (!input.files || !input.files[0]) {
+            selectedProfileImageFile = null;
+            resetEditProfileImagePreview();
+            return;
+        }
+
+        const file = input.files[0];
+        const extension = file.name.includes(".")
+            ? file.name.split(".").pop().toLowerCase()
+            : "";
+
+        if (!allowedProfileImageTypes.has(file.type) ||
+            !allowedProfileImageExtensions.has(extension)) {
+            rejectProfileImageSelection(
+                input,
+                "Only JPG and PNG images are allowed."
+            );
+            return;
+        }
+
+        if (file.size > maximumProfileImageSize) {
+            rejectProfileImageSelection(
+                input,
+                "Image size must be 2 MB or less."
+            );
+            return;
+        }
+
+        if (file.size === 0) {
+            rejectProfileImageSelection(
+                input,
+                "Only JPG and PNG images are allowed."
+            );
+            return;
+        }
+
+        let signature;
+
+        try {
+            signature = new Uint8Array(
+                await file.slice(0, 8).arrayBuffer()
+            );
+        } catch (error) {
+            rejectProfileImageSelection(
+                input,
+                "Unable to read the selected image. Please try again."
+            );
+            return;
+        }
+
+        const hasJpegSignature = signature.length >= 3 &&
+            signature[0] === 0xFF &&
+            signature[1] === 0xD8 &&
+            signature[2] === 0xFF;
+        const pngSignature = [
+            0x89, 0x50, 0x4E, 0x47,
+            0x0D, 0x0A, 0x1A, 0x0A
+        ];
+        const hasPngSignature = signature.length >= pngSignature.length &&
+            pngSignature.every(function (value, index) {
+                return signature[index] === value;
+            });
+        const validJpeg = file.type === "image/jpeg" &&
+            (extension === "jpg" || extension === "jpeg") &&
+            hasJpegSignature;
+        const validPng = file.type === "image/png" &&
+            extension === "png" &&
+            hasPngSignature;
+
+        if (!validJpeg && !validPng) {
+            rejectProfileImageSelection(
+                input,
+                "Only JPG and PNG images are allowed."
+            );
+            return;
+        }
+
+        selectedProfileImageFile = file;
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            document.getElementById("editProfileImagePreview").src =
+                event.target.result;
+        };
+
+        reader.onerror = function () {
+            rejectProfileImageSelection(
+                input,
+                "Unable to read the selected image. Please try again."
+            );
+        };
+
+        reader.readAsDataURL(file);
+    }
+
+    function rejectProfileImageSelection(input, message) {
+        input.value = "";
+        selectedProfileImageFile = null;
+        resetEditProfileImagePreview();
+        setFieldError("profileImageError", message);
+    }
+
+    function resetEditProfileImagePreview() {
+        const preview = document.getElementById("editProfileImagePreview");
+        preview.src = preview.dataset.currentSrc;
+    }
+
+    function resetEditProfileImage() {
+        document.getElementById("editProfileImageInput").value = "";
+        selectedProfileImageFile = null;
+        resetEditProfileImagePreview();
+        clearFieldError("profileImageError");
+    }
+
+    function collectChangedProfileFields() {
+        const changedFields = Array.from(
+            document.querySelectorAll("#editProfileForm [data-profile-field]")
+        ).reduce(function (changes, input) {
+            const currentValue = input.dataset.current || "";
+            const newValue = input.value.trim();
+            const valuesMatch = input.dataset.field === "email"
+                ? newValue.toLowerCase() === currentValue.toLowerCase()
+                : newValue === currentValue;
+
+            if (!valuesMatch) {
+                changes.push({
+                    field: input.dataset.field,
+                    currentValue: currentValue,
+                    newValue: newValue
+                });
+            }
+
+            return changes;
+        }, []);
+
+        if (selectedProfileImageFile) {
+            changedFields.push({
+                field: "profile_image",
+                currentValue: document.getElementById(
+                    "editProfileImagePreview"
+                ).dataset.currentSrc,
+                newValue: selectedProfileImageFile.name
+            });
+        }
+
+        return changedFields;
+    }
+
+    function validateProfileFields() {
+        clearProfileErrors();
+
+        const fullNameInput = document.getElementById("profileFullName");
+        const companyInput = document.getElementById("profileCompanyName");
+        const mobileInput = document.getElementById("profileMobile");
+        const emailInput = document.getElementById("profileEmail");
+        const addressInput = document.getElementById("profileAddress");
+
+        fullNameInput.value = fullNameInput.value.trim();
+        companyInput.value = companyInput.value.trim();
+        mobileInput.value = mobileInput.value.trim();
+        emailInput.value = emailInput.value.trim();
+        addressInput.value = addressInput.value.trim();
+
+        if (!fullNameInput.value) {
+            showProfileFieldError("full_name", "Full name is required.");
+            fullNameInput.focus();
+            return false;
+        }
+
+        if (!mobileInput.value) {
+            showProfileFieldError("mobile", "Mobile number is required.");
+            mobileInput.focus();
+            return false;
+        }
+
+        if (!/^[0-9]{7,15}$/.test(mobileInput.value)) {
+            showProfileFieldError(
+                "mobile",
+                "Please enter a valid mobile number."
+            );
+            mobileInput.focus();
+            return false;
+        }
+
+        if (!emailInput.value) {
+            showProfileFieldError("email", "Email address is required.");
+            emailInput.focus();
+            return false;
+        }
+
+        if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(emailInput.value)) {
+            showProfileFieldError(
+                "email",
+                "Please enter a valid email address."
+            );
+            emailInput.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    async function saveProfileChanges(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+        }
+
+        if (typeof hideLoader === "function") {
+            hideLoader();
+        }
+
+        const saveButton = document.getElementById(
+            "saveProfileChangesButton"
+        );
+
+        if (saveButton.disabled) {
+            return;
+        }
+
+        setProfileFormMessage("");
+
+        if (!validateProfileFields()) {
+            return;
+        }
+
+        pendingProfileChanges = collectChangedProfileFields();
+
+        if (pendingProfileChanges.length === 0) {
+            setProfileFormMessage("No profile changes detected.");
+            return;
+        }
+
+        requiredOtpTypes = pendingProfileChanges
+            .filter(function (item) {
+                return sensitiveProfileFields.has(item.field);
+            })
+            .map(function (item) {
+                return item.field;
+            });
+
+        verifiedOtpTypes = new Set();
+
+        if (requiredOtpTypes.length === 0) {
+            setProfileSaveLoading(true, "Saving...");
+
+            try {
+                const results = await updateChangedFields(
+                    pendingProfileChanges
+                );
+                await handleProfileUpdateResults(results, false);
+            } finally {
+                setProfileSaveLoading(false, "");
+            }
+
+            return;
+        }
+
+        setProfileSaveLoading(true, "Sending OTP...");
+
+        try {
+            const otpSent = await sendRequiredProfileOtps();
+
+            if (!otpSent) {
+                return;
+            }
+
+            configureProfileOtpModal();
+            editTransitionToOtp = true;
+            otpReturnToEdit = true;
+            getProfileModalInstance(editProfileModalElement).hide();
+        } finally {
+            setProfileSaveLoading(false, "");
+        }
+    }
+
+    async function sendRequiredProfileOtps() {
+        for (const type of requiredOtpTypes) {
+            const change = getPendingChange(type);
+            clearProfileFieldErrorForType(type);
+
+            try {
+                const result = await postProfileJson(
+                    profileEditEndpoints.sendOtp,
+                    {
+                        type: type,
+                        value: change.newValue
+                    }
+                );
+
+                otpElementMap[type].sendMessage =
+                    result.message || "OTP sent successfully";
+            } catch (error) {
+                showProfileFieldError(
+                    type,
+                    error.message || "Unable to send OTP. Please try again."
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    function configureProfileOtpModal() {
+        const hasMobile = requiredOtpTypes.includes("mobile");
+        const hasEmail = requiredOtpTypes.includes("email");
+
+        document.getElementById("profileOtpModalLabel").textContent =
+            hasMobile && hasEmail
+                ? "Verify Mobile & Email"
+                : hasMobile
+                    ? "Verify Mobile Number"
+                    : "Verify Email Address";
+
+        document.getElementById("profileOtpInstruction").textContent =
+            hasMobile && hasEmail
+                ? "Enter the OTP sent to each new contact value."
+                : "Enter the OTP sent to your new " +
+                    (hasMobile ? "mobile number." : "email address.");
+
+        Object.keys(otpElementMap).forEach(function (type) {
+            const elements = otpElementMap[type];
+            const isRequired = requiredOtpTypes.includes(type);
+            const group = document.getElementById(elements.groupId);
+
+            group.classList.toggle("d-none", !isRequired);
+
+            if (!isRequired) {
+                return;
+            }
+
+            const change = getPendingChange(type);
+            document.getElementById(elements.targetId).textContent =
+                change.newValue;
+            document.getElementById(elements.inputId).value = "";
+            clearFieldError(elements.errorId, elements.inputId);
+            document.getElementById(elements.statusId).textContent =
+                elements.sendMessage || "OTP sent successfully";
+        });
+
+        clearFieldError("otpError");
+    }
+
+    function getPendingChange(type) {
+        return pendingProfileChanges.find(function (item) {
+            return item.field === type;
+        });
+    }
+
+    function clearProfileFieldErrorForType(type) {
+        const mapping = profileFieldErrorMap[type];
+
+        if (mapping) {
+            clearFieldError(mapping[0], mapping[1]);
+        }
+    }
+
+    async function resendProfileOtp(type) {
+        if (!requiredOtpTypes.includes(type)) {
+            return;
+        }
+
+        const elements = otpElementMap[type];
+        const change = getPendingChange(type);
+        const button = document.getElementById(elements.resendButtonId);
+
+        if (!change || button.disabled) {
+            return;
+        }
+
+        clearFieldError(elements.errorId, elements.inputId);
+        document.getElementById(elements.statusId).textContent = "";
+        setButtonLoading(
+            elements.resendButtonId,
+            true,
+            "Sending..."
+        );
+
+        try {
+            const result = await postProfileJson(
+                profileEditEndpoints.sendOtp,
+                {
+                    type: type,
+                    value: change.newValue
+                }
+            );
+
+            document.getElementById(elements.inputId).value = "";
+            verifiedOtpTypes.delete(type);
+            document.getElementById(elements.statusId).textContent =
+                result.message || "OTP sent successfully";
+            document.getElementById(elements.inputId).focus();
+        } catch (error) {
+            setFieldError(
+                elements.errorId,
+                error.message || "Unable to resend OTP. Please try again.",
+                elements.inputId
+            );
+        } finally {
+            setButtonLoading(
+                elements.resendButtonId,
+                false,
+                ""
+            );
+        }
+    }
+
+    function validateRequiredOtpInputs() {
+        let valid = true;
+        let firstInvalidInput = null;
+
+        requiredOtpTypes.forEach(function (type) {
+            if (verifiedOtpTypes.has(type)) {
+                return;
+            }
+
+            const elements = otpElementMap[type];
+            const input = document.getElementById(elements.inputId);
+            const otp = input.value.trim();
+
+            clearFieldError(elements.errorId, elements.inputId);
+
+            if (!/^[0-9]{6}$/.test(otp)) {
+                setFieldError(
+                    elements.errorId,
+                    "Please enter a valid 6-digit OTP.",
+                    elements.inputId
+                );
+                firstInvalidInput = firstInvalidInput || input;
+                valid = false;
+            }
+        });
+
+        firstInvalidInput?.focus();
+        return valid;
+    }
+
+    async function verifyChangedProfileOtps() {
+        const verifyButton = document.getElementById(
+            "verifyProfileOtpButton"
+        );
+
+        if (verifyButton.disabled || !validateRequiredOtpInputs()) {
+            return;
+        }
+
+        clearFieldError("otpError");
+        setButtonLoading(
+            "verifyProfileOtpButton",
+            true,
+            "Verifying..."
+        );
+
+        try {
+            for (const type of requiredOtpTypes) {
+                if (verifiedOtpTypes.has(type)) {
+                    continue;
+                }
+
+                const elements = otpElementMap[type];
+                const change = getPendingChange(type);
+                const otp = document.getElementById(
+                    elements.inputId
+                ).value.trim();
+
+                try {
+                    await postProfileJson(
+                        profileEditEndpoints.verifyOtp,
+                        {
+                            type: type,
+                            value: change.newValue,
+                            otp: otp
+                        }
+                    );
+                    verifiedOtpTypes.add(type);
+                    document.getElementById(
+                        elements.statusId
+                    ).textContent = "OTP verified successfully";
+                } catch (error) {
+                    setFieldError(
+                        elements.errorId,
+                        error.message || "Unable to verify OTP.",
+                        elements.inputId
+                    );
+                    document.getElementById(elements.inputId).focus();
+                    return;
+                }
+            }
+
+            verifyButton.innerHTML =
+                '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Saving...';
+
+            const results = await updateChangedFields(
+                pendingProfileChanges
+            );
+            await handleProfileUpdateResults(results, true);
+        } finally {
+            setButtonLoading(
+                "verifyProfileOtpButton",
+                false,
+                ""
+            );
+        }
+    }
+
+    async function updateChangedFields(changedFields) {
+        const results = [];
+        const profileImageChange = changedFields.find(function (item) {
+            return item.field === "profile_image";
+        });
+        const textChanges = changedFields.filter(function (item) {
+            return item.field !== "profile_image";
+        });
+
+        for (const item of textChanges) {
+            const result = await updateProfileField(item);
+            results.push({
+                field: item.field,
+                success: result.success,
+                message: result.message
+            });
+        }
+
+        // Do not upload the image when an earlier profile-field update failed.
+        // This keeps the chosen file available for the user's next save attempt.
+        if (results.some(function (result) { return !result.success; })) {
+            return results;
+        }
+
+        if (profileImageChange) {
+            results.push(await updateProfileImage());
+        }
+
+        return results;
+    }
+
+    async function updateProfileImage() {
+        if (!selectedProfileImageFile) {
+            const message = "Please select a profile image.";
+            showProfileFieldError("profile_image", message);
+
+            return {
+                field: "profile_image",
+                success: false,
+                message: message
+            };
+        }
+
+        const formData = new FormData();
+        formData.append(
+            "logo_img",
+            selectedProfileImageFile,
+            selectedProfileImageFile.name
+        );
+
+        try {
+            const result = await requestProfileEndpoint(
+                profileEditEndpoints.updateImage,
+                {
+                    method: "POST",
+                    headers: {
+                        "RequestVerificationToken": getAntiForgeryToken()
+                    },
+                    body: formData
+                }
+            );
+
+            selectedProfileImageFile = null;
+            document.getElementById("editProfileImageInput").value = "";
+            clearFieldError("profileImageError");
+
+            return {
+                field: "profile_image",
+                success: true,
+                message: result.message || "Logo updated successfully"
+            };
+        } catch (error) {
+            const message = error.payload?.message ||
+                (error.status
+                    ? error.message
+                    : "Unable to update profile picture. Please try again.");
+
+            showProfileFieldError("profile_image", message);
+
+            return {
+                field: "profile_image",
+                success: false,
+                message: message
+            };
+        }
+    }
+
+    async function updateProfileField(item) {
+        if (!supportedProfileFields.has(item.field)) {
+            const message = item.field === "profile_image"
+                ? "Profile image update mapping is not configured yet."
+                : "Unsupported profile field.";
+
+            showProfileFieldError(item.field, message);
+
+            return {
+                success: false,
+                field: item.field,
+                message: message
+            };
+        }
+
+        try {
+            const result = await postProfileJson(
+                profileEditEndpoints.updateField,
+                {
+                    field: item.field,
+                    currentValue: item.currentValue,
+                    newValue: item.newValue
+                }
+            );
+
+            updateCurrentValueAfterSuccess(item.field, item.newValue);
+            return result;
+        } catch (error) {
+            const field = error.payload?.field || item.field;
+            const message = error.message ||
+                "Unable to update this field. Please try again.";
+
+            showProfileFieldError(field, message);
+
+            return {
+                success: false,
+                field: field,
+                message: message
+            };
+        }
+    }
+
+    async function handleProfileUpdateResults(results, usedOtpFlow) {
+        const failures = results.filter(function (result) {
+            return !result.success;
+        });
+
+        if (failures.length > 0) {
+            setProfileFormMessage(
+                "Some fields could not be updated. Correct the errors below and try again."
+            );
+
+            if (usedOtpFlow) {
+                otpReturnToEdit = true;
+                getProfileModalInstance(profileOtpModalElement).hide();
+            }
+
+            return;
+        }
+
+        otpReturnToEdit = false;
+
+        if (usedOtpFlow) {
+            getProfileModalInstance(profileOtpModalElement).hide();
+        } else {
+            getProfileModalInstance(editProfileModalElement).hide();
+        }
+
+        if (typeof Swal !== "undefined") {
+            const imageResult = results.find(function (result) {
+                return result.field === "profile_image";
+            });
+            const successMessage = imageResult && results.length === 1
+                ? imageResult.message
+                : imageResult
+                    ? "Your profile details and picture have been updated successfully."
+                    : "Your profile has been updated successfully.";
+
+            await Swal.fire({
+                icon: "success",
+                title: "Profile Updated",
+                text: successMessage,
+                confirmButtonColor: "midnightblue"
+            });
+        }
+
+        window.location.reload();
+    }
+
+    function updateCurrentValueAfterSuccess(field, value) {
+        const input = document.querySelector(
+            '#editProfileForm [data-field="' + field + '"]'
+        );
+
+        if (!input) {
+            return;
+        }
+
+        input.value = value;
+        input.dataset.current = value;
+    }
+
+    function setProfileSaveLoading(isLoading, loadingText) {
+        setButtonLoading(
+            "saveProfileChangesButton",
+            isLoading,
+            loadingText || "Saving..."
+        );
+    }
+
+    function resetProfilePasswordModal() {
+        document.getElementById("profileCurrentPassword").value = "";
+        clearFieldError("passwordError", "profileCurrentPassword");
+    }
+
+    function resetProfileOtpModal() {
+        requiredOtpTypes = [];
+        verifiedOtpTypes = new Set();
+
+        Object.values(otpElementMap).forEach(function (elements) {
+            document.getElementById(elements.groupId).classList.add("d-none");
+            document.getElementById(elements.targetId).textContent = "";
+            document.getElementById(elements.inputId).value = "";
+            document.getElementById(elements.statusId).textContent = "";
+            elements.sendMessage = "";
+            clearFieldError(elements.errorId, elements.inputId);
+            setButtonLoading(elements.resendButtonId, false, "");
+        });
+
+        clearFieldError("otpError");
+    }
+
+    function resetProfileForm() {
+        document.querySelectorAll("#editProfileForm [data-profile-field]")
+            .forEach(function (input) {
+                input.value = input.dataset.current || "";
+            });
+
+        pendingProfileChanges = [];
+        resetEditProfileImage();
+        clearProfileErrors();
+        setProfileFormMessage("");
+    }
+
+    profilePasswordModalElement.addEventListener(
+        "shown.bs.modal",
+        function () {
+            document.getElementById("profileCurrentPassword").focus();
+        }
+    );
+
+    profilePasswordModalElement.addEventListener(
+        "hidden.bs.modal",
+        function () {
+            resetProfilePasswordModal();
+
+            if (passwordTransitionToEdit) {
+                passwordTransitionToEdit = false;
+                getProfileModalInstance(editProfileModalElement).show();
+            }
+        }
+    );
+
+    editProfileModalElement.addEventListener(
+        "hidden.bs.modal",
+        function () {
+            if (editTransitionToOtp) {
+                editTransitionToOtp = false;
+                getProfileModalInstance(profileOtpModalElement).show();
+                return;
+            }
+
+            resetProfileForm();
+        }
+    );
+
+    profileOtpModalElement.addEventListener(
+        "shown.bs.modal",
+        function () {
+            const firstType = requiredOtpTypes.find(function (type) {
+                return !verifiedOtpTypes.has(type);
+            });
+
+            if (firstType) {
+                document.getElementById(
+                    otpElementMap[firstType].inputId
+                ).focus();
+            }
+        }
+    );
+
+    profileOtpModalElement.addEventListener(
+        "hidden.bs.modal",
+        function () {
+            resetProfileOtpModal();
+
+            if (otpReturnToEdit) {
+                otpReturnToEdit = false;
+                getProfileModalInstance(editProfileModalElement).show();
+            }
+        }
+    );
+
+    Object.entries(otpElementMap).forEach(function ([type, elements]) {
+        document.getElementById(elements.inputId).addEventListener(
+            "input",
+            function () {
+                this.value = this.value.replace(/\D/g, "").slice(0, 6);
+                verifiedOtpTypes.delete(type);
+                clearFieldError(elements.errorId, elements.inputId);
+            }
+        );
+    });
+
+    document.getElementById("profileMobile").addEventListener(
+        "input",
+        function () {
+            this.value = this.value.replace(/\D/g, "").slice(0, 15);
+            clearFieldError("mobileError", "profileMobile");
+        }
+    );
+
+    document.querySelectorAll(
+        "#editProfileForm [data-profile-field]"
+    ).forEach(function (input) {
+        input.addEventListener("input", function () {
+            const mapping = profileFieldErrorMap[this.dataset.field];
+
+            if (mapping) {
+                clearFieldError(mapping[0], mapping[1]);
+            }
+
+            setProfileFormMessage("");
+        });
+    });
+
+</script>

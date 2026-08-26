@@ -1,0 +1,186 @@
+﻿
+@{
+    ViewData["Title"] = "Students";
+}
+@model IEnumerable<SchoolBuddy.Models.Students.Students>
+
+<style>
+    .layout{
+        display:flex
+    }
+    .iconlayout{
+        border:2px solid;
+        border-radius:50%;
+        border-color:midnightblue;
+        padding:1px;
+        /*font-size:24px;*/
+        width: 3%;
+        height: 3%;
+        text-align: center;
+        margin: 0 5px;
+    }
+
+    .icon_color{
+        color:midnightblue
+    }
+    .center{
+       /* text-align:center;
+        font-size:20px*/
+    }
+    .divmarginoutsideicon{
+        margin:5px
+    }
+
+    .scrollit{
+        overflow-x:scroll;
+        height:100%
+       
+    }
+
+    .dataTable .table .table-bordered .table-stripped .table-hover{
+        width:auto !important;
+    }
+</style>
+<div class="card container"style="background-color:#fbfbfc;border:0px;top:10px">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card-header rounded-top mt-2 ms-2" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Student</p>
+              </div>
+                <div class="card-body rounded ms-2" style="background-color:white">
+                <div class="layout divmarginoutsideicon">
+
+                    <a asp-controller="Home" asp-action="AddStudent" class="iconlayout"><i class="fa fa-user-plus icon_color center" style="border:2px" aria-hidden="true"></i></a>
+                    <a asp-controller="Home" asp-action="StudentBulkUpload" class="iconlayout"><i class="fa fa-upload icon_color center" aria-hidden="true"></i></a>
+                    <a href="" class="iconlayout"> <i class="fa fa-file-excel-o icon_color center" aria-hidden="true"></i></a>
+                    <a href="" class="iconlayout"> <i class="fa fa-file-pdf-o icon_color center" aria-hidden="true"></i></a>
+                    <a href="" class="iconlayout"><i class="fa fa-trash icon_color center"></i></a>
+
+                    <div style="position: absolute;right: 50px">
+                        <form class="input-group my-2 my-md-0 justify-content-lg-start " style="width:90vh;height:auto;align-items: center;">
+                            <input autocomplete="off"
+                                   type="search"
+                                   class="form-control-sm rounded"
+                                   placeholder='Search here...'
+                                   style="min-width: 200px; background-color: white;width: 40px;border: 1px solid midnightblue;border-radius: 3.25rem !important;margin-left:auto" />
+                            <div class="layout" style="margin-left: -30px;">
+                                <i class="fa fa-search"></i>
+                            </div>
+
+                        </form>
+
+
+                    </div>
+                </div>
+                <div class="row scrollit mt-4" style="background-color:white;">
+                    <div class="col-lg-12" style=" width:100%">
+                        <table class="dataTable table table-bordered table-stripped table-hover" style="width:100%">
+                            <thead>
+                                <tr class="text-center" style="font-size:12px;background-color:midnightblue;color:white">
+                                    <th class="text-center">S.No</th>
+                                    <th class="text-center">Ad No</th>
+                                    <th class="text-center">Student Name</th>
+                                    <th class="text-center">Gender</th>
+                                    <th class="text-center">Birth</th>
+                                    <th class="text-center">Class</th>
+                                    <th class="text-center">Division</th>
+                                    <th class="text-center">Parent Name</th>
+                                    <th class="text-center">Mobile Number</th>
+                                    <th class="text-center">Address</th>
+                                    <th class="text-center">Pwd</th>
+                                  
+                                    <th class="text-center">Created Date</th>
+                                    <th class="text-center">RFID Tag</th>
+                                    <th class="text-center">Email</th>
+                                   @* <th class="text-center">Relation with Std</th>
+                                    <th class="text-center">Blood Group</th>
+                                
+                                    <th class="text-center">QRCode</th>*@
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+
+                                @{
+                                    if(Model !=null)
+                                    {
+                                        int sno = 1;
+                                        foreach (var student in Model)
+                                        {
+                                            <tr class="text-center" style="font-size:12px">
+                                                <td class="text-center">@sno</td>
+                                                <td class="text-center">@student.admission_no</td>
+                                                <td class="text-center">@student.student_name</td>
+                                                <td class="text-center">@student.gender</td>
+                                                <td class="text-center">@student.birth</td>
+                                                <td class="text-center">@student.class_</td>
+                                                <td class="text-center">@student.division</td>
+                                                <td class="text-center">@student.parent_name</td>
+                                                <td class="text-center">@student.mobile_no1</td>
+                                                <td class="text-center">@student.admission_no</td>
+                                                <td class="text-center">@student.password</td>
+                                                <td class="text-center">@student.created_date</td>
+                                                <td class="text-center">@student.rf_id</td>
+                                                <td class="text-center">@student.email</td>
+                                                @*<td class="text-center fs-6">@student.relation_with_std</td>
+                                                <td class="text-center fs-6">@student.blood_group</td>
+                                                <td class="text-center fs-6">@student.qr_code</td>*@
+                                                <td class="text-center fs-6">
+                                                    <a asp-controller="Home" asp-action="Students" asp-route-id="@student.id"><i class="fa fa-edit text-info" style="cursor:pointer;text-align:center"></i></a>
+                                                    <a asp-controller="Home" asp-action="deleteStudent" asp-route-id="@student.id"><i class="fa fa-trash-o text-danger" style="cursor:pointer;text-align:center"></i></a>
+                                                </td>
+
+                                            </tr>
+                                            sno++;
+                                        }
+                                    }
+                                    
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+              
+               
+            </div>   
+    </div>
+    </div>
+       
+    
+   
+</div>
+
+@section Scripts{
+   
+        @if (ViewBag.del!=null)
+        {
+            <script>
+
+                alert("delete");
+            </script>
+        }
+     
+        @*//$(document).ready(function(){
+        //    $('#delete_student').click(function(){
+        //        var student_id = $(this).data("id");
+        //        console.log(student_id);
+                
+        //        $.ajax({
+        //            url:'/Home/deleteStudent',
+        //            type:'post',
+        //            data:{id:parseInt(student_id)},
+        //            success:function(){
+        //                console.log("success");
+        //            },
+        //            error:function(){
+        //                console.log("error");
+        //            }
+        //        })
+
+        //    })
+        //})*@
+    
+}
+

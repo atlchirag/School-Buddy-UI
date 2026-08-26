@@ -1,0 +1,327 @@
+﻿
+@{
+    ViewData["Title"] = "Parent Complaint Report";
+}
+
+<style>
+    .layout {
+        display: flex
+    }
+
+    .iconlayout {
+        border: 2px solid;
+        border-radius: 50%;
+        border-color: midnightblue;
+        padding: 1px;
+        /*font-size:24px;*/
+        width: 3%;
+        height: 3%;
+        text-align: center;
+        margin: 0 5px;
+    }
+
+    .icon_color {
+        color: midnightblue
+    }
+
+    .center {
+        /* text-align:center;
+                font-size:20px*/
+    }
+
+    .divmarginoutsideicon {
+        margin: 5px
+    }
+   
+    table thead th,
+table.dataTable thead th {
+    background-color: midnightblue !important;
+    color: white !important;
+    text-align: center;
+    vertical-align: middle !important;
+    font-size: 12px;
+    font-weight: 600;
+    padding-right: 25px !important;
+        white-space: nowrap;
+}
+
+table thead th *,
+table.dataTable thead th * {
+    color: white !important;
+}
+   
+</style>
+
+<div class="card container">
+    <div class="row">
+
+
+        <div class="col-lg-12"style="margin-top:3vmin">
+            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Parent Complain Record</p>
+            </div>
+            <div class="card-body rounded" style="background-color:white;">
+                <div class="row">
+                    <div class="col-lg-12 col-xs-12">
+                        <ul class="nav nav-tabs nav-justified d-flex justify-content-center align-content-center mt-1" style="border:0px;cursor: pointer; font-size: 20px; font-weight: 600;margin-left:0px;gap:5px;" role="tablist" id="main">
+                            <li role="presentation">
+                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A1" role="tab" href="#Pending" aria-expanded="false" onclick="changebg();pending()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Pending</a>
+                            </li>
+                            <li role="presentation">
+                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A2" role="tab" href="#Resolved" aria-expanded="false" onclick="changebg1();resolved()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;"> Resolved</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="tab-pane" id="Pending">
+                        <div class="row" style="margin-top: 20px">
+                            <div class="col-lg-12">
+                                <div class="mt-2 ms-2">
+                                    <table id="pendingticket" style="width:100%" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="dataTables-example_info">
+                                        <thead>
+                                            <tr role="row" style="background-color: #C8D7E3">
+                                               
+                                                <th style="color:black">Student Name</th>
+                                                <th style="color:black">Mobile No</th>
+                                                <th style="color:black">Route</th>
+                                                <th style="color:black">Description</th>
+                                                <th style="color:black">Complaint</th>
+                                                <th style="color:black">Raised on</th>
+                                                <th style="color:black">Action</th>
+                                            </tr>
+
+                                        </thead>
+
+
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- /.col-lg-12 -->
+                        </div>
+                    </div>
+                    <div id="Resolved" class="tab-pane">
+                        <div class="row" style="margin-top: 20px">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="layout">
+
+                                    <div class="col-lg-12">
+                                        <div class="mt-2 ms-2">
+                                            <table id="resolvedticket" style="width:100%" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="dataTables-example_info">
+                                                <thead>
+                                                    <tr role="row" style="background-color: #C8D7E3">
+                                            
+                                                        <th style="color:black">Student Name</th>
+                                                        <th style="color:black">Mobile No</th>
+                
+                                                        <th style="color:black">Route</th>
+                                                        <th style="color:black">Description</th>
+                                                        <th style="color:black">Comment</th>
+                                                        <th style="color:black">Raised on</th>
+                                                        <th style="color:black">Resolved on</th>
+                                                    </tr>
+
+                                                </thead>
+                                              
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                  
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade sb-common-modal" id="actionontickets" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Action Taken to Resolve Complain</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input id="pendingticketid" type="hidden" value=""/>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <label>Action Taken</label>
+                    </div>
+                     <div class="col-lg-6">
+                         <textarea id="cmt" class="form-control"></textarea> 
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button id="ticketclosureaction" type="button" class="btn btn-primary" onclick="uticket()">Ticket Closed</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    window.onload = function () {
+        var holidaycontrol = document.getElementById('A1');
+        holidaycontrol.click();
+        holidaycontrol.style.backgroundColor = 'midnightblue';
+        holidaycontrol.style.color = 'white';
+    }
+
+    function changebg() {
+        var holidaycontrol = document.getElementById('A1');
+        var holidaycontrol1 = document.getElementById('A2');
+        holidaycontrol.style.backgroundColor = 'midnightblue';
+        holidaycontrol.style.color = 'white';
+
+        holidaycontrol1.style.backgroundColor = 'white';
+        holidaycontrol1.style.color = 'black';
+    }
+    function changebg1() {
+        var holidaycontrol = document.getElementById('A1');
+        var holidaycontrol1 = document.getElementById('A2');
+        holidaycontrol1.style.backgroundColor = 'midnightblue';
+        holidaycontrol1.style.color = 'white';
+
+        holidaycontrol.style.backgroundColor = 'white';
+        holidaycontrol.style.color = 'black';
+    }
+
+
+
+    function pending() {
+        var table = $("#pendingticket").DataTable();
+       // var uid = document.getElementById('user_id').value;
+        // Clear existing data
+        table.clear().draw();
+
+        $.ajax({
+            url: '/schoolbuddy/Complain/PendingTicket',
+            type: 'POST',
+           // data: { uid: uid },
+            success: function (response) {
+                let data;
+                try {
+                    data = JSON.parse(response);
+                } catch (e) {
+                    console.error('Failed to parse JSON:', e);
+                    alert('Failed to load data.');
+                    return;
+                }
+
+                const rows = data.map(item => [
+                    item.student_name || "",
+                    item.mobile_no1 || "",
+                    item.route_name || "",
+                    item.description || "",
+                    item.complaint || "",
+                    item.raised_on || "",
+                    `<button  class="btn btn-sm bg-info" onclick="handleActionClick('${item.id || ""}')">Action</button>`
+                ]);
+                table.rows.add(rows).draw();
+
+            },
+            error: function (xhr, status, error) {
+                console.error('Error occurred:', error);
+                alert('An error occurred while fetching data.');
+            }
+        });
+    }
+
+
+    function resolved() {
+        var table = $("#resolvedticket").DataTable();
+
+        // Clear existing data
+        table.clear().draw();
+
+        $.ajax({
+            url: '/schoolbuddy/Complain/ResolvedTicket',
+            type: 'POST',
+            success: function (response) {
+                let data;
+                try {
+                    data = JSON.parse(response);
+                } catch (e) {
+                    console.error('Failed to parse JSON:', e);
+                    alert('Failed to load data.');
+                    return;
+                }
+
+                // Prepare data array for bulk addition
+                let rows = data.map(item => [
+                    item.student_name || "",
+                    item.mobile_no1 || "",
+                    item.route_name || "",
+                    item.description || "",
+                    item.comments || "",
+                    item.raised_on || "",
+                    item.resolved_on || "",
+
+                ]);
+
+                // Add all rows in a single operation
+                table.rows.add(rows).draw();
+            },
+            error: function (xhr, status, error) {
+                console.error('Error occurred:', error);
+                alert('An error occurred while fetching data.');
+            }
+        });
+    }
+
+    function handleActionClick(ticketid){
+        $('#pendingticketid').val(ticketid);
+        $('#actionontickets').modal('show');
+    }
+
+   
+
+        function uticket () {
+           // alert('ncjd');
+            var cmnt = $('#cmt').val();
+            var tid = $('#pendingticketid').val();
+            $.ajax({
+            url: '/schoolbuddy/Complain/UpdateTicket',
+                type: 'post',
+                data: { comment: cmnt, ticketid: tid },
+                success: function (response) {
+                    if (response == "true") {
+                        location.reload();
+                    }
+                    else {
+                        alert('Something went wrong');
+                    }
+
+                },
+                error: function () {
+                    alert('Something went wrong');
+                }
+            });
+
+        };
+
+
+
+
+
+   
+
+
+</script>
+

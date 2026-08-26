@@ -1,0 +1,565 @@
+/*
+ * School Buddy common Bootstrap modal system.
+ *
+ * Source of truth: Dashboard > Recent Boarding/DeBoarding Event >
+ * All Boarding Events (#boardingModal). Values intentionally mirror that
+ * modal's Bootstrap 5.3 defaults and its RFID DataTables rules.
+ */
+.sb-common-modal {
+    --bs-modal-padding: 1rem;
+    --bs-modal-margin: 0.5rem;
+    --bs-modal-bg: var(--bs-body-bg);
+    --bs-modal-border-color: var(--bs-border-color-translucent);
+    --bs-modal-border-width: var(--bs-border-width);
+    --bs-modal-border-radius: var(--bs-border-radius-lg);
+    --bs-modal-inner-border-radius: calc(var(--bs-border-radius-lg) - var(--bs-border-width));
+    --bs-modal-header-padding-x: 1rem;
+    --bs-modal-header-padding-y: 1rem;
+    --bs-modal-header-padding: 1rem 1rem;
+    --bs-modal-header-border-color: var(--bs-border-color);
+    --bs-modal-header-border-width: var(--bs-border-width);
+    --bs-modal-title-line-height: 1.5;
+    --bs-modal-footer-gap: 0.5rem;
+    --bs-modal-footer-bg: transparent;
+    --bs-modal-footer-border-color: var(--bs-border-color);
+    --bs-modal-footer-border-width: var(--bs-border-width);
+}
+
+.sb-common-modal .modal-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    color: var(--bs-body-color) !important;
+    background-color: var(--bs-modal-bg) !important;
+    background-clip: padding-box;
+    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color) !important;
+    border-radius: var(--bs-modal-border-radius) !important;
+    box-shadow: none !important;
+    outline: 0;
+}
+
+.sb-common-modal .modal-header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center !important;
+    padding: var(--bs-modal-header-padding) !important;
+    color: var(--bs-body-color) !important;
+    background-color: transparent !important;
+    border-bottom: var(--bs-modal-header-border-width) solid var(--bs-modal-header-border-color) !important;
+    border-top-left-radius: var(--bs-modal-inner-border-radius) !important;
+    border-top-right-radius: var(--bs-modal-inner-border-radius) !important;
+}
+
+.sb-common-modal .modal-header :not(.btn-close) {
+    color: inherit !important;
+}
+
+.sb-common-modal .modal-title {
+    display: block !important;
+    width: auto !important;
+    margin: 0;
+    color: inherit !important;
+    font-family: "Open Sans", sans-serif;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+    line-height: var(--bs-modal-title-line-height);
+    text-align: left !important;
+    text-decoration: none !important;
+}
+
+/* Support both the reference's sibling icon and titles that already contain an icon. */
+.sb-common-modal .modal-header > i:first-child {
+    flex: 0 0 auto;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    font-size: 1.25rem;
+}
+
+.sb-common-modal .modal-title > i:first-child {
+    margin-right: 0.5rem;
+}
+
+.sb-common-modal .modal-header .btn-close {
+    flex: 0 0 auto;
+    width: 1em;
+    height: 1em;
+    padding: calc(var(--bs-modal-header-padding-y) * 0.5) calc(var(--bs-modal-header-padding-x) * 0.5) !important;
+    margin: calc(-0.5 * var(--bs-modal-header-padding-y)) calc(-0.5 * var(--bs-modal-header-padding-x)) calc(-0.5 * var(--bs-modal-header-padding-y)) auto !important;
+    font-size: 1rem !important;
+    background-size: 25%;
+    border: 0;
+    border-radius: 0.375rem;
+    box-shadow: none !important;
+    filter: none !important;
+    opacity: 0.5;
+}
+
+.sb-common-modal .modal-header .btn-close:hover {
+    opacity: 0.75;
+}
+
+.sb-common-modal .modal-header .btn-close:focus {
+    outline: 0;
+    box-shadow: none !important;
+    opacity: 1;
+}
+
+/* Status/feedback dialog variant. These selectors intentionally outrank the
+   common transparent header so Bootstrap status classes remain visible. */
+.sb-common-modal.sb-feedback-modal .modal-dialog {
+    max-width: 430px;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-content {
+    overflow: hidden;
+    box-shadow: 0 1rem 3rem rgba(15, 23, 42, 0.18) !important;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-header.bg-success {
+    color: #ffffff !important;
+    background-color: var(--bs-success) !important;
+    border-bottom-color: var(--bs-success) !important;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-header.bg-danger {
+    color: #ffffff !important;
+    background-color: var(--bs-danger) !important;
+    border-bottom-color: var(--bs-danger) !important;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-header.bg-primary {
+    color: #ffffff !important;
+    background-color: var(--bs-primary) !important;
+    border-bottom-color: var(--bs-primary) !important;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-header.bg-warning {
+    color: var(--bs-dark) !important;
+    background-color: var(--bs-warning) !important;
+    border-bottom-color: var(--bs-warning) !important;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-header.bg-success .btn-close,
+.sb-common-modal.sb-feedback-modal .modal-header.bg-danger .btn-close,
+.sb-common-modal.sb-feedback-modal .modal-header.bg-primary .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+    opacity: 0.9;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-body {
+    padding: 1.5rem !important;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-footer {
+    background-color: var(--bs-secondary-bg) !important;
+}
+
+.sb-common-modal.sb-feedback-modal .modal-footer .btn {
+    min-width: 90px;
+}
+
+.sb-common-modal .modal-body {
+    position: relative;
+    flex: 1 1 auto;
+    padding: var(--bs-modal-padding) !important;
+    color: var(--bs-body-color) !important;
+    background-color: transparent !important;
+}
+
+.sb-common-modal .modal-footer {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: normal !important;
+    padding: calc(var(--bs-modal-padding) - var(--bs-modal-footer-gap) * 0.5) !important;
+    color: var(--bs-body-color) !important;
+    background-color: var(--bs-modal-footer-bg) !important;
+    border-top: var(--bs-modal-footer-border-width) solid var(--bs-modal-footer-border-color) !important;
+    border-bottom-right-radius: var(--bs-modal-inner-border-radius) !important;
+    border-bottom-left-radius: var(--bs-modal-inner-border-radius) !important;
+}
+
+.sb-common-modal .modal-footer > * {
+    margin: calc(var(--bs-modal-footer-gap) * 0.5);
+}
+
+/* Reference table presentation. */
+.sb-common-modal .table {
+    --bs-table-color: var(--bs-emphasis-color);
+    --bs-table-bg: var(--bs-body-bg);
+    --bs-table-border-color: var(--bs-border-color);
+    --bs-table-hover-color: var(--bs-emphasis-color);
+    --bs-table-hover-bg: rgba(var(--bs-emphasis-color-rgb), 0.075);
+    width: 100% !important;
+    margin-bottom: 0;
+    font-size: 13px !important;
+    vertical-align: middle;
+    border-color: var(--bs-table-border-color);
+}
+
+.sb-common-modal .table > :not(caption) > * > * {
+    padding: 0.5rem !important;
+    vertical-align: middle !important;
+    border-bottom-width: var(--bs-border-width);
+}
+
+.sb-common-modal .table tr {
+    height: auto !important;
+}
+
+.sb-common-modal .table thead th,
+.sb-common-modal .table thead th * {
+    color: #ffffff !important;
+    background-color: midnightblue !important;
+}
+
+.sb-common-modal .table thead th {
+    position: relative;
+    font-size: 13px !important;
+    font-weight: 600;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+}
+
+/* Keep DataTables 1 and 2 ordering controls inside the real header cell. */
+.sb-common-modal table.dataTable thead > tr > th.sorting,
+.sb-common-modal table.dataTable thead > tr > th.sorting_asc,
+.sb-common-modal table.dataTable thead > tr > th.sorting_desc,
+.sb-common-modal table.dataTable thead > tr > th.dt-orderable-asc,
+.sb-common-modal table.dataTable thead > tr > th.dt-orderable-desc {
+    padding-right: 2rem !important;
+}
+
+.sb-common-modal table.dataTable thead > tr > th.sorting::before,
+.sb-common-modal table.dataTable thead > tr > th.sorting::after,
+.sb-common-modal table.dataTable thead > tr > th.sorting_asc::before,
+.sb-common-modal table.dataTable thead > tr > th.sorting_asc::after,
+.sb-common-modal table.dataTable thead > tr > th.sorting_desc::before,
+.sb-common-modal table.dataTable thead > tr > th.sorting_desc::after {
+    position: absolute !important;
+    right: 0.5rem !important;
+}
+
+.sb-common-modal table.dataTable thead > tr > th .dt-column-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1rem;
+}
+
+.sb-common-modal table.dataTable thead > tr > th .dt-column-order {
+    position: absolute !important;
+    top: 50% !important;
+    right: 0 !important;
+    bottom: auto !important;
+    width: 12px;
+    height: 1.5em;
+    margin: 0;
+    transform: translateY(-50%);
+    background: transparent !important;
+}
+
+.sb-common-modal .table tbody th,
+.sb-common-modal .table tbody td {
+    font-size: 13px !important;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.sb-common-modal .table-hover > tbody > tr:hover > * {
+    --bs-table-color-state: var(--bs-table-hover-color);
+    --bs-table-bg-state: var(--bs-table-hover-bg);
+}
+
+/* Reference DataTables layout and scrolling. */
+.sb-common-modal .dataTables_wrapper,
+.sb-common-modal .dt-container {
+    width: 100%;
+    max-width: 100%;
+}
+
+.sb-common-modal .dataTables_scroll,
+.sb-common-modal .dataTables_scrollHead,
+.sb-common-modal .dataTables_scrollHeadInner,
+.sb-common-modal .dataTables_scrollBody,
+.sb-common-modal .dt-scroll,
+.sb-common-modal .dt-scroll-head,
+.sb-common-modal .dt-scroll-headInner,
+.sb-common-modal .dt-scroll-body {
+    width: 100% !important;
+}
+
+.sb-common-modal .dataTables_scrollHeadInner table,
+.sb-common-modal .dataTables_scrollBody > table,
+.sb-common-modal .dt-scroll-headInner table,
+.sb-common-modal .dt-scroll-body > table {
+    width: 100% !important;
+    margin: 0 !important;
+    table-layout: auto !important;
+}
+
+.sb-common-modal .dataTables_scrollHead,
+.sb-common-modal .dt-scroll-head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: midnightblue;
+}
+
+.sb-common-modal .dataTables_scrollBody,
+.sb-common-modal .dt-scroll-body {
+    max-height: 60vh;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+}
+
+.sb-common-modal .dataTables_scrollHead table.dataTable thead th,
+.sb-common-modal .dataTables_scrollHead table.dataTable thead td,
+.sb-common-modal .dataTables_scrollHead table.dataTable thead th *,
+.sb-common-modal .dataTables_scrollHead table.dataTable thead td *,
+.sb-common-modal .dt-scroll-head table.dataTable thead th,
+.sb-common-modal .dt-scroll-head table.dataTable thead td,
+.sb-common-modal .dt-scroll-head table.dataTable thead th *,
+.sb-common-modal .dt-scroll-head table.dataTable thead td * {
+    color: #ffffff !important;
+    background: midnightblue !important;
+}
+
+.sb-common-modal .dataTables_scrollHead table.dataTable thead th,
+.sb-common-modal .dataTables_scrollHead table.dataTable thead td,
+.sb-common-modal .dataTables_scrollBody > table.dataTable tbody th,
+.sb-common-modal .dataTables_scrollBody > table.dataTable tbody td,
+.sb-common-modal .dt-scroll-head table.dataTable thead th,
+.sb-common-modal .dt-scroll-head table.dataTable thead td,
+.sb-common-modal .dt-scroll-body > table.dataTable tbody th,
+.sb-common-modal .dt-scroll-body > table.dataTable tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.sb-common-modal .dataTables_scrollHead table.dataTable thead th,
+.sb-common-modal .dataTables_scrollHead table.dataTable thead td,
+.sb-common-modal .dt-scroll-head table.dataTable thead th,
+.sb-common-modal .dt-scroll-head table.dataTable thead td {
+    white-space: nowrap;
+}
+
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead {
+    visibility: collapse !important;
+}
+
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead > tr,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead > tr {
+    height: 0 !important;
+}
+
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead > tr > th,
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead > tr > td,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead > tr > th,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead > tr > td {
+    visibility: hidden !important;
+    height: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: transparent !important;
+    background: transparent !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+}
+
+/* DataTables keeps this sizing header in the scroll body for column widths.
+   Make it non-painting without removing it from layout or accessibility APIs. */
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead > tr > th *,
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead > tr > td *,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead > tr > th *,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead > tr > td * {
+    visibility: hidden !important;
+    color: transparent !important;
+    background: transparent !important;
+}
+
+.sb-common-modal .dt-scroll-body > table.dataTable > thead .dt-scroll-sizing,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead .dt-column-header {
+    min-height: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    overflow: hidden !important;
+}
+
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead > tr > th::before,
+.sb-common-modal .dataTables_scrollBody > table.dataTable > thead > tr > th::after,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead > tr > th::before,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead > tr > th::after,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead .dt-column-order,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead .dt-column-order::before,
+.sb-common-modal .dt-scroll-body > table.dataTable > thead .dt-column-order::after {
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+.sb-common-modal .dataTables_length,
+.sb-common-modal .dataTables_filter,
+.sb-common-modal .dt-length,
+.sb-common-modal .dt-search {
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.sb-common-modal .dataTables_info,
+.sb-common-modal .dt-info {
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.sb-common-modal .dataTables_paginate,
+.sb-common-modal .dt-paging {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.sb-common-modal .dataTables_paginate .paginate_button,
+.sb-common-modal .dt-paging .dt-paging-button {
+    display: inline-block !important;
+    min-width: 30px;
+    height: 30px;
+    margin: 0 2px;
+    padding: 6px 10px !important;
+    color: #000000 !important;
+    line-height: 18px;
+    text-decoration: none !important;
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 5px !important;
+    cursor: pointer;
+}
+
+.sb-common-modal .dataTables_paginate .paginate_button:hover,
+.sb-common-modal .dt-paging .dt-paging-button:hover {
+    color: #000000 !important;
+    background: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+}
+
+.sb-common-modal .dataTables_paginate .paginate_button.current,
+.sb-common-modal .dataTables_paginate .paginate_button.current:hover,
+.sb-common-modal .dataTables_paginate .paginate_button.current:focus,
+.sb-common-modal .dt-paging .dt-paging-button.current,
+.sb-common-modal .dt-paging .dt-paging-button.current:hover,
+.sb-common-modal .dt-paging .dt-paging-button.current:focus {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: midnightblue !important;
+    border: 1px solid midnightblue !important;
+}
+
+.sb-common-modal .dataTables_paginate .paginate_button.current *,
+.sb-common-modal .dt-paging .dt-paging-button.current * {
+    color: #ffffff !important;
+}
+
+.sb-common-modal .dataTables_paginate .paginate_button.disabled,
+.sb-common-modal .dt-paging .dt-paging-button.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+@media (min-width: 576px) {
+    .sb-common-modal {
+        --bs-modal-margin: 1.75rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .sb-common-modal .modal-fullscreen-sm-down .modal-content {
+        border: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .sb-common-modal .modal-fullscreen-sm-down .modal-header,
+    .sb-common-modal .modal-fullscreen-sm-down .modal-footer {
+        border-radius: 0 !important;
+    }
+
+    .sb-common-modal .modal-fullscreen-sm-down .modal-body {
+        overflow-y: auto;
+    }
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .modal-content {
+    color: var(--sb-text) !important;
+    background-color: var(--sb-surface) !important;
+    border-color: var(--sb-border) !important;
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .modal-header,
+html[data-bs-theme="dark"] .sb-common-modal .modal-body,
+html[data-bs-theme="dark"] .sb-common-modal .modal-footer {
+    color: var(--sb-text) !important;
+    border-color: var(--sb-border) !important;
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .modal-header .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%) !important;
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .table {
+    --bs-table-color: var(--sb-text);
+    --bs-table-bg: var(--sb-table-row);
+    --bs-table-border-color: var(--sb-border);
+    --bs-table-striped-color: var(--sb-text);
+    --bs-table-striped-bg: var(--sb-table-row-alt);
+    --bs-table-hover-color: #ffffff;
+    --bs-table-hover-bg: var(--bs-primary);
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_length,
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_filter,
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_info,
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_paginate,
+html[data-bs-theme="dark"] .sb-common-modal .dt-length,
+html[data-bs-theme="dark"] .sb-common-modal .dt-search,
+html[data-bs-theme="dark"] .sb-common-modal .dt-info,
+html[data-bs-theme="dark"] .sb-common-modal .dt-paging,
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_wrapper label {
+    color: var(--sb-text-secondary) !important;
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_wrapper input,
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_wrapper select,
+html[data-bs-theme="dark"] .sb-common-modal .dt-container input,
+html[data-bs-theme="dark"] .sb-common-modal .dt-container select,
+html[data-bs-theme="dark"] .sb-common-modal .dt-input {
+    color: var(--sb-text) !important;
+    background-color: var(--sb-input-bg) !important;
+    border-color: var(--sb-border) !important;
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_paginate .paginate_button:not(.current),
+html[data-bs-theme="dark"] .sb-common-modal .dt-paging .dt-paging-button:not(.current) {
+    color: var(--sb-text) !important;
+    -webkit-text-fill-color: var(--sb-text) !important;
+    background: var(--sb-surface) !important;
+    border-color: var(--sb-border) !important;
+}
+
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_paginate .paginate_button.current,
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_paginate .paginate_button.current:hover,
+html[data-bs-theme="dark"] .sb-common-modal .dataTables_paginate .paginate_button.current:focus,
+html[data-bs-theme="dark"] .sb-common-modal .dt-paging .dt-paging-button.current,
+html[data-bs-theme="dark"] .sb-common-modal .dt-paging .dt-paging-button.current:hover,
+html[data-bs-theme="dark"] .sb-common-modal .dt-paging .dt-paging-button.current:focus {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    background: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+}

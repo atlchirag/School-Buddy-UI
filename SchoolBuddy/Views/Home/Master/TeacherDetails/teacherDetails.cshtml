@@ -1,0 +1,154 @@
+﻿@model List<TeacherModel>
+
+@{
+    ViewData["Title"] = "Teacher Details";
+}
+
+<style>
+    .layout {
+        display: flex
+    }
+
+
+    .iconlayout {
+        border: 2px solid;
+        border-radius: 50%;
+        border-color: midnightblue;
+        padding: 1px;
+        width: 3%;
+        height: 3%;
+        text-align: center;
+        margin: 0 5px;
+    }
+
+    .icon_color {
+        color: midnightblue
+    }
+
+    .center {
+    }
+
+    .divmarginoutsideicon {
+        margin: 5px
+    }
+
+   
+
+    #teacherDetails thead th {
+        background-color: midnightblue !important;
+        color: white !important;
+        white-space: nowrap;
+    }
+
+    #teacherDetails thead th * {
+            color: white !important;
+        }
+
+    #teacherDetails thead th {
+        padding-right: 25px !important;
+        vertical-align: middle !important;
+    }
+</style>
+
+<div class="card container" style="background-color:#fbfbfc;border:0px;top:45px">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card-header rounded-top mt-2 ms-2" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Teacher Details</p>
+            </div>
+            <div class="card-body rounded ms-2" style="background-color:white;">
+                <div class="layout divmarginoutsideicon">
+                    <a class="btn btn-sm iconstyle" asp-controller="Home" asp-action="addteacherdetails" title="Add teacher"><i class="bi bi-person-fill-add" aria-hidden="true"></i></a>
+                    <div style="position: absolute;right: 50px">
+                        <form class="input-group my-2 my-md-0 justify-content-lg-start " style="width:90vh;height:auto;align-items: center;">
+                            <div class="layout" style="margin-left: -30px;">
+                                <i class="fa fa-search"></i>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <table id="teacherDetails" class="table table-bordered mt-4">
+                    <thead>
+                        <tr>
+                            <th>Teacher Name</th>
+                            <th>Login ID</th>
+                            <th>Password</th>
+                            <th>Class</th>
+                            <th>Section</th>
+                            <th>Start Time</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null && Model.Any())
+                        {
+                            @foreach (var teacher in Model)
+                            {
+                                <tr>
+                                    <td>@teacher.TeacherName</td>
+                                    <td>@teacher.TeacherLogin</td>
+                                    <td>@teacher.Password</td>
+                                    <td>@teacher.ClassName</td>
+                                    <td>@teacher.Section</td>
+                                    <td>@teacher.StartTime</td>
+                                    <td>
+                                        <a asp-controller="Home" asp-action="editTeacherDetails" asp-route-id="@teacher.Id" class="btn btn-sm btn-primary">Edit</a>
+                                       @*  <a asp-controller="Home" asp-action="DeleteTeacher" asp-route-id="@teacher.Id" class="btn btn-sm btn-danger">Delete</a> *@
+                                        <button class="btn btn-sm btn-danger" onclick="confirmDelete(@teacher.Id)">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                       @*  else
+                        {
+                            <tr>
+                                <td class="text-center" >No teachers found.</td>
+                            </tr>
+                        } *@
+                       
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+
+    $(document).ready(function () {
+
+        $("#teacherDetails").DataTable({
+            language: {
+                emptyTable: "No teachers found."
+            }
+        });
+
+    });
+
+       function confirmDelete(id) {
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You want to delete this teacher record.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Delete',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                window.location.href =
+                    '@Url.Action("DeleteTeacher", "Home")' + '?id=' + id;
+            }
+        });
+    }
+
+</script>
+
+}
+

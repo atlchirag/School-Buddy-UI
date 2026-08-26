@@ -1,0 +1,21 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# SVN
+.svn/
+
+# Temporary files
+.temp/
+
+# Documentation
+docs/
+
+# Build output
+bin/
+obj/
+Debug/
+Release/

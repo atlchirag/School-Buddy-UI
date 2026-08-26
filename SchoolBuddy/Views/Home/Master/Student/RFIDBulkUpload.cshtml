@@ -1,0 +1,267 @@
+﻿@{
+    ViewData["Title"] = "RFID Bulk Upload";
+}
+
+<style>
+    .inputbackgroundcolor {
+        background-color: ghostwhite;
+        border-radius: 0.4rem;
+    }
+</style>
+
+<div class="card container-fluid mt-4">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Bulk RFID Update</p>
+            </div>
+            <div class="card-body" style="background-color:white">
+                <form id="rfidBulkForm" asp-controller="Home" asp-action="RFIDBulkUpload" method="post" enctype="multipart/form-data">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 mb-3">
+                            <label for="rfidFile" class="form-label">Upload Excel File <span class="text-danger">*</span></label>
+                            <input id="rfidFile" type="file" name="file" class="form-control inputbackgroundcolor" accept=".xlsx,.xls" required />
+                            <small id="fileValidationMessage" style="color:red; display:none;"></small>
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-end align-items-end mb-3">
+                            <a asp-controller="Home" asp-action="downloadRFIDTemp" class="btn btn-sm btn-success">
+                                <i class="bi bi-download"></i> Download Sample File
+                            </a>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Update RFID</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function () {
+
+        const fileInput = document.getElementById("rfidFile");
+        const form = document.getElementById("rfidBulkForm");
+        const validationMessage = document.getElementById("fileValidationMessage");
+
+        async function validateExcelFile(file) {
+            return new Promise((resolve) => {
+
+                if (!file) {
+                    resolve({ valid: false, message: "Please select an Excel file." });
+                    return;
+                }
+
+                const fileName = file.name.toLowerCase();
+                if (!fileName.endsWith(".xlsx") && !fileName.endsWith(".xls")) {
+                    resolve({ valid: false, message: "Only .xlsx or .xls files are allowed." });
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: "array" });
+
+                        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                            resolve({ valid: false, message: "Excel file is empty." });
+                            return;
+                        }
+
+                        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                        const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+                        if (!rows || rows.length === 0) {
+                            resolve({ valid: false, message: "Excel file does not contain any data rows." });
+                            return;
+                        }
+
+                        // ===== HEADERS =====
+                     const keys = Object.keys(rows[0]);
+
+                     function normalizeHeader(header) {
+                         return header.toString().trim().toLowerCase().replace(/\s+/g, " ");
+                     }
+                     
+                     const admissionHeader = keys.find(h => {
+                         const key = normalizeHeader(h);
+                         return key === "admission_no" || key === "admission no";
+                     });
+                     
+                     const rfidHeader = keys.find(h => {
+                         const key = normalizeHeader(h);
+                         return key === "rf_id" || key === "rfid" || key === "rf id";
+                     });
+
+                        if (!admissionHeader) {
+                            resolve({ valid: false, message: "Admission No column not found in Excel sheet." });
+                            return;
+                        }
+
+                        if (!rfidHeader) {
+                            resolve({ valid: false, message: "RF ID column not found in Excel sheet." });
+                            return;
+                        }
+
+                        // ===== VALIDATION ARRAYS =====
+                        let missingAdmissionRows = [];
+                        let missingRfidRows = [];
+                        let duplicateAdmissionRows = [];
+                        let duplicateRfidRows = [];
+
+                        let admissionSet = new Set();
+                        let rfidSet = new Set();
+
+                        // ===== LOOP =====
+                        for (let i = 0; i < rows.length; i++) {
+
+                            let admissionNo = rows[i][admissionHeader];
+                            let rfidNo = rows[i][rfidHeader];
+
+                            admissionNo = (admissionNo || "").toString().trim();
+                            rfidNo = (rfidNo || "").toString().trim();
+
+                            // ---- REQUIRED VALIDATION ----
+                            if (admissionNo === "") {
+                                missingAdmissionRows.push(i + 2);
+                            }
+
+                            if (rfidNo === "") {
+                                missingRfidRows.push(i + 2);
+                            }
+
+                            // ---- DUPLICATE ADMISSION ----
+                            if (admissionNo !== "") {
+                                if (admissionSet.has(admissionNo.toLowerCase())) {
+                                    duplicateAdmissionRows.push(i + 2);
+                                } else {
+                                    admissionSet.add(admissionNo.toLowerCase());
+                                }
+                            }
+
+                            // ---- DUPLICATE RFID ----
+                            if (rfidNo !== "") {
+                                if (rfidSet.has(rfidNo.toLowerCase())) {
+                                    duplicateRfidRows.push(i + 2);
+                                } else {
+                                    rfidSet.add(rfidNo.toLowerCase());
+                                }
+                            }
+                        }
+
+                        // ===== ERROR HANDLING =====
+
+                        if (missingAdmissionRows.length > 0) {
+                            let preview = missingAdmissionRows.slice(0, 10).join(", ");
+                            let extra = missingAdmissionRows.length > 10 ? " ..." : "";
+
+                            resolve({
+                                valid: false,
+                                message: "Admission No is required in row(s): " + preview + extra
+                            });
+                            return;
+                        }
+
+                        if (missingRfidRows.length > 0) {
+                            let preview = missingRfidRows.slice(0, 10).join(", ");
+                            let extra = missingRfidRows.length > 10 ? " ..." : "";
+
+                            resolve({
+                                valid: false,
+                                message: "RF ID is required in row(s): " + preview + extra
+                            });
+                            return;
+                        }
+
+                        if (duplicateAdmissionRows.length > 0) {
+                            let preview = duplicateAdmissionRows.slice(0, 10).join(", ");
+                            let extra = duplicateAdmissionRows.length > 10 ? " ..." : "";
+
+                            resolve({
+                                valid: false,
+                                message: "Duplicate Admission No found in row(s): " + preview + extra
+                            });
+                            return;
+                        }
+
+                        if (duplicateRfidRows.length > 0) {
+                            let preview = duplicateRfidRows.slice(0, 10).join(", ");
+                            let extra = duplicateRfidRows.length > 10 ? " ..." : "";
+
+                            resolve({
+                                valid: false,
+                                message: "Duplicate RF ID found in row(s): " + preview + extra
+                            });
+                            return;
+                        }
+
+                        resolve({ valid: true, message: "" });
+
+                    } catch (error) {
+                        resolve({ valid: false, message: "Invalid Excel format. Please use the correct sample file." });
+                    }
+                };
+
+                reader.onerror = function () {
+                    resolve({ valid: false, message: "Error reading file." });
+                };
+
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function showPopup(message, type = "error", title = "Validation Error") {
+            Swal.fire({
+                icon: type,
+                title: title,
+                text: message,
+                confirmButtonColor: type === "success" ? "#28a745" : "#3085d6",
+                confirmButtonText: "OK"
+            });
+        }
+
+        // ===== FILE CHANGE =====
+        fileInput.addEventListener("change", async function () {
+            validationMessage.style.display = "none";
+            validationMessage.innerText = "";
+
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const result = await validateExcelFile(file);
+
+            if (!result.valid) {
+                validationMessage.style.display = "block";
+                validationMessage.innerText = result.message;
+                showPopup(result.message, "error", "Validation Error");
+                fileInput.value = "";
+            }
+        });
+
+        // ===== FORM SUBMIT =====
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            validationMessage.style.display = "none";
+            validationMessage.innerText = "";
+
+            const file = fileInput.files[0];
+            const result = await validateExcelFile(file);
+
+            if (!result.valid) {
+                validationMessage.style.display = "block";
+                validationMessage.innerText = result.message;
+                showPopup(result.message, "error", "Validation Error");
+                return false;
+            }
+
+            form.submit();
+        });
+
+    });
+</script>

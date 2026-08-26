@@ -1,0 +1,147 @@
+﻿@* 
+@model TeacherModel
+
+@{
+    ViewData["Title"] = "Add Teacher Details";
+}
+
+<div class="container" style="top:45px;background-color:#fbfbfc">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card-header rounded-top mt-2" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Add Teacher Details</p>
+            </div>
+            <div class="card-body rounded" style="background-color:white;">
+                <form asp-action="addTeacherDetails" method="post">
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <label>Teacher Name</label>
+                            <span class="required_">*</span>
+                            <input asp-for="TeacherName" type="text" class="form-control inputbackgroundcolor" required>
+                        </div>
+
+                        <div class="col-6">
+                            <label>Teacher Login ID</label>
+                            <span class="required_">*</span>
+                            <input asp-for="TeacherLogin" type="text" class="form-control inputbackgroundcolor" required>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <label>Password</label>
+                            <span class="required_">*</span>
+                            <input asp-for="Password" type="password" class="form-control inputbackgroundcolor" required>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="ClassId">Class</label><span class="required_">*</span>
+                            <select asp-for="ClassId" class="form-control">
+                                @if (ViewBag.class_dropdown != null)
+                                {
+                                    @foreach (var item in ViewBag.class_dropdown)
+                                    {
+                                        <option value="@item.id">@item.class_name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <label>Division</label>
+                            <span class="required_">*</span>
+                            <input asp-for="Section" type="text" class="form-control inputbackgroundcolor" required>
+                        </div>
+                        <div class="col-6">
+                            <label>Start Time</label>
+                            <span class="required_">*</span>
+                            <input asp-for="StartTime" type="time" class="form-control inputbackgroundcolor" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-content-center mt-5">
+                        <a asp-controller="Home" asp-action="teacherDetails" class="btn btn-secondary">Back</a>
+                        <button type="submit" class="btn btn-primary" style="margin-left:10px;">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+ *@
+
+
+@model TeacherModel
+
+@{
+    bool isEdit = Model != null && Model.Id > 0;
+    ViewData["Title"] = isEdit ? "Edit Teacher Details" : "Add Teacher Details";
+}
+
+<div class="container" style="top:45px;background-color:#fbfbfc">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card-header rounded-top py-2 px-3" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">@(isEdit ? "Edit Teacher Details" : "Add Teacher Details")</p>
+            </div>
+            <div class="card-body rounded" style="background-color:white;">
+                <form asp-action="@(isEdit ? "updateTeacherDetails" : "addTeacherDetails")" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <label>Teacher Name</label>
+                            <span class="required_">*</span>
+                            <input asp-for="TeacherName" type="text" class="form-control inputbackgroundcolor" required>
+                        </div>
+
+                        <div class="col-6">
+                            <label>Teacher Login ID</label>
+                            <span class="required_">*</span>
+                            <input asp-for="TeacherLogin" type="text" class="form-control inputbackgroundcolor" required>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-6">
+                            <label>Password</label>
+                            <span class="required_">*</span>
+                            <input asp-for="Password" type="password" class="form-control inputbackgroundcolor" required>
+                        </div>
+                        <div class="col-6">
+                            <label asp-for="ClassId">Class</label><span class="required_">*</span>
+                            <select asp-for="ClassId" class="form-control">
+                                @if (ViewBag.class_dropdown != null)
+                                {
+                                    @foreach (var item in ViewBag.class_dropdown)
+                                    {
+                                        <option value="@item.id">@item.class_name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        
+                        <div class="col-6">
+                            <label>Division</label>
+                            <span class="required_">*</span>
+                            <input asp-for="Section" type="text" class="form-control inputbackgroundcolor" required>
+                        </div>
+                        <div class="col-6">
+                            <label>Start Time</label>
+                            <span class="required_">*</span>
+                            <input asp-for="StartTime" type="time" class="form-control inputbackgroundcolor" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center align-content-center mt-5">
+                        <a asp-controller="Home" asp-action="teacherDetails" class="btn btn-secondary">Back</a>
+                        <button type="submit" class="btn btn-primary" style="margin-left:10px;">@(isEdit ? "Update" : "Save")</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,631 @@
+﻿@using Newtonsoft.Json
+@using System.Data
+
+@{
+    ViewData["Title"] = "Analysis";
+
+    DataTable routeTable = new DataTable();
+
+    try
+    {
+        string routeJson = Convert.ToString(ViewBag.RouteList);
+
+        if (!string.IsNullOrEmpty(routeJson) &&
+            routeJson != "[]" &&
+            routeJson != "0" &&
+            routeJson != "Data Not Found")
+        {
+            routeTable = JsonConvert.DeserializeObject<DataTable>(routeJson);
+        }
+    }
+    catch
+    {
+        routeTable = new DataTable();
+    }
+}
+<style>
+    table thead th,
+    table.dataTable thead th {
+        background-color: midnightblue !important;
+        color: white !important;
+        text-align: center;
+        vertical-align: middle !important;
+        font-size: 12px;
+        font-weight: 600;
+        padding-right: 25px !important;
+    }
+
+        table thead th *,
+        table.dataTable thead th * {
+            color: white !important;
+        }
+</style>
+<div class="card container-fluid analysis-page">
+    <div class="row">
+
+        <div class="col-lg-12" style="margin-top:3vmin">
+            <div class="card-header rounded-top mt-2" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Analysis</p>
+            </div>
+
+            <div class="card-body rounded analysis-card-body">
+                <div class="row">
+                    <div class="col-lg-12 col-xs-12">
+                        <ul class="nav nav-tabs nav-justified d-flex justify-content-center align-content-center mt-1"
+                            style="border:0px;cursor: pointer; font-size: 20px; font-weight: 600;margin-left:0px;gap:5px;"
+                            role="tablist"
+                            id="main">
+
+                            @* <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A1" role="tab" href="#checkvais" aria-expanded="false" class="tabstyle" onclick="changebg()">Check Vias</a>
+                            </li> *@
+
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A2" role="tab" href="#checketa" aria-expanded="false" class="tabstyle" onclick="changebg1()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Check ETA</a>
+                            </li>
+
+                            @* <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A3" role="tab" href="#routes" aria-expanded="false" class="tabstyle" onclick="changebg2()">Routes</a>
+                            </li> *@
+
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A4" role="tab" href="#checkroutes" aria-expanded="false" class="tabstyle" onclick="changebg3()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Check Routes</a>
+                            </li>
+
+                            @* <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A5" role="tab" href="#checkurl" aria-expanded="false" class="tabstyle" onclick="changebg4()">Check URL</a>
+                            </li> *@
+
+                            @* <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A6" role="tab" href="#checksta" aria-expanded="false" class="tabstyle" onclick="changebg5()">Check STA</a>
+                            </li> *@
+
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A7" role="tab" href="#checkignition" aria-expanded="false" class="tabstyle" onclick="changebg6()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Check Ignition</a>
+                            </li>
+
+                            <li role="presentation">
+                                <a aria-controls="Driver" data-bs-toggle="tab" id="A8" role="tab" href="#status_" aria-expanded="false" class="tabstyle" onclick="changebg7()" style="border:1px solid midnightblue;
+                                color:black;
+                                padding:5px;
+                                font-size:14px;">Check InActive Status</a>
+                            </li>
+
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="tab-content">
+
+                    <!-- Check Vias -->
+                    @* <div class="tab-pane" id="checkvais">
+                        <div class="row mt-3">
+                            <div class="col-3">
+                                <div class="d-flex" style="gap:2vmin;">
+                                    <div>
+                                        <label>Route<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div style="width:100%">
+                                        <select class="dropdownwithsearch form-control"
+                                                title="Select Routes"
+                                                id="ddl_route_search1"
+                                                data-live-search="true">
+                                            <option value="">Select Route</option>
+
+                                            @if (routeTable != null && routeTable.Rows.Count > 0)
+                                            {
+                                                foreach (DataRow route in routeTable.Rows)
+                                                {
+                                                    <option value="@route["id"]">@route["route_name"]</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <button onclick="tb_alert_func()" class="btn btn-sm" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="mt-2 ms-2">
+                                <table id="routevias"
+                                       style="width:100%"
+                                       class="table table-striped table-bordered table-hover dataTable no-footer"
+                                       role="grid"
+                                       aria-describedby="dataTables-example_info">
+                                    <thead>
+                                        <tr role="row" style="background-color:#C8D7E3">
+                                            <th style="color:black">Latitude</th>
+                                            <th style="color:black">Longitude</th>
+                                            <th style="color:black">Via Order</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div> *@
+
+                    <!-- Check ETA -->
+                    <div id="checketa" class="tab-pane">
+                        <div class="row mt-3">
+                            <div class="col-lg-4">
+                                <div class="d-flex" style="gap:2vmin;">
+                                    <div>
+                                        <label>Route<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div style="width:100%" class="dropdown">
+                                        <select class="dropdownwithsearch form-control"
+                                                title="Select Route"
+                                                id="ddl_check_eta"
+                                                data-live-search="true">
+                                            <option value="">Select Route</option>
+
+                                            @if (routeTable != null && routeTable.Rows.Count > 0)
+                                            {
+                                                foreach (DataRow route in routeTable.Rows)
+                                                {
+                                                    <option value="@route["id"]">@route["route_name"]</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-2">
+                                <button class="btn btn-sm"
+                                        onclick="geteta()"
+                                        style="border:2px solid midnightblue;color:midnightblue">
+                                    Search
+                                </button>
+                            </div>
+                        </div>
+
+                        @*
+                            OLD CHECK ETA FLOW REMOVED / COMMENTED
+
+                            Earlier fields:
+                            1. Stop dropdown
+                            2. Date picker
+                            3. Old table checketa_1
+
+                            New flow:
+                            1. Select Route
+                            2. Click Search
+                            3. Show all stops ETA in modal popup
+                        *@
+                    </div>
+
+                    <!-- Routes -->
+                    @* <div id="routes" class="tab-pane">
+                        <div class="row">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="layout divmarginoutsideicon">
+                                    <a href="" class="iconlayout">
+                                        <i class="fa fa-file-excel-o icon_color center" aria-hidden="true"></i>
+                                    </a>
+
+                                    <div style="position:absolute;right:50px">
+                                        <form class="input-group my-2 my-md-0 justify-content-lg-start" style="width:90vh;height:auto;align-items:center;">
+                                            <input autocomplete="off"
+                                                   type="search"
+                                                   class="form-control-sm rounded analysis-search-control"
+                                                   placeholder="Search here..."
+                                                   style="min-width:200px;width:40px;border:1px solid midnightblue;border-radius:3.25rem !important;margin-left:auto" />
+
+                                            <div class="layout" style="margin-left:-30px;">
+                                                <i class="fa fa-search"></i>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> *@
+
+                    <!-- Check Routes -->
+                    <div id="checkroutes" class="tab-pane">
+                        <div class="row mt-3">
+                            <div class="mt-2 ms-2">
+                                <table id="checkroutes_1"
+                                       style="width:100%"
+                                       class="table table-striped table-bordered table-hover dataTable no-footer"
+                                       role="grid"
+                                       aria-describedby="dataTables-example_info">
+                                    <thead>
+                                        <tr role="row" style="background-color:#C8D7E3">
+                                            <th style="color:black">Route Name</th>
+                                            <th style="color:black">Engine</th>
+                                            <th style="color:black">Check Stops</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @if (routeTable != null && routeTable.Rows.Count > 0)
+                                        {
+                                            foreach (DataRow route in routeTable.Rows)
+                                            {
+                                                var isPisEnabled = false;
+
+                                                try
+                                                {
+                                                    isPisEnabled = Convert.ToBoolean(route["is_pis_enabled"]);
+                                                }
+                                                catch
+                                                {
+                                                    isPisEnabled = Convert.ToString(route["is_pis_enabled"]) == "1";
+                                                }
+
+                                                <tr>
+                                                    <td>@route["route_name"]</td>
+                                                    <td>
+                                                        @if (isPisEnabled)
+                                                        {
+                                                            <span class="badge bg-success">PIS</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-danger">Disable PIS</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-info"
+                                                                onclick="handleActionClick1('@route["id"]')">
+                                                            Action
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Check URL -->
+                    @* <div id="checkurl" class="tab-pane">
+                        <div class="row mt-2">
+                            <label style="margin-left:88px">Date To <span class="required_">*</span></label>
+
+                            <div class="row">
+                                <div class="d-flex">
+                                    <div>
+                                        <input id="modified"
+                                               placeholder="Select date"
+                                               type="datetime-local"
+                                               class="form-control"
+                                               style="margin-left:77px" />
+                                    </div>
+
+                                    <div>
+                                        <button class="btn" style="border:2px solid midnightblue;color:midnightblue">Save</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="layout divmarginoutsideicon">
+                                    <a href="" class="iconlayout">
+                                        <i class="fa fa-file-excel-o icon_color center" aria-hidden="true"></i>
+                                    </a>
+
+                                    <div style="position:absolute;right:50px">
+                                        <form class="input-group my-2 my-md-0 justify-content-lg-start" style="width:90vh;height:auto;align-items:center;">
+                                            <input autocomplete="off"
+                                                   type="search"
+                                                   class="form-control-sm rounded analysis-search-control"
+                                                   placeholder="Search here..."
+                                                   style="min-width:200px;width:40px;border:1px solid midnightblue;border-radius:3.25rem !important;margin-left:auto" />
+
+                                            <div class="layout" style="margin-left:-30px;">
+                                                <i class="fa fa-search"></i>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> *@
+
+                    <!-- Check STA -->
+                    @* <div id="checksta" class="tab-pane">
+                        <div class="row mt-2">
+                            <div class="col-4">
+                                <label>Route<span class="required_">*</span></label>
+                                <input type="text" class="form-control inputbackgroundcolor" placeholder="Please Select Student" />
+                            </div>
+
+                            <div class="col-4">
+                                <label>Date<span class="required_">*</span></label>
+                                <input type="date" class="form-control inputbackgroundcolor" placeholder="Please Select Student" />
+                            </div>
+
+                            <div class="col-4">
+                                <button class="btn mt-4" style="border:2px solid midnightblue;color:midnightblue">Save</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12 col-xs-12">
+                                <div class="layout divmarginoutsideicon">
+                                    <a href="" class="iconlayout">
+                                        <i class="fa fa-file-excel-o icon_color center" aria-hidden="true"></i>
+                                    </a>
+
+                                    <div style="position:absolute;right:50px">
+                                        <form class="input-group my-2 my-md-0 justify-content-lg-start" style="width:90vh;height:auto;align-items:center;">
+                                            <input autocomplete="off"
+                                                   type="search"
+                                                   class="form-control-sm rounded analysis-search-control"
+                                                   placeholder="Search here..."
+                                                   style="min-width:200px;width:40px;border:1px solid midnightblue;border-radius:3.25rem !important;margin-left:auto" />
+
+                                            <div class="layout" style="margin-left:-30px;">
+                                                <i class="fa fa-search"></i>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> *@
+
+                    <!-- Check Ignition -->
+                    <div id="checkignition" class="tab-pane">
+                        <div class="row mt-3">
+                            <div class="col-4">
+                                <div class="d-flex flex-column flex-md-row style="gap:2vmin;">
+                                    <div>
+                                        <label>Route<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div style="width:100%">
+                                        <select title="Select Routes"
+                                                class="form-control dropdownwithsearch"
+                                                id="ddl_route_search2"
+                                                data-live-search="true">
+                                            <option value="">Select Route</option>
+
+                                            @if (routeTable != null && routeTable.Rows.Count > 0)
+                                            {
+                                                foreach (DataRow route in routeTable.Rows)
+                                                {
+                                                    <option value="@route["sys_service_id"]">@route["route_name"]</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="d-flex flex-column flex-md-row" style="gap:2vmin;">
+                                    <div>
+                                        <label>Start<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div>
+                                        <input id="start_for_ig" class="form-control datewithtime1" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="d-flex flex-column flex-md-row" style="gap:2vmin;">
+                                    <div>
+                                        <label>End<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div>
+                                        <input id="end_for_ig" class="form-control datewithtime2" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <button onclick="ignition()" class="btn btn-sm" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="mt-2 ms-2">
+                                <table id="ign"
+                                       style="width:100%"
+                                       class="table table-striped table-bordered table-hover dataTable no-footer"
+                                       role="grid"
+                                       aria-describedby="dataTables-example_info">
+                                    <thead>
+                                        <tr role="row" style="background-color:#C8D7E3">
+                                            <th style="color:black">Time</th>
+                                            <th style="color:black">Ignition Status</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Check InActive Status -->
+                    <div id="status_" class="tab-pane">
+                        <div class="row mt-3">
+                            <div class="col-4">
+                                <div class="d-flex flex-column flex-md-row" style="gap:2vmin;">
+                                    <div>
+                                        <label>Route<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div style="width:100%">
+                                        <select title="Select Routes"
+                                                class="form-control dropdownwithsearch"
+                                                id="ddl_route_search3"
+                                                data-live-search="true">
+                                            <option value="">Select Route</option>
+
+                                            @if (routeTable != null && routeTable.Rows.Count > 0)
+                                            {
+                                                foreach (DataRow route in routeTable.Rows)
+                                                {
+                                                    <option value="@route["sys_service_id"]">@route["route_name"]</option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="d-flex flex-column flex-md-row" style="gap:2vmin;">
+                                    <div>
+                                        <label>Start<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div>
+                                        <input id="start_for_status" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="d-flex flex-column flex-md-row" style="gap:2vmin;">
+                                    <div>
+                                        <label>End<span class="required_">*</span></label>
+                                    </div>
+
+                                    <div>
+                                        <input id="end_for_status" class="form-control" type="text" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <button onclick="inactive()" class="btn btn-sm" style="border:2px solid midnightblue;color:midnightblue">Search</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="mt-2 ms-2">
+                                <table id="status"
+                                       style="width:100%"
+                                       class="table table-striped table-bordered table-hover dataTable no-footer"
+                                       role="grid"
+                                       aria-describedby="dataTables-example_info">
+                                    <thead>
+                                        <tr role="row" style="background-color:#C8D7E3">
+                                            <th style="color:black">Time</th>
+                                            <th style="color:black">Status</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Existing Check Each Route Modal -->
+<div class="modal fade sb-common-modal" id="CheckEachRoute" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Stops with vias point</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="mt-2 ms-2">
+                        <table id="checkeachrouteviasing"
+                               style="width:100%"
+                               class="table table-striped table-bordered table-hover dataTable no-footer"
+                               role="grid"
+                               aria-describedby="dataTables-example_info">
+                            <thead>
+                                <tr role="row" style="background-color:#C8D7E3">
+                                    <th style="color:black">Stop Name</th>
+                                    <th style="color:black">Via No</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- New Check ETA Modal -->
+<div class="modal fade sb-common-modal" id="CheckEtaModal" tabindex="-1" aria-labelledby="CheckEtaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="CheckEtaModalLabel">Route Stop ETA</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="mt-2 ms-2">
+                        <table id="checkEtaModalTable"
+                               style="width:100%"
+                               class="table table-striped table-bordered table-hover dataTable no-footer"
+                               role="grid">
+
+                            <thead>
+                                <tr role="row" style="background-color:#C8D7E3">
+                                    <th style="color:black">Route Name</th>
+                                    <th style="color:black">Stop Name</th>
+                                    <th style="color:black">STA</th>
+                                    <th style="color:black">ETA</th>
+                                    <th style="color:black">Status</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="checkEtaModalBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-sm"
+                        data-bs-dismiss="modal"
+                        style="border:2px solid midnightblue;color:midnightblue">
+                    Close
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script src="~/js/analysis.js?v=@DateTime.Now.Ticks"></script>
+}

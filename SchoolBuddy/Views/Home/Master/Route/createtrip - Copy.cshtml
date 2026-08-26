@@ -1,0 +1,550 @@
+﻿
+@{
+    ViewData["Title"] = "Create Route";
+}
+@model IEnumerable<busnumber>;
+
+
+<style>
+    input[type=radio] {
+        width: 10px;
+        height: auto;
+        border: 2px solid midnightblue
+    }
+
+
+    .layout {
+        display: flex
+    }
+
+    .iconlayout {
+        border: 2px solid;
+        border-radius: 50%;
+        border-color: midnightblue;
+        padding: 1px;
+        width: 3%;
+        height: 3%;
+        text-align: center;
+        margin: 0 5px;
+    }
+
+    .fontsize {
+        font-size: 12px
+    }
+
+    .inputbackgroundcolor {
+        background-color: ghostwhite;
+        /*f7f7f7*/ border-radius: 0.4rem;
+        font-size:14px;
+    }
+    .labelfontsize{
+        font-size:14px;
+    }
+
+    .icon_color {
+        color: midnightblue
+    }
+
+    .center {
+        /*text-align: center;
+            font-size: 20px*/
+    }
+
+    .divmarginoutsideicon {
+        margin: 5px
+    }
+
+    .labelfontsizeincheckbox{
+        font-size: 10px;
+    }
+    .form-control-backcolor{
+        background-color:#fbfbfc;
+    }
+    .loader{
+    width: 100%;
+    
+    text-align: center;
+    position: absolute;
+    z-index: 99999;
+    top: 52%;
+    }
+    .loader img{
+        width:50px;
+    }
+</style>
+<div class=" card container-fluid">
+    <div class="row">
+
+
+        <div class="col-lg-12"style="margin-top:3vmin">
+            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px" id="text">Create Trip</p>
+            </div>
+                <div id="googleMap" style="width:100%;height:270px;"></div>
+                <div id="googleMapwithmarkers" style="width:100%;height:270px; display:none"></div>
+            <form id="createTripForm" asp-controller="Route" asp-action="addRoute" method="post">
+                <div class="row">
+                            <div class="col-lg-6">
+                                <label  class="form-control labelfontsize" style="border:none">Trip Creation <span class="required_">*</span></label>
+                        <select id="tripCreationType" class="form-control inputbackgroundcolor mb-2" required>
+                            <option value="" selected disabled>Select trip creation type</option>
+                            <option value="Playback">Playback</option>
+                        </select>
+                            </div>
+                            <div class="col-lg-6">
+                                <label  style="border:none" class="form-control labelfontsize">Select Bus <span class="required_">*</span></label>
+                        <select id="veh_reg" name="veh_reg" class="form-control dropdown-menu-bottom inputbackgroundcolor mb-2" required>
+                            <option value="" selected disabled>Select Bus</option>
+                            @if (Model != null)
+                            {
+                                @foreach (var bus in Model)
+                                {
+                                    <option value="@bus.id">@bus.veh_reg</option>
+                                }
+                            }
+                        </select>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <label style="border:none" class="labelfontsize  form-control">Route Name <span class="required_">*</span></label>
+                        <input id="route_name" name="route_name" type="text" class="form-control inputbackgroundcolor mb-2" required />
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="row">
+                                    <label style="border:none" class="form-control  labelfontsize">Start Time <span class="required_">*</span></label>
+                                    @*<div class="col-lg-6">
+                                        <input type="number" class="form-control inputbackgroundcolor mb-2" />
+
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <input type="number" class="form-control inputbackgroundcolor mb-2" />
+
+                                    </div>*@
+                            <input id="start_time_up" class="form-control inputbackgroundcolor" type="time" name="start_time_up" required />
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="row">
+                                    <label style="border:none" class="form-control  labelfontsize">End Time <span class="required_">*</span></label>
+                                    @*<div class="col-lg-6">
+                                        <input type="number" class="form-control inputbackgroundcolor mb-2" />
+
+                                    </div>
+
+                                    <div class="col-lg-6">
+                                        <input type="number" class="form-control inputbackgroundcolor mb-2" />
+
+                                    </div>*@
+                            <input id="end_time_up" class="form-control inputbackgroundcolor" type="time" name="end_time_up" required />
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <label style="border:none" class="form-control  labelfontsize">Consider Point</label>
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <input type="checkbox" id="option4" name="option_" onchange="togglecheck1(this)" class="mb-2" />
+                                        <label style="border:none" class="labelfontsizeincheckbox ">Stoppage</label>
+                                    </div>
+
+                                    <div class="col-lg-4">
+                                        <input type="checkbox" id="option5" name="option_" onchange="togglecheck1(this)" class="mb-2" />
+                                        <label style="border:none" class="labelfontsizeincheckbox ">Idle</label>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <input type="number" class="form-control labelfontsize inputbackgroundcolor mb-2" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-9">
+                                <label style="border:none" class="form-control labelfontsize "> Trip Type <span class="required_">*</span></label>
+                                <div class="row">
+                         
+
+                                    <div class="col-lg-3 ms-3">
+                                <input type="radio" value="pick" id="pick" name="option" required />
+                                <label style="border:none" class=" " for="pick">Pickup</label>
+                                    </div>
+                                    <div class=col-lg-3>
+                                <input type="radio" value="drop" id="drop" name="option" />
+                                <label style="border:none" class=" " for="drop">Drop</label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div style="text-align:center">
+                            @*<a class="btn mt-5 btn-sm" onclick="gotocreateroute();" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</a>*@
+                            <button type="submit" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</button>
+                        </div>
+
+                   
+                </form>
+                
+
+                <div id="idforcreateroute" style="display:none">
+                    <div class="row">
+                        <div class="col-lg-12 d-flex">
+                            <label style="width:10%;"class="form-control form-control-backcolor labelfontsize">Trip Points</label>
+                            <button class="btn bg-warning mt-2 me-2 btn-sm" style="color:white" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="Addstop();">Add Stops Manually</button>
+                            <button class="btn bg-success mt-2 me-2 btn-sm" style="color:white"  onclick="createvias();">Create Vias</button>
+                            <button class="btn bg-info mt-2 me-2 btn-sm" style="color:white"  onclick="showvias();">Show Vias</button>
+                            <button class="btn bg-danger mt-2 me-2 btn-sm" style="color:white" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="Addstop();">Delete Vias</button>
+
+
+                        </div>
+                        <div class=" ms-1 mt-3 d-flex">
+                            <div>
+                                <img style="width:25px" src="~/images/startpoint.png" />
+                            </div>
+                            <div class="ms-3">
+                                <p style="font-size:small">Start Point</p>
+                                <p style="line-height:0px;font-size:small">Address</p>
+                            </div>
+                           
+                        </div>
+
+                        @{
+                            for(int i = 0 ; i<4;i++)
+                            {
+                                 <div class=" ms-1 mt-1 d-flex">
+                                    <div>
+                                        <img style="width:25px;" src="~/images/bus_stop_icon.png" />
+                                    </div>
+                                    <div class="ms-3">
+                                        <p style="font-size:small">Stop @i</p>
+                                        <p style="line-height:0px;font-size:small">Address</p>
+                                    </div>
+                           
+                                </div>
+                            }
+                        }
+
+                        <div class=" ms-1 mt-3 d-flex">
+                            <div>
+                               <img style="width:42px" src="~/images/endpoint.jpg" />
+                            </div>
+                            <div class="ms-3">
+                                <p style="font-size:small">End Point</p>
+                                <p style="line-height:0px;font-size:small">Address</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class=" d-flex justify-content-center mt-5">
+                        <a class="btn btn-sm me-2" href="/trip" style="border: 2px solid;border-color: midnightblue;color:midnightblue">BACK</a>
+                        <a class="btn btn-sm me-2" style="border: 2px solid;border-color: midnightblue;color:midnightblue" onclick="backbutton();">PREVIOUS</a>
+                        <a class="btn btn-sm" style="border: 2px solid;border-color: midnightblue;color:midnightblue" onclick=studentallocatetostop();>NEXT</a>
+
+                    </div>
+                    <div style="text-align:center;display:none" id="status_for_routemarker_on_map">
+                        <p>Please Wait...</p>
+                    </div>
+                    <div class="loader">
+                        <img src="~/images/loader.gif" style="background-color:#fbfbfc" />
+                    </div>
+                </div>
+
+                <div id="studentallocatetostop" style="display:none; background-color:white">
+                    <div class="ms-2">
+                        <div class="mt-4">
+                            <h3>Allocate Students</h3>
+                        </div>
+                        
+
+                      
+                    </div>
+                    <div class="d-flex">
+                        <div class="d-flex">
+                            <div>
+                                <p class="ms-3">Point Allocation Via</p>
+                            </div>
+                            <div class="ms-3">
+                                <input type="radio" name="allocationvia" />
+                                <label style="font-weight:300;font-size:14px">Parent App</label>
+                            </div>
+                            <div class="ms-3">
+                                <input type="radio" name="allocationvia" />
+                                <label style="font-weight:300;font-size:14px">Manual</label>
+                            </div>
+
+
+                        </div>
+                        <div class="d-flex flex-row-reverse">
+
+                            <div class="ms-5">
+                                <button id ="uploadstudentsviaexcel" class="btn btn-sm" style="border: 2px solid;border-color: midnightblue;color:midnightblue">Add Students Via Excel<i class="fa fa-upload ms-2" style="font-size:20px" aria-hidden="true"></i></button>
+
+                            </div>
+                            <div class="ms-5">
+                                <button class="btn btn-sm" data-bs-toggle="modal" data-bs-target="#addstudent" style="border: 2px solid;border-color: midnightblue;color:midnightblue">Add Students</button>
+
+                            </div>
+                            
+                        </div>
+                        
+                      
+                    </div>
+
+                    <div class="d-flex me-2 ms-2 mt-3">
+                        <div class="me-2 align-content-center" style="background-color:green;height:34px">
+                            <label class="fw-semibold" style="padding:10px;margin:0px;color:white">Allocated : 10</label>
+                        </div>
+                        <div class="me-2 align-content-center" style="background-color:red;height:34px">
+                            <label class="fw-semibold" style="padding:10px;margin:0px;color:white">Not Allocated : 10</label>
+                        </div>
+                        <div class=" align-content-center" style="background-color:gray;height:34px">
+                            <label class="fw-semibold" style="padding:10px;margin:0px;color:white">Total : 20</label>
+                        </div>
+
+                    </div>
+
+
+                    <div class=" d-flex justify-content-center mt-5">
+                        <a class="btn btn-sm me-2" style="border: 2px solid;border-color: midnightblue;color:midnightblue"href="/trip">BACK</a>
+                        <a class="btn btn-sm me-2" style="border: 2px solid;border-color: midnightblue;color:midnightblue" onclick="backbuttontocreatestop();">PREVIOUS</a>
+                        <a class="btn btn-sm" style="border: 2px solid;border-color: midnightblue;color:midnightblue" onclick="">NEXT</a>
+
+                    </div>
+                </div>
+           
+             
+
+            </div>
+
+        </div>
+    </div>
+
+
+
+
+    @*<!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Launch demo modal
+    </button>*@
+
+    <!-- Modal FOR STOPS-->
+    <div class="modal fade sb-common-modal" id="exampleModal" tabindex="-1" aria-labelledby="addPointsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="addPointsModalLabel">Add Points</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+                <div class="row mb-2">
+                    <div class="col-lg-12">
+                        <label class="form-control">Point Name<span class="required_">*</span></label>
+                        <input class="form-control inputbackgroundcolor" placeholder="Enter Point Name" type="text" />
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-lg-12">
+                        <label class="form-control">Positions<span class="required_">*</span></label>
+                        <input id="positions" class="form-control inputbackgroundcolor" onchange="stoplatlongchangemanually()" placeholder="Enter Point Name" type="text" />
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-lg-12">
+                        <label class="form-control">Radius<span class="required_">*</span></label>
+                        <input class="form-control inputbackgroundcolor" placeholder="Enter Point Name" type="text" />
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-lg-12">
+                        <label class="form-control">Address<span class="required_">*</span></label>
+                        <input class="form-control inputbackgroundcolor" placeholder="Enter Point Name" type="text" />
+                    </div>
+                </div>
+
+          </div>
+          <div class="modal-footer d-flex justify-content-center">
+                <a class="btn" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</a>
+                <a class="btn" data-bs-dismiss="modal" style="border: 2px solid;border-color: midnightblue;color:midnightblue">CANCEL</a>
+           
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="modal fade sb-common-modal" id="addstopmanually" tabindex="-1" aria-labelledby="addStopManuallyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addStopManuallyModalLabel">Add Points</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                        <label class="form-control">Point Name<span class="required_">*</span></label>
+                            <input class="form-control inputbackgroundcolor" placeholder="Enter Point Name" type="text" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                        <label class="form-control">Positions<span class="required_">*</span></label>
+                            <input id="positions" class="form-control inputbackgroundcolor" onchange="stoplatlongchangemanually()" placeholder="Enter Point Name" type="text" />
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                        <label class="form-control">Radius<span class="required_">*</span></label>
+                            <input class="form-control inputbackgroundcolor" placeholder="Enter Point Name" type="text" />
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <label class="form-control">Address<span class="required_">*</span></label>
+                            <input class="form-control inputbackgroundcolor" placeholder="Enter Point Name" type="text" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer d-flex justify-content-center">
+                    <a class="btn" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</a>
+                    <a class="btn" data-bs-dismiss="modal" style="border: 2px solid;border-color: midnightblue;color:midnightblue">CANCEL</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade sb-common-modal" id="addstudent" tabindex="-1" aria-labelledby="addStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+    <div class="modal-header">
+    <h1 class="modal-title fs-5" id="addStudentModalLabel">Add Student</h1>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+    
+    </div>
+    <div class="modal-footer d-flex justify-content-center">
+    <a class="btn" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</a>
+    <a class="btn" data-bs-dismiss="modal" style="border: 2px solid;border-color: midnightblue;color:midnightblue">CANCEL</a>
+
+    </div>
+    </div>
+    </div>
+    </div>
+
+
+
+@section Scripts {
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBbjIxsdDNnpgJ5afaqhkJqfYGHPeYKBkI&sensor=false"></script>
+    <script src="~/js/trip.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            var errorMessage = '@TempData["ErrorMessage"]';
+
+            // ✅ Only error popup on Create Trip page
+            if (errorMessage && errorMessage.trim() !== '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: errorMessage,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'OK'
+                });
+            }
+
+            $('#createTripForm').on('submit', function (e) {
+                let tripCreationType = $('#tripCreationType').val();
+                let bus = $('#veh_reg').val();
+                let routeName = $('#route_name').val().trim();
+                let startTime = $('#start_time_up').val();
+                let endTime = $('#end_time_up').val();
+                let tripType = $('input[name="option"]:checked').val();
+
+                if (!tripCreationType) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'Trip Creation is required.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    $('#tripCreationType').focus();
+                    return false;
+                }
+
+                if (!bus) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'Select Bus is required.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    $('#veh_reg').focus();
+                    return false;
+                }
+
+                if (!routeName) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'Route Name is required.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    $('#route_name').focus();
+                    return false;
+                }
+
+                if (!startTime) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'Start Time is required.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    $('#start_time_up').focus();
+                    return false;
+                }
+
+                if (!endTime) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'End Time is required.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    $('#end_time_up').focus();
+                    return false;
+                }
+
+                if (!tripType) {
+                    e.preventDefault();
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'Trip Type is required.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    return false;
+                }
+
+                return true;
+            });
+        });
+    </script>
+}
+

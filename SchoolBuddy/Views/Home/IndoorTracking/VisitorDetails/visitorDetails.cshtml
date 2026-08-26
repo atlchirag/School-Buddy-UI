@@ -1,0 +1,482 @@
+﻿@model SchoolBuddy.Models.Visitor
+
+@{
+    ViewData["Title"] = "Visitor Details";
+}
+<!-----popup Card------>
+<div>
+    @if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
+    {
+        <div class="modal fade sb-common-modal" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="messageModalLabel">Status</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">
+                                @TempData["SuccessMessage"]
+                            </div>
+                        }
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger">
+                                @TempData["ErrorMessage"]
+                            </div>
+                        }
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                var myModal = new bootstrap.Modal(document.getElementById('messageModal'));
+                myModal.show();
+            });
+        </script>
+    }
+</div>
+<div class="card container visitor-details-page">
+
+    <div class="row">
+
+        <div class="col-lg-12" style="padding:0px">
+
+            <!-- Header -->
+            <div class="card-header rounded-top"
+                 style="background-color:midnightblue;color:white;">
+
+                <p style="font-weight:600;margin:0px">
+                    Visitor Details
+                </p>
+
+            </div>
+
+            <!-- Body -->
+            <div class="card-body rounded visitor-details-body">
+
+                <!-- Tabs -->
+                <div class="row">
+
+                    <div class="col-lg-12 col-xs-12">
+
+                        <ul class="nav nav-tabs nav-justified d-flex justify-content-center align-content-center"
+                            style="border:0px;
+                            cursor:pointer;
+                            font-size:20px;
+                            font-weight:600;"
+                            role="tablist"
+                            id="main">
+
+                            <!-- Add Card -->
+                            <li role="presentation">
+
+                                <a aria-controls="AddCard"
+                                   data-bs-toggle="tab"
+                                   id="A1"
+                                   onclick="changebg()"
+                                   role="tab"
+                                   href="#AddCard"
+                                   class="active visitor-tab"
+                                   style="border:1px solid midnightblue;
+                                    padding:5px;
+                                    font-size:14px;">
+
+                                    Add Card
+
+                                </a>
+
+                            </li>
+
+                            <!-- Assign Card -->
+                            <li role="presentation">
+
+                                <a aria-controls="AssignCard"
+                                   data-bs-toggle="tab"
+                                   id="A2"
+                                   onclick="changebg1()"
+                                   role="tab"
+                                   href="#AssignCard"
+                                   class="visitor-tab"
+                                   style="border:1px solid midnightblue;
+                                    padding:5px;
+                                    font-size:14px;">
+
+                                    Assign Card
+
+                                </a>
+
+                            </li>
+
+                            <!-- Add Visitors -->
+                            <li role="presentation">
+
+                                <a aria-controls="AddVisitors"
+                                   onclick="changebg2()"
+                                   data-bs-toggle="tab"
+                                   id="A3"
+                                   role="tab"
+                                   href="#AddVisitors"
+                                   class="visitor-tab"
+                                   style="border:1px solid midnightblue;
+                                    padding:5px;
+                                    font-size:14px;">
+
+                                    <i class="bi bi-person-fill-add"></i>
+                                    Add Visitors
+
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+                <!-- Tab Content -->
+                <div class="tab-content mt-3">
+
+                    <!-- Add Card -->
+                    <div class="tab-pane active" id="AddCard">
+
+                        <div class="row mt-3">
+
+                            <div class="col-lg-5">
+
+                                <label class="form-label">
+                                    Name
+                                </label>
+
+                                <input type="text"
+                                       placeholder="Please Enter Name"
+                                       class="form-control inputbackgroundcolor" />
+
+                            </div>
+
+                            <div class="col-lg-5">
+
+                                <label class="form-label">
+                                    RFID
+                                </label>
+
+                                <input type="text"
+                                       placeholder="Please Enter RFID"
+                                       class="form-control inputbackgroundcolor" />
+
+                            </div>
+
+                            <div class="col-lg-2">
+
+                                <button class="btn btn-sm visitor-outline-action"
+                                        style="border:2px solid;
+                                    margin-top:32px;
+                                    border-color:midnightblue;
+                                    color:midnightblue">
+
+                                    SAVE
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Assign Card -->
+                    <div class="tab-pane" id="AssignCard">
+
+                        <div class="row mt-3">
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+                                    Visitor Name
+                                </label>
+
+                                <input type="text"
+                                       placeholder="Please Enter Visitor Name"
+                                       class="form-control inputbackgroundcolor" />
+
+                            </div>
+
+                            <div class="col-lg-4">
+
+                                <label class="form-label">
+                                    Visitor Mobile Number
+                                </label>
+
+                                <input type="number"
+                                       placeholder="Please Enter Mobile Number"
+                                       class="form-control inputbackgroundcolor" />
+
+                            </div>
+
+                            <div class="col-lg-3">
+
+                                <label class="form-label">
+                                    Select Card
+                                </label>
+
+                                <input type="text"
+                                       placeholder="Please Enter Card Number"
+                                       class="form-control inputbackgroundcolor" />
+
+                            </div>
+
+                            <div class="col-lg-1">
+
+                                <button class="btn btn-sm visitor-outline-action"
+                                        style="border:2px solid;
+                                    margin-top:32px;
+                                    border-color:midnightblue;
+                                    color:midnightblue">
+
+                                    SAVE
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Add Visitors -->
+                    <div class="tab-pane" id="AddVisitors">
+
+                        <div class="container-fluid px-lg-4 px-2">
+
+                            <div class="visitor-form-card" style="border-radius:8px;
+                                overflow:hidden;
+                                box-shadow:0 2px 8px rgba(0,0,0,0.08);
+                                margin-top:30px;">
+
+                                <!-- Header -->
+                                <div style="background:#181b7a;
+                                    color:white;
+                                    padding:16px 24px;
+                                    font-size:20px;
+                                    font-weight:600;">
+
+                                    Add Visitor Details
+
+                                </div>
+
+                                <!-- Form -->
+                                <div class="visitor-form-panel" style="padding:30px 24px;">
+
+                                    <form asp-controller="Home"
+                                          asp-action="AddvisitorDetails"
+                                          method="post"
+                                          id="addVisitorForm">
+
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                                        <div class="row">
+
+                                            <!-- Name -->
+                                            <div class="col-lg-6 mt-3">
+
+                                                <label class="form-label">
+                                                    Visitor Name
+                                                </label>
+
+                                                <input asp-for="Name"
+                                                       class="form-control"
+                                                       pattern="[A-Za-z]+"
+                                                       type="text"
+                                                       placeholder="Enter Visitor Name"
+                                                       maxlength="100"
+                                                       required />
+                                                <span asp-validation-for="Name" class="text-danger"></span>
+
+                                            </div>
+
+                                            <!-- Mobile -->
+                                            <div class="col-lg-6 mt-3">
+
+                                                <label class="form-label">
+                                                    Mobile Number
+                                                </label>
+
+                                                <input asp-for="MobileNo"
+                                                       class="form-control"
+                                                       type="tel"
+                                                       inputmode="numeric"
+                                                       pattern="[6-9][0-9]{9}"
+                                                       maxlength="10"
+                                                       placeholder="Enter Mobile Number"
+                                                       title="Enter a valid 10 digit mobile number starting with 6, 7, 8, or 9"
+                                                       required />
+                                                <span asp-validation-for="MobileNo" class="text-danger"></span>
+
+                                            </div>
+
+                                            <!-- Card Id -->
+                                            <div class="col-lg-6 mt-3">
+
+                                                <label class="form-label">
+                                                    Card Id
+                                                </label>
+
+                                                <input asp-for="CardId"
+                                                       class="form-control"
+                                                       type="number"
+                                                       min="1"
+                                                       step="1"
+                                                       placeholder="Enter Card Id"
+                                                       required />
+                                                <span asp-validation-for="CardId" class="text-danger"></span>
+
+                                            </div>
+
+                                            <!-- Card Number -->
+                                            <div class="col-lg-6 mt-3">
+
+                                                <label class="form-label">
+                                                    Card Number
+                                                </label>
+
+                                                <input asp-for="CardNo"
+                                                       class="form-control"
+                                                       maxlength="50"
+                                                       placeholder="Enter Card Number"
+                                                       required />
+                                                <span asp-validation-for="CardNo" class="text-danger"
+                                                      ></span>
+
+                                            </div>
+
+                                            <!-- System User Id -->
+                                            <input type="hidden"
+                                                   asp-for="SysUserId"
+                                                   id="sys_user_id"
+                                                   value="@Context.Session.GetString("uid")"
+                                                   required />
+                                            <!-- In Time -->
+                                            <div class="col-lg-6 mt-3">
+
+                                                <label class="form-label">
+                                                    In Time
+                                                </label>
+
+                                                <input asp-for="in_time"
+                                                       id="in_time"
+                                                       type="datetime-local"
+                                                       class="form-control"
+                                                       value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-ddTHH:mm")"
+                                                       min="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-ddTHH:mm")"
+                                                       max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                                       required />
+                                                <span asp-validation-for="in_time" class="text-danger"></span>
+
+                                            </div>
+
+                                            <!-- Out Time -->
+                                            <div class="col-lg-6 mt-3">
+
+                                                <label class="form-label">
+                                                    Out Time
+                                                </label>
+
+                                                <input asp-for="out_time"
+                                                       id="out_time"
+                                                       type="datetime-local"
+                                                       class="form-control"
+                                                       value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                                       min="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-ddTHH:mm")"
+                                                       max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                                       required />
+                                                <span asp-validation-for="out_time" class="text-danger"></span>
+
+                                            </div>
+
+                                        </div>
+
+                                        <!-- Button -->
+                                        <div class="text-center mt-4">
+
+                                            <button type="submit"
+                                                    class="visitor-save-action"
+                                                    style="padding:10px 35px;
+                                                border-radius:6px;
+                                                font-weight:600;">
+
+                                                Save
+
+                                            </button>
+
+                                        </div>
+
+                                    </form>
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+        $(function () {
+            var $form = $("#addVisitorForm");
+            if (!$form.length || !$.validator) return;
+
+            // configure validator to use bootstrap classes and span error messages
+            $form.validate({
+                errorClass: "text-danger",
+                errorElement: "span",
+                highlight: function (element) {
+                    $(element).addClass('is-invalid').removeClass('is-valid');
+                },
+                unhighlight: function (element) {
+                    $(element).removeClass('is-invalid').addClass('is-valid');
+                },
+                errorPlacement: function (error, element) {
+                    // place error after the asp-validation-for span if present
+                    var $place = element.siblings("[data-valmsg-for='" + element.attr('name') + "']");
+                    if ($place.length) {
+                        $place.html(error);
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+
+            // validate on blur for real-time feedback
+            $form.on('blur', 'input,textarea,select', function () {
+                $form.validate().element(this);
+            });
+        });
+    </script>
+
+    <script src="/js/visitordetails.js"></script>
+}

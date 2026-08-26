@@ -1,0 +1,1520 @@
+﻿@using Newtonsoft.Json
+@{
+    ViewData["Title"] = "Routes";
+}
+@model IEnumerable<routedetails>
+
+<style>
+    /*input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+            color: transparent;
+        }*/
+    input[type=radio] {
+        width: 10px;
+        height: auto;
+        border: 2px solid midnightblue
+    }
+
+    .layout {
+        display: flex
+    }
+
+    .iconlayout {
+        border: 2px solid;
+        border-radius: 50%;
+        border-color: midnightblue;
+        padding: 1px;
+        width: 3%;
+        height: 3%;
+        text-align: center;
+        margin: 0 5px;
+    }
+
+    .fontsize {
+        font-size: 12px
+    }
+
+    .inputbackgroundcolor {
+        background-color: ghostwhite;
+        /*f7f7f7*/ border-radius: 0.4rem;
+    }
+
+    .icon_color {
+        color: midnightblue
+    }
+
+    .center {
+        text-align: center;
+        font-size: 20px
+    }
+
+    .divmarginoutsideicon {
+        margin: 5px
+    }
+
+    #table_assigned_route_students th,
+    #table_assigned_route_students td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #trip thead th {
+        background-color: midnightblue !important;
+        color: white !important;
+        white-space: nowrap;
+    }
+
+        #trip thead th * {
+            color: white !important;
+        }
+
+    #trip thead th {
+        padding-right: 25px !important;
+        vertical-align: middle !important;
+    }
+</style>
+<div class=" card container-fluid">
+    <div class="row">
+
+
+        <div class="col-lg-12" style="margin-top:3vmin">
+            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">Route</p>
+            </div>
+            <div class="card-body rounded ms-2" style="background-color:white;">
+                <div class="layout ">
+
+                    <div class="layout w-100 justify-content-between align-items-center">
+                        <a class="btn btn-sm" asp-controller="Route" asp-action="createtrip" title="Add Route" style="padding:0px">
+                            <i style="font-size:36px" class="ri-add-circle-line center" aria-hidden="true"></i>
+                        </a>
+
+
+                        <button type="button"
+                                class="btn btn-primary btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#studentWiseModal"
+                                data-sys-user-id="@ViewBag.SysUserId">
+                            Student Wise
+                        </button>
+
+
+                    </div>
+
+                    
+                </div>
+                <div class="row scrollit mt-1" style="background-color:white;">
+                    <div class="col-lg-12 table-responsive">
+                        <table id="trip" class=" table  table-striped table-hover">
+                            <thead>
+                                <tr class="text-center" style="font-size:14px;background-color:midnightblue;color:white">
+                                    <th class="text-center">S.No</th>
+                                    <th class="text-center">Trip Name</th>
+                                    <th class="text-center">Trip Type</th>
+                                    <th class="text-center">Vehicle</th>
+                                    <th class="text-center">Trip Start Time</th>
+                                    <th class="text-center">Trip End Time</th>
+                                    <th class="text-center">Created on</th>
+                                    @*     <th class="text-center">Vais Status</th> *@
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    string trip_type = null;
+                                    int sno = 1;
+                                    if (Model != null)
+                                    {
+                                        foreach (var route in Model)
+                                        {
+                                            if (route.route_name.Contains("drop") || route.route_name.Contains("Drop") || route.route_name.Contains("DROP"))
+                                            {
+                                                trip_type = "Drop";
+                                            }
+                                            else
+                                            {
+                                                trip_type = "Pick";
+                                            }
+
+                                            <tr class="text-center" style="font-size:12px">
+                                                <td class="text-center">@sno</td>
+                                                <td class="text-center">@route.route_name</td>
+                                                <td class="text-center">@trip_type</td>
+
+                                                <td class="text-center">@route.veh_reg</td>
+                                                <td class="text-center">@route.start_time_up</td>
+                                                <td class="text-center">@route.end_time_up</td>
+
+                                                <td class="text-center">@route.rowcreated</td>
+
+                                                
+                                                <td class="d-flex align-items-center">
+
+                                                    <a href="javascript:void(0);" onclick="addStudent('@route.id')" class="me-1">
+                                                        <i class="bi bi-view-list text-info" title="View Details"></i>
+                                                    </a>
+
+                                                    <a asp-controller="Route" asp-action="stopSection" asp-route-id="@route.id" class="me-1"><i class="ri-bus-2-fill text-primary" style="font-size:1rem;font-weight:500;cursor:pointer;text-align:center" aria-hidden="true" title="Stop Section"></i></a>
+                                                    <a id="edit" data-row-id="@route.id" class="=me-1"><i class="ri-edit-box-line text-info" title="Edit Record" style="font-size:1rem;font-weight:500;cursor:pointer;text-align:center"></i></a>
+                                                    <a id="delete" onclick="deleteroute(@route.id);" title="Delete Record"><i class="bi bi-trash text-danger" style="font-size:1rem;font-weight:500;cursor:pointer;text-align:center"></i></a>
+                                                </td>
+
+                                            </tr>
+                                            sno++;
+                                        }
+
+                                    }
+
+                                    else
+                                    {
+
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <!-- Modal -->
+                <!-- Button trigger modal -->
+                <!-- Route wise student detail modal-->
+
+                <div class="modal fade sb-common-modal" id="assignedstudentmodal" tabindex="-1" aria-labelledby="assignedStudentsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="assignedStudentsModalLabel">Assigned Students for this Route</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="col-lg-12 table-responsive">
+                                    <div class="col-lg-12 table-responsive">
+                                        <input type="hidden" id="assignedRouteId" />
+
+                                        
+
+                                        <table id="table_assigned_route_students" class="table table-sm table-hover table-striped" style="width:100%">
+                                            <thead>
+                                                <tr class="text-center" style="font-size:12px;background-color:midnightblue;color:white">
+                                                    @* <th class="text-center">S.No</th>*@
+                                                    <th class="text-center">S No.</th>
+                                                    <th class="text-center">Admission No.</th>
+                                                    <th class="text-center">Student Name</th>
+                                                    <th class="text-center">Father's Name</th>
+                                                    <th class="text-center">Mobile Number</th>
+                                                    <th class="text-center">Class</th>
+                                                    <th class="text-center">Section</th>
+                                                    <th class="text-center">RFID</th>
+                                                    <th class="text-center">Stop Name</th>
+
+
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @{
+                                                    int sno1 = 1;
+                                                    if (Model != null)
+                                                    {
+                                                        foreach (var routedetails in Model)
+                                                        {
+                                                            <tr id=@routedetails.id>
+                                                                <td class="text-center">@sno1</td>
+                                                                <td class="text-center">@routedetails.admission_no</td>
+                                                                <td class="text-center">@routedetails.student_name</td>
+                                                                <td class="text-center">@routedetails.father_name</td>
+                                                                <td class="text-center">@routedetails.mobile_no</td>
+                                                                <td class="text-center">@routedetails.class_name</td>
+                                                                <td class="text-center">@routedetails.section</td>
+                                                                <td class="text-center">@routedetails.rf_id</td>
+                                                                <td class="text-center">@routedetails.stop_name</td>
+
+                                                            </tr>
+                                                            sno1++;
+                                                        }
+
+                                                    }
+
+                                                }
+                                            </tbody>
+                                        </table>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Student Wise Modal -->
+                <div class="modal fade sb-common-modal" id="studentWiseModal" tabindex="-1" aria-labelledby="studentWiseModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="studentWiseModalLabel">Student Wise Bus Service List</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="table-responsive">
+                                    <table id="studentWiseTable" class="table table-bordered table-sm table-hover">
+                                        <thead class="bg-dark text-white text-center">
+                                            <tr>
+                                                <th>Student Name</th>
+                                                <th>Father Name</th>
+                                                <th>Class</th>
+                                                <th>Mobile No.</th>
+                                                <th>RFID</th>
+                                                <th>Admission No</th>
+                                                <th>Pick Route</th>
+                                                <th>Drop Route</th>
+                                                <th> Stop Name
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="text-center">
+                                                <!-- Filled via JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+                    <!-- Modal -->
+                    <div class="modal fade sb-common-modal" id="exampleModal" tabindex="-1" aria-labelledby="addViasModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="addViasModalLabel">Add Vias on </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" id="modalbody">
+                                    <form asp-controller="Route" asp-action="addVias">
+                                        <input name="routeid" type="hidden" id="vias_modal" />
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <label>Start DateTime</label>
+                                                <input class="form-control inputbackgroundcolor" name="stime" type="datetime-local" value="" />
+
+                                            </div>
+                                            <div class="col-lg-6">
+                                                <label>End DateTime</label>
+                                                <input class="form-control inputbackgroundcolor" name="etime" type="datetime-local" value="" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12-lg mx-auto mt-2">
+
+                                            <button type="submit" class="btn w-100 text-light fw-bold" style="background-color:darkcyan">Add Vias</button>
+
+                                        </div>
+
+
+
+                                   
+
+                                    </form>
+                                </div>
+
+                           
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade sb-common-modal" id="editroute" tabindex="-1" aria-labelledby="editRouteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editRouteModalLabel">Edit Route Timing </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modalbody">
+                    <form asp-controller="Route" asp-action="editRoute" method="post">
+                        <input name="routeid" id="routeid" type="hidden" value="" />
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label style="border:none" class="labelfontsize  form-control">Route Name <span class="required_">*</span></label>
+                                <input id="routename" name="route_name" type="text" class="form-control inputbackgroundcolor mb-2" />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <label class="labelfontsize form-control" style="border:none;">
+                                        Vehicle <span class="required_">*</span>
+                                    </label>
+                                    <!-- Will be filled from AJAX -->
+                                    <select id="veh_reg" name="veh_reg" class="form-control inputbackgroundcolor mb-2">
+                                        <option value="">Loading...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="row">
+
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <label style="border:none" class="form-control  labelfontsize">Start Time <span class="required_">*</span></label>
+
+                                    <input id="starttime" class="form-control inputbackgroundcolor" type="time" name="start_time_up" />
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="row">
+                                    <label style="border:none" class="form-control  labelfontsize">End Time <span class="required_">*</span></label>
+
+                                    <input id="endtime" class="form-control inputbackgroundcolor" type="time" name="end_time_up" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <label style="border:none" class="form-control labelfontsize "> Trip Type <span class="required_">*</span></label>
+                                <div class="row">
+
+
+                                    <div class="col-lg-3 ms-3">
+                                        <input type="radio" value="Pick" id="pick" name="option" />
+
+                                        <label style="border:none" class=" " for="option">Pickup</label>
+                                    </div>
+                                    <div class=col-lg-3>
+                                        <input type="radio" value="Drop" id="drop" name="option" />
+
+                                        <label style="border:none" class=" " for="option">Drop</label>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div style="text-align:center">
+                            @*<a class="btn mt-5 btn-sm" onclick="gotocreateroute();" style="border: 2px solid;border-color: midnightblue;color:midnightblue">SAVE</a>*@
+                            <button type="submit" style="border: 2px solid;border-color: midnightblue;color:midnightblue">EDIT</button>
+                        </div>
+
+
+                    </form>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+    <!-- EDIT STUDENT MODAL -->
+
+    <div class="modal fade sb-common-modal"
+         id="editStudentModal"
+         tabindex="-1"
+         aria-labelledby="editStudentModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-xl">
+
+            <div class="modal-content">
+
+               
+
+                <form id="editStudentForm"
+                      method="post"
+                      action="@Url.Action("UpdateStudent", "Route")">
+
+                  
+
+                    <div class="modal-header">
+
+                        <h5 class="modal-title" id="editStudentModalLabel">
+                            Edit Student Transport Details
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal">
+                        </button>
+
+                    </div>
+
+
+                    <input type="hidden"
+                           id="prev_pick_route_id"
+                           name="prev_pick_route_id" />
+                    <input type="hidden"
+                           id="prev_drop_route_id"
+                           name="prev_drop_route_id" />
+
+                    <input type="hidden"
+                           id="prev_pick_stop_id"
+                           name="prev_pick_stop_id" />
+
+                    <input type="hidden"
+                           id="prev_drop_stop_id"
+                           name="prev_drop_stop_id" />
+
+                    <input type="hidden"
+                           id="transport_change_type"
+                           name="change_type" />
+                    <div class="modal-body">
+
+                        <!-- HIDDEN STUDENT ID -->
+
+                        <input type="hidden"
+                               id="edit_student_id"
+                               name="student_id" />
+
+                        <div class="row g-3">
+
+                            <!-- STUDENT NAME -->
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-bold">
+                                    Student Name
+                                </label>
+
+                                <input type="text"
+                                       id="edit_student_name"
+                                       name="student_name"
+                                       class="form-control"
+                                       readonly />
+
+                            </div>
+
+                            <!-- FATHER NAME -->
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-bold">
+                                    Father Name
+                                </label>
+
+                                <input type="text"
+                                       id="edit_father_name"
+                                       name="father_name"
+                                       class="form-control"
+                                       readonly />
+
+                            </div>
+
+                            <!-- CLASS -->
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-bold">
+                                    Class
+                                </label>
+
+                                <input type="text"
+                                       id="edit_class_name"
+                                       name="class_name"
+                                       class="form-control"
+                                       readonly />
+
+                            </div>
+
+                            <!-- MOBILE -->
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-bold">
+                                    Mobile No
+                                </label>
+
+                                <input type="text"
+                                       id="edit_mobile_no"
+                                       name="mobile_no1"
+                                       class="form-control"
+                                       readonly />
+
+                            </div>
+
+                            <!-- RFID -->
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-bold">
+                                    RFID
+                                </label>
+
+                                <input type="text"
+                                       id="edit_rfid"
+                                       name="rf_id"
+                                       class="form-control"
+                                       readonly />
+
+                            </div>
+
+                            <!-- ADMISSION -->
+
+                            <div class="col-md-4">
+
+                                <label class="form-label fw-bold">
+                                    Admission No
+                                </label>
+
+                                <input type="text"
+                                       id="edit_admission_no"
+                                       name="admission_no"
+                                       class="form-control"
+                                       readonly />
+
+                            </div>
+
+                            <!-- PICK ROUTE -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-bold">
+                                    Pick Route
+                                </label>
+
+                                <select id="edit_pick_route"
+                                        name="pick_route_id"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Select Pick Route
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- DROP ROUTE -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-bold">
+                                    Drop Route
+                                </label>
+
+                                <select id="edit_drop_route"
+                                        name="drop_route_id"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Select Drop Route
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- PICK STOP -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-bold">
+                                    Pick Stop
+                                </label>
+
+                                <select id="edit_pick_stop"
+                                        name="pick_stop_id"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Select Pick Stop
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- DROP STOP -->
+
+                            <div class="col-md-6">
+
+                                <label class="form-label fw-bold">
+                                    Drop Stop
+                                </label>
+
+                                <select id="edit_drop_stop"
+                                        name="drop_stop_id"
+                                        class="form-select">
+
+                                    <option value="">
+                                        Select Drop Stop
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- PICK COORDINATES -->
+
+                            <div class="col-md-3">
+
+                                <label class="form-label fw-bold">
+                                    Pick Latitude
+                                </label>
+
+                                <input type="text"
+                                       id="edit_pick_latitude"
+                                       class="form-control" readonly />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label fw-bold">
+                                    Pick Longitude
+                                </label>
+
+                                <input type="text"
+                                       id="edit_pick_longitude"
+                                       class="form-control" readonly />
+
+                            </div>
+
+                            <!-- DROP COORDINATES -->
+
+                            <div class="col-md-3">
+
+                                <label class="form-label fw-bold">
+                                    Drop Latitude
+                                </label>
+
+                                <input type="text"
+                                       id="edit_drop_latitude"
+                                       class="form-control" readonly />
+
+                            </div>
+
+                            <div class="col-md-3">
+
+                                <label class="form-label fw-bold">
+                                    Drop Longitude
+                                </label>
+
+                                <input type="text"
+                                       id="edit_drop_longitude"
+                                       class="form-control" readonly />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- =========================================================
+                     FOOTER
+                ========================================================= -->
+
+                    <div class="modal-footer">
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal">
+
+                            Close
+
+                        </button>
+
+                        <button type="submit"
+                                class="btn btn-primary">
+
+                            Save Changes
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <!-- =========================================================
+                 FORM END
+            ========================================================= -->
+
+            </div>
+
+        </div>
+
+    </div>
+
+   
+    <div class="modal fade sb-common-modal sb-feedback-modal" id="commonModal" tabindex="-1" aria-labelledby="commonModalTitle" aria-describedby="commonModalMessage" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header" id="commonModalHeader">
+                    <h5 class="modal-title" id="commonModalTitle" style="color:white">Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <p id="commonModalMessage" class="mb-0"></p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="commonModalOkButton" data-bs-dismiss="modal">
+                        OK
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    @section Scripts {
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+
+            var routeList = @Html.Raw(
+                        JsonConvert.SerializeObject(ViewBag.RouteList)
+                        );
+            function showCommonModal(message, title = "Message", type = "success") {
+                const modalElement = document.getElementById("commonModal");
+                const header = document.getElementById("commonModalHeader");
+                const okButton = document.getElementById("commonModalOkButton");
+                const normalizedType = ["success", "error", "warning"].includes(type)
+                    ? type
+                    : "info";
+
+                document.getElementById("commonModalTitle").innerText = title;
+                document.getElementById("commonModalMessage").innerText = message;
+
+                const headerClass = normalizedType === "error"
+                    ? "bg-danger"
+                    : normalizedType === "info"
+                        ? "bg-primary"
+                        : `bg-${normalizedType}`;
+
+                const buttonClass = normalizedType === "error"
+                    ? "btn-danger"
+                    : normalizedType === "info"
+                        ? "btn-primary"
+                        : `btn-${normalizedType}`;
+
+                header.className = `modal-header ${headerClass}`;
+                okButton.className = `btn ${buttonClass}`;
+
+                bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            }
+
+        </script>
+        <!-- =========================================================
+     SUBMIT FORM AJAX
+========================================================= -->
+
+        <script>
+            function normalizeTransportId(value) {
+                return String(value == null ? "" : value).trim();
+            }
+
+            $(document).ready(function() {
+
+                $("#editStudentForm").submit(function(e) {
+
+                    e.preventDefault();
+
+                    var $form = $(this);
+                    const prevPickRoute = normalizeTransportId($("#prev_pick_route_id").val());
+                    const prevPickStop = normalizeTransportId($("#prev_pick_stop_id").val());
+                    const prevDropRoute = normalizeTransportId($("#prev_drop_route_id").val());
+                    const prevDropStop = normalizeTransportId($("#prev_drop_stop_id").val());
+                    const currentPickRoute = normalizeTransportId($("#edit_pick_route").val());
+                    const currentPickStop = normalizeTransportId($("#edit_pick_stop").val());
+                    const currentDropRoute = normalizeTransportId($("#edit_drop_route").val());
+                    const currentDropStop = normalizeTransportId($("#edit_drop_stop").val());
+
+                    const pickChanged = currentPickRoute !== prevPickRoute ||
+                        currentPickStop !== prevPickStop;
+                    const dropChanged = currentDropRoute !== prevDropRoute ||
+                        currentDropStop !== prevDropStop;
+
+
+                    const currentPickRouteName = $("#edit_pick_route option:selected").text().trim();
+                    const currentDropRouteName = $("#edit_drop_route option:selected").text().trim();
+                    const containsPick = currentPickRouteName?.toLowerCase().includes("pick") ?? false;
+                    const containsDrop = currentDropRouteName?.toLowerCase().includes("drop") ?? false;
+
+
+                    $("#transport_change_type").val("");
+
+                  
+                    if (!pickChanged && !dropChanged) {
+                        showCommonModal(
+                            "No changes detected.",
+                            "Student Status",
+                            "warning"
+                        );
+                        return;
+                    }
+
+                    if (pickChanged) {
+                        if (!currentPickRoute) {
+                            showCommonModal("Please select a Pick Route.", "Student Status", "error");
+                            return;
+                        }
+
+                        if (!currentPickStop) {
+                            showCommonModal("Please select a Pick Stop.", "Student Status", "error");
+                            return;
+                        }
+                        if (!containsPick) {
+                            showCommonModal("Please select a Route of type pick", "Student Status", "error");
+                            return;
+                        }
+
+                        $("#transport_change_type").val("pick");
+                    }
+
+                    if (dropChanged) {
+                        if (!currentDropRoute) {
+                            showCommonModal("Please select a Drop Route.", "Student Status", "error");
+                            return;
+                        }
+
+                        if (!currentDropStop) {
+                            showCommonModal("Please select a Drop Stop.", "Student Status", "error");
+                            return;
+                        }
+                        if (!containsDrop) {
+                            showCommonModal("Please select a Route of type Drop", "Student Status", "error");
+                            return;
+                        }
+
+                        $("#transport_change_type").val("drop");
+                    }
+                    if (pickChanged && dropChanged) {
+                        $("#transport_change_type").val("both");
+                    }
+
+                    var formData = $form.serialize();
+
+                    $.ajax({
+                        url: $form.attr("action"),
+                        type: "POST",
+                        data: formData,
+                        dataType: "json",
+
+                        success: function(response) {
+
+                            console.log(response);
+
+                            showCommonModal(
+                                response.message,
+                                "Student Status",
+                                response.success ? "success" : "error"
+                            );
+
+                            if (response.success) {
+
+                                var modal = bootstrap.Modal.getInstance(
+                                    document.getElementById("editStudentModal")
+                                );
+
+                                if (modal) {
+                                    modal.hide();
+                                }
+                            }
+                        },
+
+                        error: function(xhr) {
+
+                            console.log(xhr.responseJSON);
+
+                            var message = "Server error occurred";
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                message = xhr.responseJSON.message;
+                            }
+
+                            showCommonModal(
+                                message,
+                                "Student Status",
+                                "error"
+                            );
+                        }
+                    });
+
+                });
+
+            });
+        </script>
+        <script>
+            function deleteStudent(id) {
+
+                if (!id) {
+
+                    showCommonModal(
+                        "Invalid student id",
+                        "Delete Student",
+                        "error"
+                    );
+
+                    return;
+                }
+
+                if (!confirm("Are you sure you want to unassign this student?")) {
+                    return;
+                }
+
+                $.ajax({
+
+                    url: '/schoolbuddy/Route/DeleteStudent',
+
+                    type: 'POST',
+
+                    data: {
+                        id: id
+                    },
+
+                    dataType: 'json',
+
+                    success: function(response) {
+
+                        showCommonModal(
+                            response.message,
+                            "Delete Student",
+                            response.success ? "success" : "error"
+                        );
+
+                        if (response.success) {
+
+                            // REMOVE ROW WITHOUT RELOAD
+                            $("#row_" + id).remove();
+
+                            // OPTIONAL
+                            // location.reload();
+                        }
+                    },
+
+                    error: function() {
+
+                        showCommonModal(
+                            "Server error occurred",
+                            "Delete Student",
+                            "error"
+                        );
+                    }
+                });
+            }
+
+
+            $(document).ready(function() {
+
+                $("#trip").DataTable();
+
+                var successMessage = '@TempData["SuccessMessage"]';
+                var errorMessage = '@TempData["ErrorMessage"]';
+
+                if (successMessage && successMessage.trim() !== '') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: successMessage,
+                        confirmButtonColor: '#28a745',
+                        confirmButtonText: 'OK'
+                    });
+                }
+
+                if (errorMessage && errorMessage.trim() !== '') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'OK'
+                    });
+                }
+
+                if (!$.fn.DataTable.isDataTable('#table_assigned_route_students')) {
+                    $('#table_assigned_route_students').DataTable({
+                        dom: '<"d-flex justify-content-between align-items-center mb-2"<"d-flex align-items-center"l<"#exportBtnContainer.ms-2">>f>rtip',
+                        pageLength: 10,
+                        searching: true,
+                        ordering: false,
+                        lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]]
+                    });
+                }
+
+                setTimeout(function() {
+                    if ($('#exportBtnContainer').length && $('#exportAssignedStudentsExcel').length === 0) {
+                        $('#exportBtnContainer').html(`
+                                        <a href="javascript:void(0);" id="exportAssignedStudentsExcel" title="Export Excel">
+                                            <i class="bi bi-file-earmark-excel-fill text-success" style="font-size:1.4rem; cursor:pointer;"></i>
+                                        </a>
+                                    `);
+                    }
+                }, 500);
+            });
+
+
+            function addStudent(routeid) {
+                $('#assignedRouteId').val(routeid);
+
+                var table = $('#table_assigned_route_students').DataTable();
+
+                table.clear().draw();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/schoolbuddy/Route/assignedStudents',
+                    data: { id: routeid },
+                    success: function(response) {
+                        console.log("Response:", response);
+
+                        if (!Array.isArray(response)) {
+                            table.row.add([
+                                '', 'No data found', '', '', '', '', '', '', ''
+                            ]).draw();
+                            return;
+                        }
+
+                        let sno = 1;
+                        let rows = response.map(item => [
+                            sno++,
+                            item.admission_no || '',
+                            item.student_name || '',
+                            item.father_name || '',
+                            item.mobile_no || '',
+                            item.class_name || '',
+                            item.section || '',
+                            item.rf_id || '',
+                            item.stop_name || ''
+                        ]);
+
+                        table.rows.add(rows).draw();
+                    },
+                    error: function() {
+                        table.row.add([
+                            '', 'Failed to load data', '', '', '', '', '', '', ''
+                        ]).draw();
+                    }
+                });
+
+                $('#assignedstudentmodal').modal('show');
+            }
+
+
+            let studentWiseTable;
+
+            $('#studentWiseModal').on('show.bs.modal', function(event) {
+                const button = $(event.relatedTarget);
+                const sysUserId = button.data('sys-user-id');
+
+                if (!$.fn.DataTable.isDataTable('#studentWiseTable')) {
+                    studentWiseTable = $('#studentWiseTable').DataTable({
+                        dom: 'Bflrtip',
+                        buttons: [
+                            {
+                                extend: 'excelHtml5',
+                                text: 'Export',
+                                className: 'btn btn-primary btn-sm'
+                            }
+                        ],
+                        pageLength: 10,
+                        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]]
+                    });
+                } else {
+                    studentWiseTable.clear().draw();
+                }
+
+                studentWiseTable.clear().draw();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/schoolbuddy/Route/GetStudentWiseList',
+                    data: { id: sysUserId },
+                    // success: function (res) {
+                    //     if (Array.isArray(res) && res.length > 0) {
+                    //         const rows = res.map(s => [
+                    //             s.student_name || '',
+                    //             s.father_name || '',
+                    //             s.class_name || '',
+                    //             s.mobile_no1 || '',
+                    //             s.rf_id || '',
+                    //             s.admission_no || '',
+                    //             s.pick_stop_name || '',
+                    //             s.drop_stop_name || '',
+                    //             s.stop_name || ''
+                    //         ]);
+                    //         studentWiseTable.rows.add(rows).draw();
+                    //     } else {
+                    //     studentWiseTable.row.add(['No bus service students found', '', '', '', '', '', '', '', '', '']).draw();
+                    //     }
+                    // },
+                    // error: function () {
+                    // studentWiseTable.row.add(['Error fetching data', '', '', '', '', '', '', '', '']).draw();
+                    // }
+                    success: function(res) {
+
+                        studentWiseTable.clear();
+
+                        if (Array.isArray(res) && res.length > 0) {
+
+                            const rows = res.map(s => [
+
+                                s.student_name || '',
+
+                                s.father_name || '',
+
+                                s.class_name || '',
+
+                                s.mobile_no1 || '',
+
+                                s.rf_id || '',
+
+                                s.admission_no || '',
+
+                                s.pick_route_name || '',
+
+                                s.drop_route_name || '',
+
+                                s.stop_name || '',
+
+                                `
+                         <div class="d-flex justify-content-center gap-3">
+
+                    <a onclick='openEditStudentModal(${JSON.stringify(s)})'
+               title="Migrate Student">
+
+                        <i class="bi bi-pencil-square text-primary"
+                           style="font-size:1rem;
+                                  font-weight:500;
+                                  cursor:pointer;">
+                        </i>
+
+                    </a>
+
+                    <a onclick="deleteStudent('${s.student_id}')"
+                       title="Unassign Student">
+
+                        <i class="bi bi-trash text-danger"
+                           style="font-size:1rem;
+                                  font-weight:500;
+                                  cursor:pointer;">
+                        </i>
+
+                    </a>
+
+
+                        </div>
+                        `
+                            ]);
+
+                            studentWiseTable.rows.add(rows).draw();
+
+                        }
+                        else {
+
+                            studentWiseTable.row.add([
+
+                                'No bus service students found',
+
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                '',
+                                ''
+
+                            ]).draw();
+                        }
+                    },
+
+                    error: function() {
+
+                        studentWiseTable.clear();
+
+                        studentWiseTable.row.add([
+
+                            'Error fetching data',
+
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            '',
+                            ''
+
+                        ]).draw();
+                    }
+                });
+            });
+
+            function openEditStudentModal(s) {
+                $('#studentWiseModal').modal('hide');
+
+                const pickRouteId = normalizeTransportId(s.pick_route_id);
+                const dropRouteId = normalizeTransportId(s.drop_route_id);
+                const pickStopId = normalizeTransportId(s.pick_stop_id);
+                const dropStopId = normalizeTransportId(s.drop_stop_id);
+
+                $("#editStudentForm")[0].reset();
+                $("#edit_student_id").val(s.student_id || '');
+                $("#edit_student_name").val(s.student_name || '');
+                $("#edit_father_name").val(s.father_name || '');
+                $("#edit_class_name").val(s.class_name || '');
+                $("#edit_mobile_no").val(s.mobile_no1 || '');
+                $("#edit_rfid").val(s.rf_id || '');
+                $("#edit_admission_no").val(s.admission_no || '');
+
+                $("#prev_pick_route_id").val(pickRouteId);
+                $("#prev_drop_route_id").val(dropRouteId);
+                $("#prev_pick_stop_id").val(pickStopId);
+                $("#prev_drop_stop_id").val(dropStopId);
+                $("#transport_change_type").val('');
+
+                populateRouteDropdown("#edit_pick_route", "Select Pick Route", pickRouteId);
+                populateRouteDropdown("#edit_drop_route", "Select Drop Route", dropRouteId);
+
+                setCurrentStopOption(
+                    "#edit_pick_stop",
+                    pickStopId,
+                    s.pick_stop_name,
+                    s.pick_latitude,
+                    s.pick_longitude,
+                    "Select Pick Stop"
+                );
+                setCurrentStopOption(
+                    "#edit_drop_stop",
+                    dropStopId,
+                    s.drop_stop_name,
+                    s.drop_latitude,
+                    s.drop_longitude,
+                    "Select Drop Stop"
+                );
+
+                $("#edit_pick_latitude").val(s.pick_latitude || '');
+                $("#edit_pick_longitude").val(s.pick_longitude || '');
+                $("#edit_drop_latitude").val(s.drop_latitude || '');
+                $("#edit_drop_longitude").val(s.drop_longitude || '');
+
+                bootstrap.Modal.getOrCreateInstance(
+                    document.getElementById('editStudentModal')
+                ).show();
+            }
+
+            function populateRouteDropdown(dropdownId, placeholder, selectedRouteId) {
+                let options = `<option value="">${placeholder}</option>`;
+
+                routeList.forEach(function(route) {
+                    const selected = normalizeTransportId(route.id) === selectedRouteId
+                        ? ' selected'
+                        : '';
+                    options += `<option value="${route.id}"${selected}>${route.route_name}</option>`;
+                });
+
+                $(dropdownId).html(options);
+            }
+
+            function setCurrentStopOption(
+                dropdownId,
+                stopId,
+                stopName,
+                latitude,
+                longitude,
+                placeholder
+            ) {
+                if (!stopId) {
+                    $(dropdownId).html(`<option value="">${placeholder}</option>`);
+                    return;
+                }
+
+                $(dropdownId).html(
+                    `<option value="${stopId}" data-lat="${latitude || ''}" data-long="${longitude || ''}" selected>` +
+                    `${stopName || placeholder}</option>`
+                );
+            }
+
+            $("#edit_pick_route").change(function() {
+                $("#edit_pick_latitude, #edit_pick_longitude").val('');
+                loadStops($(this).val(), "#edit_pick_stop", "Select Pick Stop");
+            });
+
+            $("#edit_drop_route").change(function() {
+                $("#edit_drop_latitude, #edit_drop_longitude").val('');
+                loadStops($(this).val(), "#edit_drop_stop", "Select Drop Stop");
+            });
+
+            function loadStops(routeId, dropdownId, placeholder) {
+                const $dropdown = $(dropdownId);
+                $dropdown.html(`<option value="">${placeholder}</option>`);
+
+                if (!normalizeTransportId(routeId)) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '/schoolbuddy/Route/GetStopsByRoute',
+                    type: 'GET',
+                    data: { id: routeId },
+                    success: function(res) {
+                        let options = `<option value="">${placeholder}</option>`;
+
+                        if (Array.isArray(res)) {
+                            res.forEach(function(stop) {
+                                options += `<option value="${stop.id}" ` +
+                                    `data-lat="${stop.latitude || ''}" ` +
+                                    `data-long="${stop.longitude || ''}">` +
+                                    `${stop.user_stop_name}</option>`;
+                            });
+                        }
+
+                        $dropdown.html(options);
+                    },
+                    error: function() {
+                        $dropdown.html(`<option value="">Unable to load stops</option>`);
+                    }
+                });
+            }
+
+            $("#edit_pick_stop").change(function() {
+                const selected = $(this).find(":selected");
+                $("#edit_pick_latitude").val(selected.data("lat") || '');
+                $("#edit_pick_longitude").val(selected.data("long") || '');
+            });
+
+            $("#edit_drop_stop").change(function() {
+                const selected = $(this).find(":selected");
+                $("#edit_drop_latitude").val(selected.data("lat") || '');
+                $("#edit_drop_longitude").val(selected.data("long") || '');
+            });
+
+
+            function addVias(routeid, serviceid) {
+
+                console.log(routeid, serviceid);
+
+                $('#vias_modal').val(routeid);
+
+                $('#exampleModal').modal('show');
+            }
+            $(document).on('click', '#edit', function() {
+                var id = $(this).data('row-id');
+
+                $.ajax({
+                    url: '/schoolbuddy/Route/GetTripById',
+                    data: { id: id },
+                    dataType: 'json',
+                    success: function(data1) {
+                        var name = data1.route_name;
+                        var namearr = name.split(" ");
+                        if (namearr[1] && namearr[1].toLowerCase().includes("pick")) {
+                            $('#pick').prop("checked", true);
+                        } else {
+                            $('#drop').prop("checked", true);
+                        }
+
+                        $('#routename').val(name);
+                        $('#starttime').val(data1.start_time_up);
+                        $('#endtime').val(data1.end_time_up);
+                        $('#routeid').val(id);
+
+                        const svcId = data1.sys_service_id ?? data1.service_id ?? '';
+                        loadBusesIntoDropdown(svcId);
+                        $('#editroute').modal('show');
+                    }
+                });
+            });
+
+
+            function deleteroute(id) {
+
+                console.log(" ");
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "With route, all stops and students assigned to those stops will be also deleted, You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/schoolbuddy/Route/deleteroute',
+                            data: { rid: id },
+                            success: function response() {
+                                console.log(' ');
+                                location.reload();
+                            }
+                        });
+                    }
+                });
+            }
+
+
+            function loadBusesIntoDropdown(selectedServiceId) {
+                const $sel = $('#veh_reg');
+
+                $sel.empty().append($('<option>').val('').text('Loading...'));
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/schoolbuddy/Route/GetBusesForEdit',
+                    dataType: 'json',
+                    success: function(res) {
+                        $sel.empty();
+
+                        let found = false;
+
+                        if (Array.isArray(res)) {
+                            res.forEach(r => {
+                                const val = String(r.id);
+                                const opt = $('<option>').val(val).text(r.veh_reg);
+
+                                if (selectedServiceId != null && String(selectedServiceId) === val) {
+                                    opt.prop('selected', true);
+                                    found = true;
+                                }
+                                $sel.append(opt);
+                            });
+                        }
+
+                        if (!found) {
+                            $sel.prepend($('<option>').val('').text('Select Bus').prop('selected', true));
+                        }
+
+                        $sel.trigger('change');
+                    },
+                    error: function() {
+                        $sel.empty().append($('<option>').val('').text('Failed to load'));
+                    }
+                });
+            }
+
+
+            $(document).on('click', '#exportAssignedStudentsExcel', function() {
+                const routeId = $('#assignedRouteId').val();
+
+                if (!routeId) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Required',
+                        text: 'Please open assigned students first.',
+                        confirmButtonColor: '#3085d6'
+                    });
+                    return;
+                }
+
+                window.location.href = '/schoolbuddy/Route/DownloadAssignedStudentsExcel?routeId=' + encodeURIComponent(routeId);
+            });
+        </script>
+    }

@@ -1,0 +1,367 @@
+﻿@model SchoolBuddy.Models.Staff
+
+@{
+    ViewData["Title"] = "Add Staff Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12 p-0">
+
+            <div class="card-header rounded-top"
+                 style="background-color:midnightblue;color:white;">
+                <p style="font-weight:600;margin:0px">
+                    Add Staff Details
+                </p>
+            </div>
+
+            <div class="card-body rounded" style="background-color:white;">
+
+                <!-- Back Button -->
+                <div class="mb-3">
+                    <div class="rounded-circle d-flex justify-content-center align-items-center"
+                         style="width:40px; height:40px; border:2px solid midnightblue; cursor:pointer;"
+                         onmouseover="this.style.backgroundColor='midnightblue'; this.querySelector('i').style.color='white';"
+                         onmouseout="this.style.backgroundColor='transparent'; this.querySelector('i').style.color='midnightblue';">
+
+                        <a asp-controller="Home"
+                           asp-action="staffDetails"
+                           class="text-decoration-none">
+
+                            <i class="bi bi-arrow-left"
+                               style="font-size:20px;font-weight:700;color:midnightblue;">
+                            </i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form asp-action="AddStaff"
+                      asp-controller="Home"
+                      method="post"
+                      id="addStaffForm"
+                      novalidate>
+
+                   
+
+                    <div class="row mt-3">
+
+                        <div class="col-6">
+                            <label>Employee Code</label>
+                            <span class="required_">*</span>
+
+                            <input asp-for="emp_code"
+                                   value=""
+                                   id="emp_code"
+                                   type="text"
+                                   placeholder="Please Enter Employee Code"
+                                   class="form-control inputbackgroundcolor"
+                                   maxlength="50"
+                                   required />
+
+                            <span asp-validation-for="emp_code"
+                                  class="text-danger"
+                                  data-error-for="emp_code"></span>
+                        </div>
+
+                        <input type="hidden"
+                               asp-for="sys_user_id"
+                               id="sys_user_id"
+                               value="@Context.Session.GetString("uid")" />
+
+                        <div class="col-6">
+                            <label>Name</label>
+                            <span class="required_">*</span>
+
+                            <input id="staff_name"
+                                   asp-for="name"
+                                   type="text"
+                                   placeholder="Please Enter Name"
+                                   class="form-control inputbackgroundcolor"
+                                   maxlength="100"
+                                   required />
+
+                            <span asp-validation-for="name"
+                                  class="text-danger"
+                                  data-error-for="staff_name"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-3">
+
+                        <div class="col-6">
+                            <label>Mobile Number</label>
+                            <span class="required_">*</span>
+
+                            <input asp-for="mobile_no"
+                                   id="mobile_no"
+                                   class="form-control"
+                                   type="tel"
+                                   inputmode="numeric"
+                                   pattern="[6-9][0-9]{9}"
+                                   maxlength="10"
+                                   placeholder="Enter Mobile Number"
+                                   title="Enter a valid 10 digit mobile number starting with 6, 7, 8, or 9"
+                                   required />
+
+                            <span asp-validation-for="mobile_no"
+                                  class="text-danger"
+                                  data-error-for="mobile_no"></span>
+                        </div>
+
+                        <div class="col-6">
+                            <label>RFID</label>
+                            <span class="required_">*</span>
+
+                            <input asp-for="rf_id"
+                                   id="rf_id"
+                                   type="text"
+                                   placeholder="Please Enter RFID"
+                                   class="form-control inputbackgroundcolor"
+                                   maxlength="50"
+                                   required />
+
+                            <span asp-validation-for="rf_id"
+                                  class="text-danger"
+                                  data-error-for="rf_id"></span>
+                        </div>
+
+                    </div>
+                  
+
+                    <div class="row mt-3">
+
+                        <div class="col-6">
+                            <label>In Time</label>
+                            <span class="required_">*</span>
+
+                        <input asp-for="in_time"
+                               id="in_time"
+                               type="datetime-local"
+                                   class="form-control datewithtime2"
+                               value="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-ddTHH:mm")"
+                               min="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-ddTHH:mm")"
+                               max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                               required />
+
+                            <span asp-validation-for="in_time"
+                                  class="text-danger"
+                                  data-error-for="in_time"></span>
+                        </div>
+
+                        <div class="col-6">
+                            <label>Out Time</label>
+                            <span class="required_">*</span>
+
+                        <input asp-for="out_time"
+                                    id="out_time"
+                                    type="datetime-local"
+                                    class="form-control"
+                                    value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                    min="@DateTime.Now.AddDays(-1).ToString("yyyy-MM-ddTHH:mm")"
+                                    max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                    required />
+
+                            <span asp-validation-for="out_time"
+                                  class="text-danger"
+                                  data-error-for="out_time"></span>
+                        </div>
+
+                    </div>
+
+                    <div class="row mt-3">
+
+                        <div class="col-12">
+                            <label>Address</label>
+                            <span class="text-danger">*</span>
+
+                            <input asp-for="address"
+                                   id="address"
+                                   type="text"
+                                   placeholder="Please Enter Address"
+                                   class="form-control inputbackgroundcolor"
+                                   maxlength="250"
+                                   required />
+
+                            <span asp-validation-for="address"
+                                  class="text-danger"
+                                  data-error-for="address"></span>
+                        </div>
+
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-flex justify-content-center mt-5">
+                        <button type="submit"
+                                class="btn btn-sm"
+                                style="border:2px solid midnightblue;color:midnightblue">
+
+                            Save
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@* @section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.getElementById("addStaffForm");
+            const fields = {
+                emp_code: "Employee Code is required.",
+                staff_name: "Name is required.",
+                mobile_no: "Mobile Number is required.",
+                rf_id: "RFID is required.",
+                in_time: "In Time is required.",
+                out_time: "Out Time is required.",
+                address: "Address is required."
+            };
+
+            function setError(input, message) {
+                const error = document.querySelector(`[data-error-for="${input.id}"]`);
+
+                input.classList.add("is-invalid");
+                if (error) {
+                    error.textContent = message;
+                    error.style.display = "block";
+                }
+            }
+
+            function clearError(input) {
+                const error = document.querySelector(`[data-error-for="${input.id}"]`);
+
+                input.classList.remove("is-invalid");
+                if (error) {
+                    error.textContent = "";
+                    error.style.display = "none";
+                }
+            }
+
+            Object.keys(fields).forEach(function (id) {
+                const input = document.getElementById(id);
+                if (!input) {
+                    return;
+                }
+
+                input.addEventListener("input", function () {
+                    clearError(input);
+                });
+            });
+
+            const mobileInput = document.getElementById("mobile_no");
+            if (mobileInput) {
+                mobileInput.addEventListener("input", function () {
+                    this.value = this.value.replace(/\D/g, "").slice(0, 10);
+                    clearError(this);
+                });
+            }
+
+            form.addEventListener("submit", function (event) {
+                let isValid = true;
+
+                Object.keys(fields).forEach(function (id) {
+                    const input = document.getElementById(id);
+                    if (!input) {
+                        return;
+                    }
+
+                    if (!input.value.trim()) {
+                        setError(input, fields[id]);
+                        isValid = false;
+                    } else {
+                        clearError(input);
+                    }
+                });
+
+                const mobileNo = document.getElementById("mobile_no");
+                if (mobileNo && mobileNo.value.trim() && !/^[6-9]\d{9}$/.test(mobileNo.value.trim())) {
+                    setError(mobileNo, "Enter valid mobile number.");
+                    isValid = false;
+                }
+
+                const inTime = document.getElementById("in_time");
+                const outTime = document.getElementById("out_time");
+                if (inTime.value && outTime.value && new Date(outTime.value) <= new Date(inTime.value)) {
+                    setError(outTime, "Out Time must be later than In Time.");
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                }
+            });
+
+            // Add jQuery Validate custom method and rule for datetime comparison
+            if (window.jQuery && $.validator) {
+                $.validator.addMethod("greaterThanDate", function (value, element, params) {
+                    if (!value) return true; // let required handle empty
+                    var other = $(params).val();
+                    if (!other) return true;
+                    var v = new Date(value);
+                    var o = new Date(other);
+                    return v > o;
+                }, "Out Time must be later than In Time.");
+
+                $.validator.unobtrusive.adapters.addSingleVal("greaterthandate", "other");
+
+                // Re-parse the form to pick up unobtrusive rules, then add rule to out_time
+                var $form = $("#addStaffForm");
+                $form.removeData("validator");
+                $form.removeData("unobtrusiveValidation");
+                $.validator.unobtrusive.parse($form);
+
+                $("#out_time").rules("add", {
+                    greaterThanDate: "#in_time",
+                    messages: { greaterThanDate: "Out Time must be later than In Time." }
+                });
+            }
+        });
+    </script> *@
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+
+    <script>
+        $(function () {
+            var $form = $("#addStaffForm");
+            if (!$form.length || !$.validator) return;
+
+            // configure validator to use bootstrap classes and span error messages
+            $form.validate({
+                errorClass: "text-danger",
+                errorElement: "span",
+                highlight: function (element) {
+                    $(element).addClass('is-invalid').removeClass('is-valid');
+                },
+                unhighlight: function (element) {
+                    $(element).removeClass('is-invalid').addClass('is-valid');
+                },
+                errorPlacement: function (error, element) {
+                    // place error after the asp-validation-for span if present
+                    var $place = element.siblings("[data-valmsg-for='" + element.attr('name') + "']");
+                    if ($place.length) {
+                        $place.html(error);
+                    } else {
+                        error.insertAfter(element);
+                    }
+                }
+            });
+
+            // validate on blur for real-time feedback
+            $form.on('blur', 'input,textarea,select', function () {
+                $form.validate().element(this);
+            });
+        });
+    </script>
+     <script src="~/js/analysis.js?v=@DateTime.Now.Ticks"></script>
+    }
+

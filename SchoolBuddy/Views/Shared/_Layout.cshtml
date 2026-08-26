@@ -1,0 +1,1645 @@
+@{
+    var userName = Context.Session.GetString("schoolname");
+}
+@{
+    var controller = ViewContext.RouteData.Values["Controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["Action"]?.ToString();
+    bool indoorTrackingActive = controller == "Home" &&
+      (action == "uhfGates" ||
+       action == "uwbTracking" ||
+       action == "blTracking" ||
+       action == "staffDetails" ||
+       action == "visitorDetails");
+    bool driverManagementActive = controller == "Driver_Management";
+    bool masterActive =
+        (controller == "Home" &&
+            (action == "Students" ||
+             action == "EventHoliday" ||
+             action == "teacherDetails"||
+             action == "Attendance")) ||
+
+        (controller == "Route" &&
+            (action == "Trip" ||
+             action == "Halts")) ||
+
+        (controller == "Command" &&
+            action == "Getcommandss");
+
+}
+@inject ILoginRepository login;
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <script>
+        (function () {
+            "use strict";
+
+            const STORAGE_KEY = "schoolBuddyTheme";
+            const root = document.documentElement;
+            let savedTheme = null;
+
+            try {
+                savedTheme = localStorage.getItem(STORAGE_KEY);
+            } catch (error) {
+                savedTheme = null;
+            }
+
+            const hasManualTheme = savedTheme === "light" || savedTheme === "dark";
+            const resolvedTheme = hasManualTheme
+                ? savedTheme
+                : window.matchMedia("(prefers-color-scheme: dark)").matches
+                    ? "dark"
+                    : "light";
+
+            root.setAttribute("data-bs-theme", resolvedTheme);
+            root.setAttribute("data-theme-source", hasManualTheme ? "manual" : "system");
+        })();
+    </script>
+
+    <title>SchoolBuddy-Atlanta</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    @* <link href="~/assets/img/favicon.png" rel="icon">
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon">*@
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Vendor CSS Files -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="~/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.css" type="text/css" />
+    <!-- Template Main CSS File -->
+    <link href="~/assets/css/style.css" rel="stylesheet" asp-append-version="true">
+    <link rel="stylesheet" href=" https://cdn.datatables.net/2.1.3/css/dataTables.bootstrap5.css" />
+    <link rel="stylesheet" href=" https://cdn.datatables.net/buttons/3.1.1/css/buttons.bootstrap5.css" />
+    <link rel="stylesheet" href="~/css/datatables-global.css" asp-append-version="true" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.1.3/js/dataTables.bootstrap5.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.bootstrap5.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.print.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.1.1/js/buttons.colVis.min.js"></script>
+
+    @*        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+*@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.11.0/sweetalert2.min.css" integrity="sha512-OWGg8FcHstyYFwtjfkiCoYHW2hG3PDWwdtczPAPUcETobBJOVCouKig8rqED0NMLcT9GtE4jw6IT1CSrwY87uw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://unpkg.com/gijgo@1.9.14/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- =======================================================
+    * Template Name: NiceAdmin
+    * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+    * Updated: Apr 20 2024 with Bootstrap v5.3.3
+    * Author: BootstrapMade.com
+    * License: https://bootstrapmade.com/license/
+    ======================================================== -->
+
+   <style>
+            /* =========================================================
+               ROOT VARIABLES
+            ========================================================= */
+
+            :root {
+                --sb-header-height: 60px;
+                --sb-sidebar-width: 250px;
+                --sb-sidebar-bg: midnightblue;
+                --sb-sidebar-border: #1f2937;
+                --sb-primary: #2563eb;
+            }
+
+            .iconstyle {
+                border: 2px solid midnightblue;
+                border-radius: 50%;
+                color: midnightblue;
+                cursor: pointer;
+            }
+
+            /* =========================================================
+               GLOBAL LAYOUT
+            ========================================================= */
+
+            html,
+            body {
+                min-height: 100vh;
+                margin: 0;
+            }
+
+            body {
+                display: flex;
+                flex-direction: column;
+                padding-top: var(--sb-header-height);
+                overflow-x: hidden;
+                background-color: var(--sb-page-bg); /* Soft gray for the dashboard background */
+                color: var(--sb-text);
+            }
+
+            /* =========================================================
+               HEADER
+            ========================================================= */
+
+            #header {
+                height: var(--sb-header-height);
+                z-index: 1100;
+                box-sizing: border-box;
+            }
+
+            #header-logo-container {
+                width: var(--sb-sidebar-width) !important;
+                min-width: var(--sb-sidebar-width) !important;
+                max-width: var(--sb-sidebar-width) !important;
+                flex: 0 0 var(--sb-sidebar-width) !important;
+                box-sizing: border-box !important;
+                background-color: var(--sb-sidebar-bg) !important;
+                transition: all .3s ease;
+                overflow: hidden;
+                position: relative;
+                z-index: 1050;
+            }
+
+            /* =========================================================
+               SIDEBAR
+            ========================================================= */
+
+            #sidebar {
+                position: fixed;
+                top: var(--sb-header-height);
+                left: 0;
+                width: var(--sb-sidebar-width) !important;
+                min-width: var(--sb-sidebar-width) !important;
+                max-width: var(--sb-sidebar-width) !important;
+                flex: 0 0 var(--sb-sidebar-width) !important;
+                box-sizing: border-box !important;
+                height: calc(100vh - var(--sb-header-height));
+                background-color: var(--sb-sidebar-bg) !important;
+                border-right: 1px solid var(--sb-sidebar-border);
+                overflow-x: hidden !important;
+                overflow-y: auto !important;
+                transition: all .3s ease;
+                z-index: 1040;
+                scrollbar-width: none !important;
+                -ms-overflow-style: none !important;
+            }
+
+            #sidebar::-webkit-scrollbar {
+                display: none !important;
+                width: 0 !important;
+                height: 0 !important;
+            }
+
+            /* =========================================================
+               MAIN CONTENT
+            ========================================================= */
+
+            #layoutmain,
+            #footer {
+                margin-left: var(--sb-sidebar-width);
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+                transition: all .3s ease;
+            }
+
+            #layoutmain {
+                flex: 1 1 auto;
+                min-height: 0;
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+
+            #footer {
+                width: auto;
+            }
+
+            #layoutmain::-webkit-scrollbar {
+                display: none;
+            }
+
+            /* =========================================================
+               SIDEBAR WRAPPER
+            ========================================================= */
+
+            #sidebar .sb-sidebar-wrapper {
+                width: 100% !important;
+                min-width: 0;
+                max-width: 100%;
+                min-height: 100%;
+                height: auto !important;
+                box-sizing: border-box;
+                padding: .85rem .65rem;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                overflow: visible !important;
+            }
+
+            /* =========================================================
+               SIDEBAR NAVIGATION
+            ========================================================= */
+
+            .sidebar-nav {
+                padding: 0;
+                margin: 0;
+                list-style: none;
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .sidebar-nav .nav-item {
+                width: 100%;
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 3px;
+            }
+
+            .sidebar-nav .nav-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px;
+    width: 100%;
+    border-radius: 8px;
+    padding: .7rem .9rem !important;
+    color: rgba(255,255,255,.78) !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    font-size: .78rem !important;
+    font-weight: 500;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+
+    transition:
+        background-color .2s ease,
+        color .2s ease,
+        border-color .2s ease;
+}
+            .sidebar-nav .nav-link i {
+                font-size: 1rem;
+                color: rgba(255,255,255,.65) !important;
+                transition: all .2s ease;
+            }
+
+            /* Hover */
+            .sidebar-nav .nav-link:hover {
+                background: rgba(255,255,255,.08) !important;
+                color: #fff !important;
+            }
+
+            .sidebar-nav .nav-link:hover i {
+                color: #fff !important;
+            }
+
+            /* Active */
+            .sidebar-nav .nav-link.active {
+                background: var(--sb-primary) !important;
+                color: #fff !important;
+                font-weight: 600;
+            }
+
+            .sidebar-nav .nav-link.active i {
+                color: #fff !important;
+            }
+
+            /* =========================================================
+               SUBMENU
+            ========================================================= */
+
+            .sidebar-nav .collapse,
+            .sidebar-nav .collapsing {
+                background: rgba(0,0,0,.15);
+                border-radius: 8px;
+                margin: 4px 0 8px 0;
+                padding: 4px 0;
+            }
+
+            .sidebar-nav .collapse ul,
+            .sidebar-nav .collapsing ul {
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+.sidebar-nav .collapse .nav-link,
+.sidebar-nav .collapsing .nav-link {
+    padding: .45rem .75rem .45rem 2rem !important;
+    font-size: .78rem !important;   /* Same as main menu */
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    background: transparent !important;
+    color: rgba(255,255,255,.78) !important;
+    border-radius: 0 !important;
+    transition: background-color .2s ease, color .2s ease;
+}
+            .sidebar-nav .collapse .nav-link.active,
+            .sidebar-nav .collapsing .nav-link.active {
+                background: var(--sb-primary) !important;
+                color: #fff !important;
+                font-weight: 600;
+            }
+
+            .sidebar-nav .collapse .nav-link i,
+            .sidebar-nav .collapsing .nav-link i {
+                font-size: .45rem;
+            }
+
+            .sidebar-nav .collapse .nav-link:hover,
+            .sidebar-nav .collapsing .nav-link:hover {
+                text-decoration: underline;
+                color: #fff !important;
+            }
+
+            /* =========================================================
+               HIDDEN SIDEBAR (DESKTOP)
+            ========================================================= */
+
+            body.sidebar-collapsed #sidebar {
+                left: calc(-1 * var(--sb-sidebar-width));
+            }
+
+            body.sidebar-collapsed #layoutmain,
+            body.sidebar-collapsed #footer {
+                margin-left: 0 !important;
+            }
+
+            body.sidebar-collapsed #header-logo-container {
+                width: 0 !important;
+                min-width: 0 !important;
+                max-width: 0 !important;
+                flex-basis: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* =========================================================
+               SIDEBAR FOOTER WIDGET
+            ========================================================= */
+
+            .parent-app-widget {
+                background: rgba(255,255,255,.08);
+                border: 1px solid rgba(255,255,255,.08);
+                color: #fff;
+            }
+
+            .sidebar-widget-icon {
+                width: 42px;
+                height: 42px;
+                border-radius: 10px;
+                background: rgba(255,255,255,.12);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+            }
+
+            /* =========================================================
+               BACKDROP
+            ========================================================= */
+
+            .sidebar-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,.45);
+                border: 0;
+                opacity: 0;
+                visibility: hidden;
+                transition: .3s ease;
+                z-index: 1035;
+            }
+
+            /* =========================================================
+               MOBILE RESPONSIVE
+            ========================================================= */
+
+            @@media (max-width:991.98px) {
+                body:not(.sidebar-mobile-open) #header-logo-container {
+                    display: none !important;
+                }
+                body.sidebar-mobile-open #header-logo-container {
+                    display: flex !important;
+                    background-color: var(--sb-sidebar-bg) !important;
+                }
+                
+                body.sidebar-mobile-open #header {
+                    z-index: 1050 !important;
+                }
+
+                /* Sidebar is hidden by default on mobile */
+                #sidebar {
+                    left: calc(-1 * var(--sb-sidebar-width));
+                }
+
+                body.sidebar-mobile-open #sidebar {
+                    left: 0;
+                }
+
+                body.sidebar-mobile-open .sidebar-backdrop {
+                    opacity: 1;
+                    visibility: visible;
+                }
+
+                #layoutmain,
+                #footer {
+                    margin-left: 0 !important;
+                }
+            }
+
+            /* =========================================================
+               DARK THEME
+            ========================================================= */
+
+            /* =========================================================
+               MODAL
+            ========================================================= */
+
+            .modal-dialog {
+                margin-top: calc(var(--sb-header-height) + 12px);
+            }
+
+            /* =========================================================
+               TRANSITIONS
+            ========================================================= */
+
+            body.sidebar-ready #sidebar,
+            body.sidebar-ready #layoutmain,
+            body.sidebar-ready #footer,
+            body.sidebar-ready #header-logo-container {
+                transition: all .3s ease;
+            }
+
+            .app-download-card {
+                background: linear-gradient(180deg,#223A88,#162A6A);
+                border-radius: 16px;
+                padding: 16px;
+                color: #fff;
+            }
+
+            .top-section {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                margin-bottom: 15px;
+            }
+
+            .app-icon-box {
+                width: 52px;
+                height: 52px;
+                border-radius: 14px;
+                background: linear-gradient(135deg,#7C4DFF,#00C8FF);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+                .app-icon-box i {
+                    color: #fff;
+                    font-size: 1.6rem;
+                }
+
+            .app-content {
+                flex: 1;
+            }
+
+                .app-content h6 {
+                    margin: 0 0 4px;
+                    font-size: .9rem;
+                    font-weight: 700;
+                }
+
+                .app-content p {
+                    margin: 0;
+                    font-size: .72rem;
+                    line-height: 1.4;
+                    color: rgba(255,255,255,.8);
+                }
+
+            .app-store-row {
+                display: flex;
+                gap: 8px;
+            }
+
+            .store-badge {
+                flex: 1;
+                height: 36px;
+                background: #111;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                color: #fff;
+                text-decoration: none;
+                font-size: .72rem;
+                font-weight: 600;
+            }
+
+                .store-badge i {
+                    font-size: 1rem;
+                }
+
+
+                /* Fix submenu font size jumping */
+
+#sidebar .sidebar-nav > .nav-item > .nav-link {
+    font-size: .78rem !important;
+}
+            /* Logout modal width */
+            .logout-modal-dialog {
+                max-width: 430px;
+                padding: 15px;
+            }
+
+            /* Main modal card */
+            .logout-modal-content {
+                position: relative;
+                border: none !important;
+                border-radius: 22px !important;
+                overflow: hidden;
+                background: #ffffff;
+                box-shadow: 0 20px 60px rgba(15, 23, 42, 0.22);
+            }
+
+            /* Modal body */
+            .logout-modal-body {
+                padding: 38px 35px 32px;
+                text-align: center;
+            }
+
+            /* Close button */
+            .logout-close-btn {
+                position: absolute;
+                top: 18px;
+                right: 18px;
+                z-index: 2;
+                width: 28px;
+                height: 28px;
+                padding: 6px;
+                border-radius: 50%;
+                background-color: #f1f5f9;
+                opacity: 1;
+                box-shadow: none !important;
+            }
+
+                .logout-close-btn:hover {
+                    background-color: #e2e8f0;
+                }
+
+            /* Icon circle */
+            .logout-icon {
+                width: 76px;
+                height: 76px;
+                margin: 0 auto 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                background: rgba(25, 25, 112, 0.1);
+                color: midnightblue;
+                font-size: 34px;
+            }
+
+            /* Title */
+            .logout-title {
+                margin-bottom: 10px;
+                color: #0f172a;
+                font-size: 25px;
+                font-weight: 700;
+            }
+
+            /* Message */
+            .logout-message {
+                margin-bottom: 28px;
+                color: #64748b;
+                font-size: 16px;
+                line-height: 1.6;
+            }
+
+            /* Buttons wrapper */
+            .logout-actions {
+                display: flex;
+                justify-content: center;
+                gap: 12px;
+            }
+
+                /* Common button style */
+                .logout-actions .btn {
+                    min-width: 125px;
+                    padding: 11px 20px;
+                    border-radius: 12px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    transition: all 0.25s ease;
+                }
+
+            /* Cancel button */
+            .logout-cancel-btn {
+                color: #475569 !important;
+                background: #f1f5f9 !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+
+                .logout-cancel-btn:hover {
+                    color: #0f172a !important;
+                    background: #e2e8f0 !important;
+                    transform: translateY(-1px);
+                }
+
+            /* Logout button */
+            .logout-confirm-btn {
+                color: #ffffff !important;
+                background: midnightblue !important;
+                border: 1px solid midnightblue !important;
+                box-shadow: 0 7px 18px rgba(25, 25, 112, 0.25);
+            }
+
+                .logout-confirm-btn:hover {
+                    color: #ffffff !important;
+                    background: #10105c !important;
+                    border-color: #10105c !important;
+                    transform: translateY(-1px);
+                    box-shadow: 0 10px 22px rgba(25, 25, 112, 0.32);
+                }
+
+            /* Background overlay */
+            .modal-backdrop.show {
+                opacity: 0.45;
+            }
+
+            /* Mobile responsive */
+            @@media (max-width: 576px) {
+                .logout-modal-body {
+                    padding: 35px 22px 25px;
+                }
+
+                .logout-actions {
+                    flex-direction: column-reverse;
+                }
+
+                    .logout-actions .btn {
+                        width: 100%;
+                    }
+            }
+            .footer {
+                text-align: center;
+            }
+
+            .back-to-top {
+                position: fixed;
+                visibility: hidden;
+                opacity: 0;
+                /* Bottom Right Corner */
+                right: 20px;
+                left: auto;
+                bottom: 20px;
+                z-index: 99999;
+                width: 45px;
+                height: 45px;
+                background: midnightblue;
+                color: white;
+                border-radius: 50%;
+                text-decoration: none;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+                transition: all 0.3s ease;
+                font-size: 18px;
+    font-weight: 500;
+            }
+
+                .back-to-top i {
+                    font-size: 28px;
+                    line-height: 0;
+
+                }
+
+                .back-to-top:hover {
+                    background: #2929a3;
+                    color: white;
+                    transform: translateY(-4px);
+                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+                }
+
+                .back-to-top.active {
+                    visibility: visible;
+                    opacity: 1;
+                }
+            /* Keep scrolling but hide scrollbar */
+
+            /* Chrome, Edge, Safari */
+            html::-webkit-scrollbar,
+            body::-webkit-scrollbar {
+                display: none;
+            }
+
+            /* Firefox */
+            html,
+            body {
+                scrollbar-width: none;
+            }
+
+            /* IE / Old Edge */
+            html,
+            body {
+                -ms-overflow-style: none;
+            }
+
+</style>
+
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/sb-common-modal.css" asp-append-version="true" />
+
+</head>
+<body>
+    <script>
+        try {
+            if (window.innerWidth >= 992 && localStorage.getItem("sidebarState") === "collapsed") {
+                document.body.classList.add("sidebar-collapsed");
+            }
+        } catch { }
+    </script>
+
+    <!-- ======= Header ======= -->
+<header id="header" class="header fixed-top d-flex align-items-center p-0 bg-white shadow-sm">
+    
+    <!-- Logo & Profile (Dark Blue, matches sidebar width) -->
+    <div id="header-logo-container" class="d-flex align-items-center px-3 h-100 flex-shrink-0">
+        
+        <!-- Logo -->
+            <a asp-controller="Home"
+               asp-action="Dashboard"
+               class="d-flex align-items-center gap-2 text-decoration-none"
+               style="min-width: 150px;">
+
+                <i class="bi bi-bus-front-fill text-warning fs-4 flex-shrink-0 logo-icon"></i>
+
+                <div class="logo-text text-white text-nowrap">
+                    <div class="fw-bold lh-1" style="font-size:0.95rem;">
+                        School Buddy
+                    </div>
+                    <div style="font-size:0.65rem; color:#a0aec0;">
+                        Management Portal
+                    </div>
+                </div>
+            </a>
+
+    </div>
+    
+    <!-- Right White Header Content -->
+    <div class="header-content d-flex align-items-center justify-content-between flex-grow-1 px-3 px-md-4 h-100 overflow-visible bg-white">
+        
+        <!-- Burger Menu & Dashboard & Select School -->
+        <div class="d-flex align-items-center gap-3">
+            <button type="button" class="btn btn-link text-dark p-0 border-0 d-inline-flex align-items-center" id="sidebarHeaderToggle" title="Toggle navigation" aria-label="Toggle navigation" aria-controls="sidebar" aria-expanded="true">
+                <i class="bi bi-list fs-4"></i>
+            </button>
+             <span class="header-title fs-5 fw-bold text-dark text-nowrap d-none d-sm-block">@ViewData["Title"]</span>
+       
+            <!-- School Selection Dropdown Card -->
+           @*  <div class="dropdown ms-1 ms-md-2 d-none d-sm-block">
+                <div class="bg-white border rounded d-flex align-items-center justify-content-between gap-3 dropdown-toggle shadow-sm px-2 py-1" id="branchSelector" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer; border-color: #e2e8f0 !important;">
+                    <div class="d-flex flex-column text-start">
+                        <span class="text-muted" style="font-size: 0.6rem; font-weight: 500; line-height: 1.1;">Select School</span>
+                        <strong class="text-dark text-truncate" style="font-size: 0.75rem; max-width: 200px;">Greenfield International School</strong>
+                    </div>
+                </div>
+                <ul class="dropdown-menu" aria-labelledby="branchSelector">
+                    <li><a class="dropdown-item text-xs" href="#">Greenfield International School</a></li>
+                    <li><a class="dropdown-item text-xs" href="#">Greenfield Public School (Branch 2)</a></li>
+                </ul>
+            </div> *@
+        </div>
+        
+        <!-- Right side tools: Search, Bell, Chat -->
+        <div class="header-tools d-flex align-items-center gap-3 gap-md-4 ms-auto" >
+           
+            <!-- Notifications & Chat -->
+                <div class="d-flex align-items-center gap-2 gap-md-3">
+
+                <button type="button"
+                        id="themeToggleBtn"
+                        class="theme-toggle-btn"
+                        aria-label="Switch theme"
+                        title="Switch theme">
+                    <i id="themeToggleIcon" class="bi bi-circle-half" aria-hidden="true"></i>
+                </button>
+
+                <div class="dropdown ms-1">
+                    @* <button type="button" class="btn btn-link d-flex align-items-center gap-2 p-0 border-0 text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Open user menu">
+                        <img src="~/assets/img/profile.png" alt="" class="rounded-circle flex-shrink-0" width="34" height="34">
+                        <span class="header-tool-label text-start d-none d-md-block">
+                            <span class="d-block fw-semibold text-dark text-truncate" style="font-size: .78rem; max-width: 130px;">@userName</span>
+                        </span>
+                        <i class="header-tool-label bi bi-chevron-down text-secondary d-none d-md-inline" style="font-size: .7rem;"></i>
+                    </button> *@
+                        <button type="button" class="btn btn-link d-flex align-items-center gap-2 p-0 border-0 text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Open user menu">
+                            <div class="rounded-circle border d-flex align-items-center justify-content-center bg-white"
+                                 style="width:34px; height:34px;">
+                                <i class="bi bi-person-fill fs-5" style="color: midnightblue;"></i>
+                            </div>                          <span class="header-tool-label text-start d-none d-md-block">
+                                <span class="d-block fw-semibold text-dark text-truncate" style="font-size: .78rem; max-width: 130px;">@userName</span>
+                            </span>
+                            <i class="header-tool-label bi bi-chevron-down text-secondary d-none d-md-inline" style="font-size: .7rem;"></i>
+                        </button>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item text-xs" asp-controller="Profile" asp-action="Index"><i class="bi bi-person text-secondary me-2"></i>My Profile</a></li>
+                            <li>
+                                <a class="dropdown-item text-xs" asp-controller="Contact" asp-action="Index">
+                                    <i class="bi bi-headset text-secondary me-2"></i>
+                                    Contact Us
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-xs" asp-action="Index"
+                                   asp-controller="Tracking"
+                                   >
+                                    <i class="bi bi-geo-alt text-secondary me-2"></i>                                    Live Tracking
+                                </a>
+                            </li>
+
+                            <li>
+                                <a class="dropdown-item text-xs" asp-controller="Privacy" asp-action="Index">
+                                    <i class="bi bi-shield-lock text-secondary me-2"></i>
+                                    Privacy Policy
+                                </a>
+                            </li>
+
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-xs text-danger"data-bs-toggle="modal"
+                                   data-bs-target="#logoutModal" href="#" ><i class="bi bi-box-arrow-right me-2" ></i>SignOut</a></li> 
+                           
+                          
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    </header><!-- End Header -->
+    <button type="button" class="sidebar-backdrop" id="sidebarBackdrop" aria-label="Close navigation"></button>
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar">
+        <div class="sb-sidebar-wrapper">
+            <!-- ===================== -->
+            <!-- Sidebar Top Section -->
+            <!-- ===================== -->
+            <div>
+
+
+
+                <!-- Navigation -->
+                <ul class="sidebar-nav nav flex-column"
+                    id="sidebar-nav">
+
+                    <!-- Dashboard -->
+                    <li class="nav-item">
+                        <a class="nav-link @(controller == "Home" && action == "Dashboard" ? "active" : "")"
+                           asp-controller="Home"
+                           asp-action="Dashboard">
+
+                            <i class="bi bi-grid"></i>
+                            <span>Dashboard</span>
+
+                        </a>
+                    </li>
+
+                    <!-- ===================== -->
+                    <!-- Master -->
+                    <!-- ===================== -->
+                    <li class="nav-item">
+
+                        <a class="nav-link d-flex justify-content-between align-items-center @(masterActive ? "active" : "collapsed")"
+                           data-bs-toggle="collapse"
+                           data-bs-target="#components-nav"
+                           href="#">
+
+                            <i class="bi bi-menu-button-wide"></i>
+                            <span class="flex-grow-1">Master</span>
+
+                            <i class="bi bi-chevron-down"></i>
+
+                        </a>
+
+                        <div id="components-nav"
+                             class="collapse @(masterActive ? "show" : "")"
+                             data-bs-parent="#sidebar-nav">
+
+                            <ul class="nav flex-column">
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="Students"
+                                       asp-route-id="0"
+                                       class="nav-link @(controller == "Home" && action == "Students" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Students</span>
+
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="Attendance"
+                                       asp-route-id="0"
+                                       class="nav-link @(controller == "Home" && action == "Attendance" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Attendance</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Route"
+                                       asp-action="Trip"
+                                       class="nav-link @(controller == "Route" && action == "Trip" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Route</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Route"
+                                       asp-action="Halts"
+                                       class="nav-link @(controller == "Route" && action == "Halts" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Automatic Stops</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="EventHoliday"
+                                       class="nav-link @(controller == "Home" && action == "EventHoliday" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Holiday & Event</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Command"
+                                       asp-action="Getcommandss"
+                                       class="nav-link @(controller == "Command" && action == "Getcommandss" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Command</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="teacherDetails"
+                                       class="nav-link @(controller == "Home" && action == "teacherDetails" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Teacher's Detail</span>
+
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </li>
+
+                    <!-- ===================== -->
+                    <!-- Reports -->
+                    <!-- ===================== -->
+                    <li class="nav-item">
+                        <a asp-controller="Report"
+                           asp-action="Index"
+                           class="nav-link @(controller == "Report" ? "active" : "collapsed")">
+
+                            <i class="bi bi-graph-up"></i>
+                            <span>Report</span>
+
+                        </a>
+                    </li>
+
+                    <!-- Parent Complaint -->
+                    <li class="nav-item">
+
+                        <a asp-controller="Home"
+                           asp-action="parentComplainReport"
+                           class="nav-link @(controller == "Home" && action == "parentComplainReport" ? "active" : "")">
+
+                            <i class="bi bi-file-earmark-text"></i>
+                            <span>Parent Complaint Report</span>
+
+                        </a>
+
+                    </li>
+
+                    <!-- ===================== -->
+                    <!-- Driver Managment -->
+                    <!-- ===================== -->
+                    <li class="nav-item">
+
+                        <a class="nav-link d-flex justify-content-between align-items-center @(driverManagementActive ? "active" : "collapsed")"
+                           data-bs-toggle="collapse"
+                           data-bs-target="#Drivermanagment-nav"
+                           href="#">
+
+                            <i class="bi bi-person-circle"></i>
+                            <span class="flex-grow-1">Driver Management</span>
+
+                            <i class="bi bi-chevron-down"></i>
+
+                        </a>
+
+                        <div id="Drivermanagment-nav"
+                             class="collapse @(driverManagementActive ? "show" : "")"
+                             data-bs-parent="#sidebar-nav">
+
+                            <ul class="nav flex-column">
+
+                                <li class="nav-item">
+                                    <a asp-controller="Driver_Management"
+                                       asp-action="Index"
+                                       class="nav-link @(controller == "Driver_Management" && action == "Index" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Driver</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Driver_Management"
+                                       asp-action="Performance"
+                                       class="nav-link @(controller == "Driver_Management" && action == "Performance" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Driver Performance</span>
+
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </li>
+                    <!-- ===================== -->
+                    <!-- Indoor Tracking -->
+                    <!-- ===================== -->
+                    <li class="nav-item">
+
+                        <a class="nav-link d-flex justify-content-between align-items-center @(indoorTrackingActive ? "active" : "collapsed")"
+                           data-bs-toggle="collapse"
+                           data-bs-target="#tracking-nav"
+                           href="#">
+
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span class="flex-grow-1">Indoor Tracking</span>
+
+                            <i class="bi bi-chevron-down"></i>
+
+                        </a>
+
+                        <div id="tracking-nav"
+                             class="collapse @(indoorTrackingActive ? "show" : "")"
+                             data-bs-parent="#sidebar-nav">
+
+                            <ul class="nav flex-column">
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="uhfGates"
+                                       class="nav-link @(controller == "Home" && action == "uhfGates" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>UHF Gates</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="uwbTracking"
+                                       class="nav-link @(controller == "Home" && action == "uwbTracking" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>UWB Tracking</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="blTracking"
+                                       class="nav-link @(controller == "Home" && action == "blTracking" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>BL Tracking</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="staffDetails"
+                                       class="nav-link @(controller == "Home" && action == "staffDetails" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Staff Details</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="Home"
+                                       asp-action="visitorDetails"
+                                       class="nav-link @(controller == "Home" && action == "visitorDetails" ? "" : "")">
+
+                                        <i class="bi bi-circle"></i>
+                                        <span>Visitor Details</span>
+
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    </li>
+
+                    <!-- Analysis -->
+                    <li class="nav-item">
+
+                        <a 
+                           class="nav-link collapsed @(controller == "Analysis" ? "active" : "")"
+                           asp-controller="Analysis"
+                           asp-action="analysis">
+
+                            <i class="bi bi-search"></i>
+                            <span>Analysis</span>
+
+                        </a>
+
+                    </li>
+
+                    <!-- Sign Out -->
+                    <li class="nav-item">
+                        <a href="#"
+                           class="nav-link collapsed"
+                           data-bs-toggle="modal"
+                           data-bs-target="#logoutModal">
+
+                            <i class="bi bi-box-arrow-in-right"></i>
+                            <span>Sign Out</span>
+
+                        </a>
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <!-- ===================== -->
+            <!-- Sidebar Bottom Widget -->
+            <!-- ===================== -->
+            <div class="sidebar-footer mt-auto pt-3">
+
+                <div class="parent-app-widget app-download-card">
+
+                    <div class="top-section">
+
+                        <div class="app-icon-box">
+                            <i class="bi bi-phone-fill"></i>
+                        </div>
+
+                        <div class="app-content">
+                            <h6>Get Parent App</h6>
+                            <p>
+                                Stay updated with real-time bus tracking and alerts.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="app-store-row">
+
+                        <a href="https://play.google.com/store/apps/details?id=com.mynew.schoolbuddy&hl=en_IN" target="blank" class="store-badge">
+                            <i class="bi bi-google-play"></i>
+                            <span>Google Play</span>
+                        </a>
+
+                        <a href="https://apps.apple.com/ug/app/schoolbuddy-app/id6743424820" target="blank" class="store-badge">
+                            <i class="bi bi-apple"></i>
+                            <span>App Store</span>
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </aside>
+    <!-- End Sidebar -->
+
+    
+    <main id="layoutmain" class="main">
+        <div class="row">
+            <div class="col-lg-12">
+                @RenderBody()
+            </div>
+
+        </div>
+
+       
+
+    </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer" class="footer">
+   
+    <div class="copyright" style="font-size: 16px;
+        font-weight: 500;color:midnightblue">
+            &copy; Copyright <strong><span>Atlanta Systems Private Limited</span></strong>. All Rights Reserved
+        </div>
+        @*<div class="credits">
+            <!-- All the links in the footer should remain intact. -->
+            <!-- You can delete the links only if you purchased the pro version. -->
+            <!-- Licensing information: https://bootstrapmade.com/license/ -->
+            <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
+            Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+        </div>*@
+    </footer><!-- End Footer -->
+  
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+   
+    <!-- Vendor JS Files -->
+    <script src="~/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/chart.js/chart.umd.js"></script>
+@*     <script src="~/assets/vendor/echarts/echarts.min.js"></script>
+
+ *@    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+ <script src="~/assets/vendor/quill/quill.js"></script>
+@*     <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
+ *@
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@7/tinymce.min.js"></script>
+ <script src="~/assets/vendor/php-email-form/validate.js"></script>
+
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+    <script src=" https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+    <script src="~/js/datatables-global.js" asp-append-version="true"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.js" type="text/javascript"></script>
+
+
+   
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    @*    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+*@
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.11.0/sweetalert2.min.js" integrity="sha512-Wi5Ms24b10EBwWI9JxF03xaAXdwg9nF51qFUDND/Vhibyqbelri3QqLL+cXCgNYGEgokr+GA2zaoYaypaSDHLg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/gijgo@1.9.14/js/gijgo.min.js" type="text/javascript"></script>
+    <script src="~/js/site.js"></script>
+    <script src="~/js/theme-manager.js" asp-append-version="true"></script>
+    <script>
+
+        // Prevent browser back cache after logout
+
+        window.addEventListener("pageshow", function (event) {
+
+        if (event.persisted) {
+
+        window.location.reload();
+
+        }
+
+        });
+
+    </script>
+    <!-- Template Main JS File -->
+    <script>
+
+        // $(function () {
+        //    $('[id*=txtDate]').datepicker({
+        //        format: "dd/mm/yyyy",
+        //        language: "tr"
+        //    });
+        //});
+
+        $('#date_picker1').datepicker({
+        uiLibrary: 'bootstrap5'
+        })
+        $('#date_picker2').datepicker({
+        uiLibrary: 'bootstrap5'
+        })
+
+        $('#datepicker').datepicker({
+        uiLibrary: 'bootstrap5'
+        })
+        // $('#datepicker3').datepicker({
+        //     uiLibrary: 'bootstrap5'
+        // })
+        // $('#datepicker4').datepicker({
+        //     uiLibrary: 'bootstrap5'
+        // })
+
+        
+        $('#start_for_ig').datetimepicker({
+
+        footer: true, modal: true
+        })
+        $('#end_for_ig').datetimepicker({
+
+        footer: true, modal: true
+        })
+
+        $('#start_for_status').datetimepicker({
+
+        footer: true, modal: true
+        })
+        $('#end_for_status').datetimepicker({
+
+        footer: true, modal: true
+        })
+
+     
+        $('.dropdownwithsearch').select2({
+        //selectOnClose: true
+        theme: "classic",
+        width: '100%'
+        });
+
+    </script>
+
+   
+
+    <script type="text/javascript"
+            src="https://translate.google.com/translate_a/element.js?
+        cb=googleTranslateElementInit">
+    </script>
+        <script type="text/javascript">
+
+            function googleTranslateElementInit() {
+
+            new google.translate.TranslateElement(
+            {
+            pageLanguage: 'en',
+            includedLanguages: 'hi,en,ar,ja,ko,pt,es'
+            },
+            'google_translate_element'
+            );
+            }
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("sidebarHeaderToggle");
+    const backdrop = document.getElementById("sidebarBackdrop");
+
+    if (!sidebar || !toggleBtn) return;
+
+    function isDesktop() {
+        return window.innerWidth >= 992;
+    }
+
+    function applySidebarState() {
+
+        if (isDesktop()) {
+
+            const collapsed =
+                localStorage.getItem("sidebarState") === "collapsed";
+
+            sidebar.classList.toggle("collapsed", collapsed);
+
+            document.body.classList.toggle(
+                "sidebar-collapsed",
+                collapsed
+            );
+
+            document.body.classList.remove(
+                "sidebar-mobile-open"
+            );
+
+        } else {
+
+            sidebar.classList.remove("collapsed");
+
+            document.body.classList.remove(
+                "sidebar-collapsed"
+            );
+        }
+    }
+
+    toggleBtn.addEventListener("click", function () {
+
+        if (isDesktop()) {
+
+            const collapsed =
+                sidebar.classList.toggle("collapsed");
+
+            document.body.classList.toggle(
+                "sidebar-collapsed",
+                collapsed
+            );
+
+            localStorage.setItem(
+                "sidebarState",
+                collapsed ? "collapsed" : "expanded"
+            );
+
+        } else {
+
+            document.body.classList.toggle(
+                "sidebar-mobile-open"
+            );
+        }
+    });
+
+    if (backdrop) {
+        backdrop.addEventListener("click", function () {
+            document.body.classList.remove(
+                "sidebar-mobile-open"
+            );
+        });
+    }
+
+    window.addEventListener("resize", applySidebarState);
+
+    applySidebarState();
+});
+
+
+        </script>
+
+    <script src="~/assets/js/main.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        function showLoader() {
+        const loader = document.getElementById("globalLoader");
+
+        if (loader) {
+        loader.style.display = "flex";
+        }
+        }
+
+        function hideLoader() {
+        const loader = document.getElementById("globalLoader");
+
+        if (loader) {
+        loader.style.display = "none";
+        }
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+
+        hideLoader();
+
+        // Page navigation loader
+        document.querySelectorAll("a").forEach(function (link) {
+
+        link.addEventListener("click", function () {
+
+        const href = this.getAttribute("href");
+
+        if (
+        href &&
+        href !== "#" &&
+        !href.startsWith("javascript:") &&
+        !this.hasAttribute("target") &&
+        !this.hasAttribute("data-bs-toggle")
+        ) {
+        showLoader();
+        }
+        });
+        });
+
+        // Form submit loader
+        document.querySelectorAll("form").forEach(function (form) {
+
+        form.addEventListener("submit", function () {
+        showLoader();
+        });
+        });
+
+        // Active link highlighting
+        const currentUrl = window.location.pathname.toLowerCase();
+        const sidebarLinks = document.querySelectorAll("#sidebar-nav a");
+
+        sidebarLinks.forEach(function (link) {
+
+        const linkHref = link.getAttribute("href");
+
+        if (
+        linkHref &&
+        linkHref !== "#" &&
+        currentUrl.includes(linkHref.toLowerCase())
+        ) {
+        link.classList.add("active");
+
+        const parentCollapse = link.closest(".collapse");
+
+        if (parentCollapse) {
+        parentCollapse.classList.add("show");
+
+        const parentTrigger = document.querySelector(
+        `[data-bs-target="#${parentCollapse.id}"]`
+        );
+
+        if (parentTrigger) {
+        parentTrigger.classList.remove("collapsed");
+        parentTrigger.classList.add("active");
+        }
+        }
+        }
+        });
+        });
+
+        // Hide loader after complete page load
+        window.addEventListener("load", function () {
+        hideLoader();
+        });
+
+        // Hide loader when returning using browser Back button
+        window.addEventListener("pageshow", function () {
+        hideLoader();
+        });
+    </script>
+
+    <div class="modal fade"
+         id="logoutModal"
+         tabindex="-1"
+         aria-labelledby="logoutModalLabel"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered logout-modal-dialog">
+            <div class="modal-content logout-modal-content">
+
+                <button type="button"
+                        class="btn-close logout-close-btn"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
+                <div class="modal-body logout-modal-body">
+
+                    <div class="logout-icon">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </div>
+
+                    <h4 id="logoutModalLabel" class="logout-title">
+                        SignOut
+                    </h4>
+
+                    <p class="logout-message">
+                        Are you sure you want to logout?
+                    </p>
+
+                    <div class="logout-actions">
+
+                        <button type="button"
+                                class="btn logout-cancel-btn"
+                                data-bs-dismiss="modal">
+                            Cancel
+                        </button>
+
+                        <a asp-controller="SignOut"
+                           asp-action="Logout"
+                           class="btn logout-confirm-btn">
+                            <i class="bi bi-box-arrow-right me-1"></i>
+                            SignOut
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

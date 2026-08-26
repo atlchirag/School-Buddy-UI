@@ -1,0 +1,16 @@
+﻿@media only screen and (max-width: 600px) {
+    .styleforsmalldevices {
+        text-align: center; /* Center the elements */
+        overflow-x: hidden; /* Hide horizontal overflow */
+    }
+
+        .styleforsmalldevices a {
+            display: block; /* Make links display as blocks */
+            margin-bottom: 10px; /* Add some spacing between links */
+            width: 50%; /* Make links take full width */
+        }
+
+            .styleforsmalldevices a:first-child {
+                margin-bottom: 5px; /* Reduce spacing for the first link */
+            }
+}

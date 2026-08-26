@@ -1,0 +1,163 @@
+﻿@{
+    ViewData["Title"] = "addholidays";
+}
+
+<div style="display:flex; gap:3vmin" class="mt-3 ms-3">
+    <a asp-controller="Home" asp-action="EventHoliday" style="border: 2px solid; background-color: midnightblue; border-color: midnightblue; padding-top: 5px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px; border-radius: 4px;">
+        <i class="bi bi-arrow-left-short" style="color:white"></i>
+    </a>
+
+    <div>
+        <p>Is Saturday Off</p>
+    </div>
+    <div>
+        <input type="checkbox" />
+    </div>
+</div>
+<div id="calendar" class="mt-3"></div>
+
+<!-- Modal -->
+<div class="modal fade sb-common-modal" id="event" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <label for="opt">Holiday</label>
+                        <input name="opt" value="0" type="radio" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label for="opt">Event</label>
+                        <input value="1" name="opt" type="radio" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-lg-6">
+                        <label>From</label>
+                        <input id="start" class="form-control" type="date" />
+                    </div>
+                    <div class="col-lg-6">
+                        <label>To</label>
+                        <input id="end" class="form-control" type="date" />
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-lg-6">
+                        <label>Name of holiday/event</label>
+                    </div>
+                    <div class="col-lg-6">
+                        <input id="eventname" class="form-control" type="text" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="eventsaver" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var calendar = $('#calendar').fullCalendar({
+                editable: true,
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                // hide event times entirely
+        displayEventTime: false,
+                events: function (start, end, timezone, callback) {
+                    $.ajax({
+                        url: '/schoolbuddy/Home/EventList', // Fetch events from backend
+                        datatype: 'json',
+                        success: function (data) {
+                            var data1 = JSON.parse(data);
+                            var events = data1.map(function (event) {
+                                return {
+                                    start: new Date(event.from_date),
+                                    end: new Date(event.to_date),
+                                    title: event.description
+                                };
+                            });
+                            callback(events);
+                        },
+                        error: function () {
+                            alert("Error fetching events.");
+                        }
+                    });
+                },
+                selectable: true,
+                selectHelper: true,
+                select: function (start, end) {
+                    $('#start').val(moment(start).format("YYYY-MM-DD"));
+                    $('#end').val(moment(end).format("YYYY-MM-DD"));
+                    $('#event').modal('show');
+                }
+            });
+
+            // ✅ Fixing AJAX Call to Send Correct Data
+            $("#eventsaver").click(function () {
+                var eventName = $("#eventname").val();
+                var startDate = $("#start").val();
+                var endDate = $("#end").val();
+                var status = $("input[name='opt']:checked").val() || "0"; // Ensure status is not null
+
+                if (!eventName || !startDate || !endDate) {
+                    alert("Please fill all fields.");
+                    return;
+                }
+
+                var holidayData = {
+                    start: startDate,
+                    end: endDate,
+                    eventname: eventName,
+                    status: status
+                };
+
+                console.log("📤 Sending Data to API:", holidayData);
+
+                $.ajax({
+                        url: '/schoolbuddy/Home/AddHoliday', // Fetch events from backend
+                    type: 'POST',
+                    contentType: "application/json",
+                    data: JSON.stringify(holidayData),
+                    success: function (response) {
+                        console.log("📥 Response:", response);
+                        alert(response.message);
+                        $("#event").modal("hide");
+                        $("#calendar").fullCalendar("refetchEvents");
+                    },
+                    error: function (xhr) {
+                        console.log("❌ Error:", xhr.responseText);
+                        alert("Error adding holiday.");
+                    }
+                });
+            });
+        });
+
+        function formatDate(date) {
+            var d = new Date(date),
+                month = '' + (d.getMonth() + 1),
+                day = '' + d.getDate(),
+                year = d.getFullYear();
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+    </script>
+}

@@ -1,0 +1,354 @@
+@{
+ViewData["Title"] = "Reports";
+}
+
+@section Styles {
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<link rel="stylesheet" href="~/css/reports/report-center.css" asp-append-version="true" />
+}
+<style>
+    /* Drawer Footer */
+    .report-drawer-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 18px 24px;
+        border-top: 1px solid #e9ecef;
+        background: #fff;
+    }
+
+    /* Common Button Style */
+    .report-drawer-footer .btn {
+        min-width: 150px;
+        height: 46px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        transition: all .25s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+    }
+
+    /* Reset Button */
+    .report-drawer-footer .btn-light {
+        background: #f8f9fa;
+        color: #495057;
+        border: 1px solid #dee2e6;
+    }
+
+    .report-drawer-footer .btn-light:hover {
+        background: #e9ecef;
+        color: #212529;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+    }
+
+    /* Generate Button */
+    .report-generate-btn {
+        background: midnightblue;
+        color: #fff !important;
+        border: none;
+    }
+
+    .report-generate-btn:hover {
+        background: midnightblue;
+        color: #fff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(37, 99, 235, .35);
+    }
+
+    .report-generate-btn:active,
+    .report-drawer-footer .btn:active {
+        transform: scale(.98);
+    }
+
+    .report-drawer-footer .btn:disabled {
+        opacity: .7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .temperature-report-kpis {
+        display: none;
+    }
+
+    .temperature-report-kpi {
+        background: #fff;
+        border: 0;
+        border-radius: .75rem;
+        box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .12);
+        padding: .85rem 1rem;
+        height: 100%;
+    }
+
+    .temperature-report-kpi .label {
+        color: #64748b;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .temperature-report-kpi .value {
+        color: midnightblue;
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-top: .2rem;
+    }
+
+    #temperatureReportTable_wrapper table.dataTable thead th {
+        background: midnightblue !important;
+        color: #fff !important;
+        white-space: nowrap;
+    }
+
+    #temperatureReportTable_wrapper table.dataTable tbody td {
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .temperature-report-location {
+        color: midnightblue;
+        text-decoration: none;
+    }
+
+    .temperature-report-location:hover {
+        text-decoration: underline;
+    }
+
+    .temperature-report-status {
+        font-size: .75rem;
+    }
+
+    .temperature-report-state {
+        display: none;
+    }
+
+    .idle-summary-kpis {
+        display: none;
+    }
+
+    .idle-summary-kpi {
+        background: #fff;
+        border: 0;
+        border-radius: .75rem;
+        box-shadow: 0 .35rem 1rem rgba(15, 23, 42, .12);
+        padding: .85rem 1rem;
+        height: 100%;
+    }
+
+    .idle-summary-kpi .label {
+        color: #64748b;
+        font-size: .72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+
+    .idle-summary-kpi .value {
+        color: midnightblue;
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-top: .2rem;
+    }
+
+    .idle-summary-location {
+        color: midnightblue;
+        text-decoration: none;
+    }
+
+    .idle-summary-location:hover {
+        text-decoration: underline;
+    }
+
+    .idle-summary-notice {
+        display: none;
+    }
+
+    .report-filter-form .select2-container {
+        width: 100% !important;
+    }
+
+    .report-filter-form .select2-container--default .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ced4da;
+        border-radius: .375rem;
+        padding: .375rem .75rem;
+    }
+
+    .report-filter-form .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 24px;
+        color: #212529;
+    }
+
+    .report-filter-form .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    /* =========================================================
+       REPORT TABLE — ONE TABLE, ONE SCROLL CONTAINER
+       ========================================================= */
+    /* Adjust this value to your actual fixed header height */
+    :root {
+        --main-header-height: 60px;
+    }
+
+    #reportFilterDrawer {
+        top: var(--main-header-height);
+        height: calc(100vh - var(--main-header-height));
+        z-index: 1055;
+    }
+
+        #reportFilterDrawer .offcanvas-body {
+            overflow-y: auto;
+            min-height: 0;
+        }
+
+        #reportFilterDrawer .offcanvas-header,
+        #reportFilterDrawer .report-drawer-footer {
+            flex-shrink: 0;
+        }
+</style>
+
+<div class="report-center-page container-fluid py-4">
+    @Html.AntiForgeryToken()
+    <div class="report-center-header">
+
+
+
+        <div class="report-category-filter" role="group" aria-label="Report category">
+            <button type="button px-2" class="active" data-category="all">All Reports</button>
+
+            <button type="button" data-category="Fleet Reports">Fleet Reports</button>
+            <button type="button" data-category="Distance Reports">Distance Reports</button>
+            <button type="button" data-category="Speed Reports">Speed Reports</button>
+            <button type="button" data-category="School Transport Reports">School Transport Reports</button>
+        </div>
+        <label class="report-search" for="reportSearch">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input id="reportSearch" type="search" placeholder="Search reports..." autocomplete="off" />
+        </label>
+    </div>
+    <div id="reportCardGrid" class="report-card-grid" aria-live="polite"></div>
+    <p id="reportNoResults" class="report-no-results d-none">No reports match your search and category filters.</p>
+</div>
+
+<div class="offcanvas offcanvas-end report-filter-drawer" tabindex="-1" id="reportFilterDrawer"
+    aria-labelledby="reportFilterDrawerTitle">
+    <div class="offcanvas-header">
+        <div class="d-flex gap-3 align-items-center">
+            <span id="drawerIcon" class="report-drawer-icon"><i class="bi bi-file-earmark-text"></i></span>
+            <div>
+                <h5 id="reportFilterDrawerTitle" class="mb-1"></h5>
+                <p id="drawerDescription" class="mb-0"></p>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <div id="reportFilterForm" class="report-filter-form"></div>
+    </div>
+    <div class="report-drawer-footer">
+        <button id="resetReportFilters" type="button" class="btn btn-light">Reset</button><button id="generateReportBtn" type="button" class="btn report-generate-btn"><span class="button-label">Generate Report</span></button>
+    </div>
+</div>
+
+<div class="modal fade sb-common-modal report-result-modal" id="reportResultModal" tabindex="-1" aria-labelledby="reportResultTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl ">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <div>
+                    <h5 id="reportResultTitle" class="modal-title"></h5>
+                    <p id="reportResultSummary" class="mb-0"></p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reportResultLoading" class="temperature-report-state text-center text-muted py-4">
+                    <span class="spinner-border spinner-border-sm me-2"></span>Loading report...</div>
+                <div id="reportResultError" class="report-error-state d-none" role="alert"></div>
+                <div id="reportResultEmpty" class="report-empty-state d-none" aria-live="polite"></div>
+                <div id="idleSummaryNotice" class="idle-summary-notice alert alert-warning py-2" role="status"></div>
+                <div id="idleSummaryKpis" class="idle-summary-kpis row row-cols-2 row-cols-lg-3 row-cols-xl-6 g-3 mb-3">
+                    <div class="col">
+                        <div class="idle-summary-kpi">
+                            <div class="label">Total Vehicles</div>
+                            <div id="idleKpiVehicles" class="value">0</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="idle-summary-kpi">
+                            <div class="label">Total Idle Time</div>
+                            <div id="idleKpiIdle" class="value">--</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="idle-summary-kpi">
+                            <div class="label">Maximum Idle Time</div>
+                            <div id="idleKpiMaxIdle" class="value">--</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="idle-summary-kpi">
+                            <div class="label">Total Distance</div>
+                            <div id="idleKpiDistance" class="value">--</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="idle-summary-kpi">
+                            <div class="label">Total Running Time</div>
+                            <div id="idleKpiRunning" class="value">--</div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="idle-summary-kpi">
+                            <div class="label">Failed Vehicles</div>
+                            <div id="idleKpiFailed" class="value">0</div>
+                        </div>
+                    </div>
+                </div>
+                <div id="reportChartWrap" class="report-chart-wrap d-none"><canvas id="reportChart"></canvas></div>
+                <div id="reportTableWrap" class="table-responsive">
+                    <table id="reportResultTable" class="table table-bordered table-hover table-striped
+                    report-result-table w-100 align-middle">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div id="reportApiPager" class="d-flex align-items-center justify-content-end gap-2 mt-3 d-none">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-page-direction="previous">Previous</button><span class="small text-muted"></span><button type="button" class="btn btn-sm btn-outline-secondary" data-page-direction="next">Next</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary d-none" id="backToAlerts">Back to Alerts</button><button type="button" class="btn btn-outline-primary" id="changeReportFilters">Change Filters</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    window.SchoolBuddyReportsUrls = {
+            generate: '@Url.Action("GenerateTrackofyReport", "Report")',
+            temperature: '@Url.Action("TemperatureReport", "Report")',
+            idleSummary: '@Url.Action("IdleSummaryReport", "Report")',
+            driverPerformance: '@Url.Action("DriverPerformanceReport", "Report")',
+            vehicles: '@Url.Action("GetTrackofyVehicles", "Report")',
+            notification: '@Url.Action("Index", "Report")',
+            studentReport: '@Url.Action("GetStudentReport", "Report")',
+            students: '@Url.Action("GetAllStudents", "Report")',
+            loginReport: '@Url.Action("GetLoginReport", "Report")',
+            noGps: '@Url.Action("GetNoGps", "Report")',
+            rfidReport: '@Url.Action("GetRFIDReport", "Report")',
+            // alertReport: '@Url.Action("GetAlertReport", "Report")',
+            routes: '@Url.Action("GetAllRoutes", "Report")',
+            address: '@Url.Action("address", "Home")',
+            uid: '@Context.Session.GetString("uid")'
+        };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="~/js/reports/report-center.js?v=@DateTime.Now.Ticks" asp-append-version="true"></script>
+}
