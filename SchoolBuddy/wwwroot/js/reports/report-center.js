@@ -4,10 +4,42 @@
 
     var R = window.SchoolBuddyReports = window.SchoolBuddyReports || {};
     var urls = window.SchoolBuddyReportsUrls || {};
-    var localToday = new Date();
-    var today = new Date(localToday.getTime() - localToday.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 
-    R.state = { category: 'all', report: null, lastTrigger: null, request: null, requestSequence: 0, modal: null, drawer: null, table: null, chart: null, distanceChart: null, meta: {}, page: 1, perPage: 10, students: [], routes: [], vehicles: [], selectedColumns: new Set(), lastPayload: null, alertResult: null, currentRows: [], addressCache: {} };
+    var urlParams = new URLSearchParams(window.location.search);
+
+    var selectedCategory = urlParams.get('category') || 'all';
+    var highlightReport = urlParams.get('highlight') || null;
+
+    var localToday = new Date();
+
+    var today = new Date(
+        localToday.getTime() -
+        localToday.getTimezoneOffset() * 60000
+    ).toISOString().slice(0, 10);
+
+    R.state = {
+        category: selectedCategory,
+        report: null,
+        lastTrigger: null,
+        request: null,
+        requestSequence: 0,
+        modal: null,
+        drawer: null,
+        table: null,
+        chart: null,
+        distanceChart: null,
+        meta: {},
+        page: 1,
+        perPage: 10,
+        students: [],
+        routes: [],
+        vehicles: [],
+        selectedColumns: new Set(),
+        lastPayload: null,
+        alertResult: null,
+        currentRows: [],
+        addressCache: {}
+    };
 
     var trackofyColumns = {
         'fleet-summary': ['Vehicle No', 'Distance', 'Max Idle', 'Total Engine Hours', 'Max Halt', 'Max Speed', 'Current Speed', 'Battery Voltage', 'Battery Percent', 'Last Contact', 'GPS Validity', 'Ignition', 'Door Status', 'Average Load', 'Initial Load', 'Final Load', 'Total Alerts', 'Group', 'Odometer Reading', 'Location Lat/Long', 'Utilization %'],
@@ -44,7 +76,31 @@
 
         'notification-log': { id: 'notification-log', title: 'Notification Log', category: 'School Transport Reports', source: 'schoolbuddy', icon: 'bi-bell', description: 'Review notification activity for a date.', endpoint: urls.notification, method: 'POST', contentType: 'form', fields: tdFields('fdate', 'Date To'), columns: ['Student Name', 'Admission No', 'Route Name', 'Mobile No', 'Message', 'Status'], emptyState: 'No notification records found.', responseAdapter: 'array' },
         'student-notification': { id: 'student-notification', title: 'Student Notification', category: 'School Transport Reports', source: 'schoolbuddy', icon: 'bi-people', description: 'Review notifications sent to selected students over a date range.', endpoint: urls.studentReport, method: 'POST', contentType: 'json', fields: [field('selectedValues', 'Students', 'searchable-select', { required: true, dataSource: 'students' }), field('from', 'Date From', 'date', { required: true, defaultValue: today }), field('to', 'Date To', 'date', { required: true, defaultValue: today })], columns: ['Student Name', 'Admission No', 'Route Name', 'Mobile No', 'Message'], emptyState: 'No student notification records found.', responseAdapter: 'array' },
-        'login-reports': { id: 'login-reports', title: 'Login Reports', category: 'School Transport Reports', source: 'schoolbuddy', icon: 'bi-box-arrow-in-right', description: 'Review student login activity for a date.', endpoint: urls.loginReport, method: 'POST', contentType: 'form', fields: tdFields('fdate', 'Date'), columns: ['Student Name', 'Class', 'Admission No', 'Login Time', 'Source'], emptyState: 'No login records found.', responseAdapter: 'array' },
+       'login-reports': {
+    id: 'login-reports',
+    title: 'Login Reports',
+    category: 'School Transport Reports',
+    source: 'schoolbuddy',
+    icon: 'bi-box-arrow-in-right',
+    description: 'Review student login activity for a date.',
+    endpoint: urls.loginReport,
+    method: 'POST',
+    contentType: 'form',
+    fields: tdFields('fdate', 'Date'),
+
+    columns: ['Student Name', 'Class', 'Admission No', 'Login Time', 'Source'],
+
+    columnMappings: [
+        { title: 'Student Name', data: 'Student Name' },
+        { title: 'Class', data: 'class_name' },
+        { title: 'Admission No', data: 'Admission No' },
+        { title: 'Login Time', data: 'Login Time' },
+        { title: 'Source', data: 'Source' }
+    ],
+
+    emptyState: 'No login records found.',
+    responseAdapter: 'array'
+},
         // 'alert-reports': { id:'alert-reports', title:'Alert Reports', category:'School Transport Reports', source:'schoolbuddy', icon:'bi-exclamation-triangle', description:'Review stop-violation alerts for selected routes and date.', endpoint:urls.alertReport, method:'POST', contentType:'json', fields:[field('selectedValues','Routes','multiselect',{required:true,dataSource:'routes'}),field('from','Date','date',{required:true,defaultValue:today})], columns:['S.No','Route Name','Count'], emptyState:'No alert records found.', responseAdapter:'array' },
         'no-gps-report': { id: 'no-gps-report', title: 'No GPS Report', category: 'School Transport Reports', source: 'schoolbuddy', icon: 'bi-geo-alt', description: 'Review vehicles that have not reported GPS data.', endpoint: urls.noGps, method: 'POST', contentType: 'form', noPayload: true, fields: [], columns: ['Vehicle', 'Last Updated'], emptyState: 'No vehicles without GPS data were found.', responseAdapter: 'array' },
         'rfid-report': { id: 'rfid-report', title: 'RFID Report', category: 'School Transport Reports', source: 'schoolbuddy', icon: 'bi-upc-scan', description: 'Review RFID attendance totals by route for a date.', endpoint: urls.rfidReport, method: 'POST', contentType: 'form', fields: tdFields('fdate', 'Date'), columns: ['Route Name', 'Total Students', 'Punched', 'Not Punched', 'Other Punched'], columnMappings: [{ title: 'Route Name', data: 'route_name' }, { title: 'Total Students', data: 'total' }, { title: 'Punched', data: 'punched' }, { title: 'Not Punched', data: 'not_punched' }, { title: 'Other Punched', data: 'other' }], emptyState: 'No RFID records found.', responseAdapter: 'array' },
@@ -84,6 +140,13 @@
 
         R.state.modal = bootstrap.Modal.getOrCreateInstance(modalElement);
         R.renderCards(); R.bindEvents(); R.loadVehicles();
+        // Select category tab from URL
+        $('.report-category-filter button').removeClass('active');
+
+        $('.report-category-filter button[data-category="' + R.state.category + '"]')
+            .addClass('active');
+
+        R.filterCards();
     };
     R.handleLocationClick = function (e) {
         e.preventDefault();
@@ -124,11 +187,7 @@
 
         console.debug('[SchoolBuddyReports] Parsed coordinates.', coordinates);
 
-        if (typeof R.loadAddressForCell === 'function') {
-            R.loadAddressForCell(button, coordinates.latitude, coordinates.longitude, coordinates.key);
-        } else if (typeof R.loadRowAddress === 'function') {
-            R.loadRowAddress(button);
-        }
+        R.loadAddressForCell(button, coordinates.latitude, coordinates.longitude, coordinates.key);
     };
     R.bindEvents = function () {
         $(document).off('.schoolBuddyReports')
@@ -144,14 +203,7 @@
             .on(
                 'click.schoolBuddyReports',
                 '#reportResultTable .report-load-address',
-                function (e) {
-                    e.preventDefault();
-                    e.stopImmediatePropagation();
-
-                    console.log('LOCATION BUTTON CLICKED');
-
-                    R.handleLocationClick.call(this, e);
-                }
+                R.handleLocationClick
             )
             .on('change.schoolBuddyReports input.schoolBuddyReports', '[data-report-field]', function () { R.clearError($(this).data('report-field')); })
             .on('click.schoolBuddyReports', '.report-multiselect-trigger', function () { var m = $(this).next('.report-multiselect-menu'); m.toggleClass('d-none'); $(this).attr('aria-expanded', !m.hasClass('d-none')); })
@@ -163,16 +215,34 @@
             .on('click.schoolBuddyReports', '#reportResultTable tbody tr', R.handleReportRowClick)
             .on('click.schoolBuddyReports', '#reportApiPager [data-page-direction]', function () { var d = $(this).data('page-direction'); if (d === 'previous' && R.state.page > 1) R.goToPage(R.state.page - 1); if (d === 'next') R.goToPage(R.state.page + 1); });
         
-        $(window).off('resize.schoolBuddyReports').on('resize.schoolBuddyReports', function () { clearTimeout(R.state.tableResizeTimer); R.state.tableResizeTimer = setTimeout(R.adjustReportTable, 150); });
+        $(window).off('resize.schoolBuddyReports').on('resize.schoolBuddyReports', function () { clearTimeout(R.state.tableResizeTimer); R.state.tableResizeTimer = setTimeout(function () { R.adjustReportTable(false); }, 150); });
         $('#reportResultModal')
             .off('shown.bs.modal.reportTableAdjust')
             .on('shown.bs.modal.reportTableAdjust', function () {
-                if ($.fn.DataTable.isDataTable('#reportResultTable')) {
-                    $('#reportResultTable')
-                        .DataTable()
-                        .columns.adjust()
-                        .draw(false);
+
+                if (!$.fn.DataTable.isDataTable('#reportResultTable')) {
+                    return;
                 }
+
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+
+                        var table = $('#reportResultTable').DataTable();
+
+                        table.columns.adjust();
+                        if (typeof R.syncReportTableColumns === 'function') {
+                            R.syncReportTableColumns();
+                        }
+
+                        setTimeout(function () {
+                            table.columns.adjust();
+                            if (typeof R.syncReportTableColumns === 'function') {
+                                R.syncReportTableColumns();
+                            }
+                        }, 100);
+
+                    });
+                });
             })
             .off('hidden.bs.modal.reportReset')
             .on('hidden.bs.modal.reportReset', function () {
@@ -183,7 +253,59 @@
             if (R.state.distanceChart) { R.state.distanceChart.destroy(); R.state.distanceChart = null; }
         });
     };
-    R.renderCards = function () { var html = Object.keys(R.reportDefinitions).filter(function (id) { return !R.reportDefinitions[id].alertSummary; }).map(function (id) { var d = R.reportDefinitions[id]; return '<article class="report-card" tabindex="0" role="button" data-report-id="' + R.escapeHtml(id) + '"><div class="report-card-top"><span class="report-card-icon"><i class="bi ' + R.escapeHtml(d.icon) + '"></i></span><span class="report-card-category">' + R.escapeHtml(d.category) + '</span></div><h2>' + R.escapeHtml(d.title) + '</h2><p>' + R.escapeHtml(d.description) + '</p><div class="report-card-meta">' + R.escapeHtml(d.source === 'trackofy' ? 'Trackofy' : 'School Transport') + '</div></article>'; }).join(''); $('#reportCardGrid').html(html); R.filterCards(); };
+    R.renderCards = function () {
+        var html = Object.keys(R.reportDefinitions)
+            .filter(function (id) {
+                return !R.reportDefinitions[id].alertSummary;
+            })
+            .map(function (id) {
+                var d = R.reportDefinitions[id];
+
+                return '<article class="report-card" tabindex="0" role="button" data-report-id="' +
+                    R.escapeHtml(id) +
+                    '">' +
+                    '<div class="report-card-top">' +
+                    '<span class="report-card-icon">' +
+                    '<i class="bi ' + R.escapeHtml(d.icon) + '"></i>' +
+                    '</span>' +
+                    '<span class="report-card-category">' +
+                    R.escapeHtml(d.category) +
+                    '</span>' +
+                    '</div>' +
+                    '<h2>' + R.escapeHtml(d.title) + '</h2>' +
+                    '<p>' + R.escapeHtml(d.description) + '</p>' +
+                    '<div class="report-card-meta">' +
+                    R.escapeHtml(
+                        d.source === 'trackofy'
+                            ? 'Trackofy'
+                            : 'School Transport'
+                    ) +
+                    '</div>' +
+                    '</article>';
+            })
+            .join('');
+
+        $('#reportCardGrid').html(html);
+        R.filterCards();
+        if (highlightReport) {
+            var highlightedCard = $('.report-card[data-report-id="' + highlightReport + '"]');
+
+            if (highlightedCard.length) {
+                highlightedCard.addClass('notification-attention');
+
+                setTimeout(function () {
+                    highlightedCard.removeClass('notification-attention');
+                }, 1000);
+            }
+
+            // Remove highlight from URL so refresh does not replay animation
+            var cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('highlight');
+            window.history.replaceState({}, document.title, cleanUrl.toString());
+
+            highlightReport = null;
+        }
+    };
     R.filterCards = function () { var q = String($('#reportSearch').val() || '').toLowerCase(), n = 0; $('.report-card').each(function () { var ok = (R.state.category === 'all' || $(this).find('.report-card-category').text().trim() === R.state.category) && $(this).text().toLowerCase().indexOf(q) > -1; $(this).toggleClass('d-none', !ok); if (ok) n++; }); $('#reportNoResults').toggleClass('d-none', n > 0); };
     R.openReport = function (id, trigger) {
 
@@ -205,6 +327,7 @@
         R.resetResultTableContainer();
 
         $('#temperatureReportKpis, #idleSummaryKpis, #idleSummaryNotice')
+            .addClass('d-none')
             .hide();
 
         $('#reportResultLoading, #reportResultError, #reportResultEmpty, #reportApiPager')
@@ -268,7 +391,7 @@
     R.loadVehicles = function () { if (R.state.vehicles.length) return; $.getJSON(urls.vehicles).done(function (x) { R.state.vehicles = (x.data || []).map(function (v) { return { id: String(v.id), text: v.text || String(v.id) }; }); R.renderVehicleOptions(); }); };
     R.updateColumnsSelectAll = function () { var boxes = $('.report-column-check:not(:disabled)'), selected = boxes.filter(':checked').length; $('#reportColumnsAll').prop('checked', boxes.length > 0 && selected === boxes.length).prop('indeterminate', selected > 0 && selected < boxes.length); };
     R.renderVehicleOptions = function () { var t = $('#reportVehicleOptions'); if (!t.length) return; t.html(R.state.vehicles.map(function (v) { return '<label class="report-vehicle-option"><input type="checkbox" class="report-vehicle-check" data-report-field="vehicles" value="' + R.escapeHtml(v.id) + '"> <span>' + R.escapeHtml(v.text) + '</span></label>'; }).join('') || '<span class="small text-muted">Loading vehicles...</span>'); var updateLabel = function () { var boxes = $('.report-vehicle-check'), names = boxes.filter(':checked').map(function () { return $(this).siblings('span').text(); }).get(); $('#reportVehicleLabel').text(names.length ? names.join(', ') : 'Select vehicles'); $('#reportVehiclesAll').prop('checked', boxes.length > 0 && names.length === boxes.length).prop('indeterminate', names.length > 0 && names.length < boxes.length); $('.report-vehicle-option').each(function () { $(this).toggleClass('selected', $(this).find('.report-vehicle-check').prop('checked')); }); }; $('#reportVehicleSearch').off('input.schoolBuddyVehicles').on('input.schoolBuddyVehicles', function () { var q = String(this.value || '').toLowerCase(); $('.report-vehicle-option').each(function () { $(this).toggle($(this).text().toLowerCase().indexOf(q) > -1); }); }); $('#reportVehiclesAll').off('change.schoolBuddyVehicles').on('change.schoolBuddyVehicles', function () { $('.report-vehicle-check').prop('checked', this.checked); R.clearError('vehicles'); updateLabel(); }); $('.report-vehicle-check').off('change.schoolBuddyVehicles').on('change.schoolBuddyVehicles', function () { R.clearError('vehicles'); updateLabel(); }); $('#reportVehicleClear').off('click.schoolBuddyVehicles').on('click.schoolBuddyVehicles', function () { $('.report-vehicle-check').prop('checked', false); R.clearError('vehicles'); updateLabel(); }); updateLabel(); };
-    R.resetFilters = function () { var d = R.state.report; if (!d) return; R.state.page = 1; R.state.perPage = 10; R.state.selectedColumns = new Set(d.defaultColumns || []); (d.requiredColumns || []).forEach(function (c) { R.state.selectedColumns.add(c); }); $('.report-field-error').hide().text(''); R.renderForm(); if (d.temperatureReport) { R.destroyDataTable(); R.resetTemperatureKpis(); $('#temperatureReportKpis,#reportResultLoading,#reportResultError,#reportResultEmpty,#reportApiPager').hide(); $('#reportResultError').empty(); } if (d.idleSummaryReport) { R.destroyDataTable(); R.resetIdleKpis(); $('#idleSummaryKpis,#idleSummaryNotice,#reportResultLoading,#reportResultError,#reportResultEmpty,#reportApiPager').hide(); $('#reportResultError').empty(); R.cancelRequest(); } };
+    R.resetFilters = function () { var d = R.state.report; if (!d) return; R.state.page = 1; R.state.perPage = 10; R.state.selectedColumns = new Set(d.defaultColumns || []); (d.requiredColumns || []).forEach(function (c) { R.state.selectedColumns.add(c); }); $('.report-field-error').hide().text(''); R.renderForm(); if (d.temperatureReport) { R.destroyDataTable(); R.resetTemperatureKpis(); $('#temperatureReportKpis,#reportResultLoading,#reportResultError,#reportResultEmpty,#reportApiPager').addClass('d-none').hide(); $('#reportResultError').empty(); } if (d.idleSummaryReport) { R.destroyDataTable(); R.resetIdleKpis(); $('#idleSummaryKpis,#idleSummaryNotice,#reportResultLoading,#reportResultError,#reportResultEmpty,#reportApiPager').addClass('d-none').hide(); $('#reportResultError').empty(); R.cancelRequest(); } };
     R.clearError = function (n) { $('[data-error="' + n + '"]').hide().text(''); }; R.showError = function (n, m) { $('[data-error="' + n + '"]').text(m).show(); };
     R.values = function () { var d = R.state.report, o = {}; (d.fields || []).forEach(function (f) { o[f.name] = $('[data-report-field="' + f.name + '"]').val() || ''; }); return o; };
     R.parseReportDate = function (value) { if (!value) return NaN; var normalized = String(value).trim().replace(' ', 'T'); var parsed = Date.parse(normalized); return Number.isNaN(parsed) ? Date.parse(String(value).trim()) : parsed; }; R.isFutureReportDate = function (value) { var parsed = R.parseReportDate(value); return !Number.isNaN(parsed) && parsed > Date.now(); };
@@ -337,9 +460,69 @@
 
         if (!background) R.setLoading(true);
 
+        var isVehicleSummary = d && d.id === 'vehicle-summary';
+        var vsTimerInterval = null;
+        var vsBeforeUnload = null;
+
+        if (isVehicleSummary && fromDrawer && window.Swal) {
+            vsBeforeUnload = function (e) {
+                e.preventDefault();
+                e.returnValue = 'Vehicle Summary Report is still compiling. If you leave now, the generation will be cancelled.';
+                return e.returnValue;
+            };
+            window.addEventListener('beforeunload', vsBeforeUnload);
+
+            var vsSeconds = 0;
+            Swal.fire({
+                title: 'Vehicle Summary Report',
+                html: `
+                    <div class="py-2 text-center">
+                        <div class="spinner-border text-primary my-3" style="width: 3.2rem; height: 3.2rem;" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Generating Report in a few minutes</h5>
+                        <p class="text-secondary mb-3" style="font-size: 0.95rem; line-height: 1.5;">
+                            Compiling comprehensive vehicle summary and telemetry data typically takes <strong>2 to 3 minutes</strong>.<br>
+                            <span class="text-danger fw-semibold mt-1 d-inline-block">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i>Please do not close or refresh this window.
+                            </span>
+                        </p>
+                        <div class="d-inline-flex align-items-center bg-light border rounded px-3 py-2 text-muted" style="font-size: 0.9rem;">
+                            <i class="bi bi-stopwatch text-primary me-2"></i> Time elapsed: <span id="vsReportElapsedTimer" class="fw-bold ms-1 text-dark">00:00</span>
+                        </div>
+                    </div>
+                `,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                showCancelButton: true,
+                cancelButtonText: 'Cancel',
+                cancelButtonColor: '#6c757d',
+                didOpen: function () {
+                    vsTimerInterval = setInterval(function () {
+                        vsSeconds++;
+                        var mins = String(Math.floor(vsSeconds / 60)).padStart(2, '0');
+                        var secs = String(vsSeconds % 60).padStart(2, '0');
+                        var timerEl = document.getElementById('vsReportElapsedTimer');
+                        if (timerEl) {
+                            timerEl.textContent = mins + ':' + secs;
+                        }
+                    }, 1000);
+                }
+            }).then(function (res) {
+                if (res.dismiss === Swal.DismissReason.cancel) {
+                    R.cancelRequest();
+                    if (vsTimerInterval) clearInterval(vsTimerInterval);
+                    if (vsBeforeUnload) window.removeEventListener('beforeunload', vsBeforeUnload);
+                    R.setLoading(false);
+                }
+            });
+        }
+
         var ajaxOptions = {
             url: d.endpoint,
-            type: d.method || 'POST'
+            type: d.method || 'POST',
+            timeout: 600000
         };
 
         if (!d.noPayload) {
@@ -479,6 +662,12 @@
             })
 
             .always(function () {
+
+                if (vsTimerInterval) clearInterval(vsTimerInterval);
+                if (vsBeforeUnload) window.removeEventListener('beforeunload', vsBeforeUnload);
+                if (isVehicleSummary && fromDrawer && window.Swal) {
+                    Swal.close();
+                }
 
                 if (!background && requestId === R.state.requestSequence) {
                     R.setLoading(false);
@@ -678,9 +867,21 @@
             R.renderPager(result.meta || {});
         }
 
-        setTimeout(function () {
-            R.adjustReportTable();
-        }, 200);
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+
+                if (R.state.table) {
+                    R.state.table.columns.adjust();
+                }
+
+                setTimeout(function () {
+                    if (R.state.table) {
+                        R.state.table.columns.adjust();
+                    }
+                }, 100);
+
+            });
+        });
     };
     R.columnDefinitions = function (d, rows) {
 
@@ -944,18 +1145,22 @@
                         R.setResolvedAddress(row, coordinates, address);
                         if (rowApi) rowApi.data(row).invalidate('data').draw(false);
                     }
+                    R.scheduleReportTableAdjust(false);
                 } else {
                     $button.prop('disabled', false).html('<i class="bi bi-geo-alt" aria-hidden="true"></i>');
                     console.warn('[SchoolBuddyReports] Address API returned an empty address.', coordinates);
                     R.showPopup('warning', 'Address unavailable', 'No address was found for this location.');
+                    R.scheduleReportTableAdjust(false);
                 }
             }).catch(function (error) {
                 console.error('[SchoolBuddyReports] loadAddressForCell API caught an error:', error);
                 $button.prop('disabled', false).html('<i class="bi bi-geo-alt" aria-hidden="true"></i>');
+                R.scheduleReportTableAdjust(false);
             });
         } catch (e) {
             console.error('[SchoolBuddyReports] loadAddressForCell crashed synchronously:', e);
             $(button).prop('disabled', false).html('<i class="bi bi-geo-alt" aria-hidden="true"></i>');
+            R.scheduleReportTableAdjust(false);
         }
     };
     R.handleReportRowClick = function (e) {
@@ -977,11 +1182,13 @@
             });
         })).then(function () {
             if (rowApi) rowApi.data(row).invalidate('data').draw(false);
+            R.scheduleReportTableAdjust(false);
         }).catch(function () {
             $row.find('.report-load-address').prop('disabled', false).html('<i class="bi bi-geo-alt" aria-hidden="true"></i>');
+            R.scheduleReportTableAdjust(false);
         });
     };
-    R.formatReportValue = function (d, key, value, type, row) { if (key === 'Playback' && (!value || typeof value !== 'object' || Object.keys(value).length === 0)) return type === 'display' ? '<span class="report-na">N/A</span>' : 'N/A'; if (R.isEmptyValue(value)) return type === 'display' ? '<span class="report-na">N/A</span>' : 'N/A'; var clean = typeof value === 'string' ? value.trim() : value; if (R.isLocationColumn(key)) { if (typeof clean === 'object') clean = JSON.stringify(clean); var coordinates = R.parseCoordinates(clean), resolved = R.getResolvedAddress(row, coordinates); if (type === 'display') return R.renderLocation(clean, row); return resolved || clean; } if (type === 'sort' || type === 'type') { if (/count/i.test(key) && !Number.isNaN(Number(clean))) return Number(clean); if (/date|time/i.test(key)) { var parsed = Date.parse(clean); if (!Number.isNaN(parsed)) return parsed; } return clean; } if (typeof clean === 'object') clean = key === 'Playback' ? 'Unavailable' : JSON.stringify(clean); if (type === 'export') return clean; if (d.format === 'alerts' && key === 'Count') return type === 'display' ? R.escapeHtml(clean) : Number(clean); if (d.format === 'engine-hour' && key === 'Status') return '<span class="badge text-bg-secondary">' + R.escapeHtml(clean) + '</span>'; if (/distance|total distance/i.test(key) && !Number.isNaN(Number(clean))) return R.escapeHtml(clean) + ' km'; if (/speed/i.test(key) && !Number.isNaN(Number(clean))) return R.escapeHtml(clean) + ' km/h'; if (key === 'Messages' && type === 'display') return '<span class="report-message-cell">' + R.escapeHtml(clean) + '</span>'; return R.escapeHtml(clean); };
+    R.formatReportValue = function (d, key, value, type, row) { if (key === 'Playback' && (!value || typeof value !== 'object' || Object.keys(value).length === 0)) return type === 'display' ? '<span class="report-na">N/A</span>' : 'N/A'; if (R.isEmptyValue(value)) return type === 'display' ? '<span class="report-na">N/A</span>' : 'N/A'; var clean = typeof value === 'string' ? value.trim() : value; if (R.isLocationColumn(key)) { if (typeof clean === 'object') clean = JSON.stringify(clean); var coordinates = R.parseCoordinates(clean), resolved = R.getResolvedAddress(row, coordinates); if (type === 'display') return R.renderLocation(clean, row); return resolved || clean; } if (type === 'sort' || type === 'type') { if (/count/i.test(key) && !Number.isNaN(Number(clean))) return Number(clean); if (/date|time/i.test(key)) { var parsed = Date.parse(clean); if (!Number.isNaN(parsed)) return parsed; } return clean; } if (typeof clean === 'object') clean = key === 'Playback' ? 'Unavailable' : JSON.stringify(clean); if (type === 'export') return clean; if (d.format === 'alerts' && key === 'Count') return type === 'display' ? R.escapeHtml(clean) : Number(clean); if (d.format === 'engine-hour' && key === 'Status') return '<span class="badge text-bg-secondary">' + R.escapeHtml(clean) + '</span>'; if (/distance|total distance/i.test(key) && !Number.isNaN(Number(clean))) return R.escapeHtml(clean) + ' km'; if (/speed/i.test(key) && !Number.isNaN(Number(clean))) return R.escapeHtml(clean) + ' km/h'; if ((key === 'Messages' || key === 'Message') && type === 'display') return '<span class="report-message-cell">' + R.escapeHtml(clean) + '</span>'; return R.escapeHtml(clean); };
     R.openDistanceChart = function (row) {
         if (!window.Chart || !row) return;
         var dates = row.Dates || {}, keys = Object.keys(dates), isMaxSpeed = R.state.report && R.state.report.id === 'max-speed-chart';
@@ -1039,6 +1246,7 @@
         $node.prop('disabled', true).addClass('disabled').html('<span class="spinner-border spinner-border-sm" role="status" aria-label="Loading addresses"></span>');
         R.getRowsForExport(dt).then(function (rows) { return R.resolveRowAddresses(rows).then(function () { return rows; }); }).then(function (rows) {
             dt.rows().invalidate('data').draw(false);
+            R.scheduleReportTableAdjust(false);
             var temporary = R.createExportDataTable(rows), exportTable = temporary ? temporary.table : dt;
             if (typeof baseAction === 'function') baseAction.call(this, e, exportTable, node, config, done || function () { });
             if (temporary) setTimeout(function () { temporary.table.destroy(); temporary.element.remove(); }, 1000);
@@ -1152,16 +1360,130 @@
     R.temperatureStatus = function (value) { var text = String(value || '').trim(), key = text.toLowerCase(), cls = key === 'running' ? 'text-bg-success' : key === 'idle' ? 'text-bg-warning' : key === 'stopped' ? 'text-bg-danger' : key === 'offline' ? 'text-bg-secondary' : 'text-bg-primary'; return text ? '<span class="badge ' + cls + ' temperature-report-status">' + R.escapeHtml(text) + '</span>' : '--'; };
     R.getCommonTableOptions = function () {
         return {
-            scrollX: true,
+            scrollX: false,
             scrollY: false,
             scrollCollapse: false,
-            autoWidth: false,
+            autoWidth: true,
             responsive: false,
             fixedHeader: false,
             initComplete: function () {
-                R.adjustReportTable();
+                R.scheduleReportTableAdjust(true);
             }
         };
+    };
+    R.syncReportTableColumns = function () {
+        var wrapper = $('#reportResultTable_wrapper');
+        if (!wrapper.length) {
+            return;
+        }
+
+        var headTable = wrapper.find('.dt-scroll-headInner table, .dataTables_scrollHeadInner table')[0];
+        var bodyTable = wrapper.find('.dt-scroll-body > table, .dataTables_scrollBody > table')[0];
+        var headInner = wrapper.find('.dt-scroll-headInner, .dataTables_scrollHeadInner')[0];
+        var headContainer = wrapper.find('.dt-scroll-head, .dataTables_scrollHead')[0];
+        var bodyContainer = wrapper.find('.dt-scroll-body, .dataTables_scrollBody')[0];
+
+        if (headTable && bodyTable) {
+            headTable.style.tableLayout = 'fixed';
+            bodyTable.style.tableLayout = 'fixed';
+
+            if (bodyContainer && headContainer && !bodyContainer._sbScrollSync) {
+                bodyContainer._sbScrollSync = true;
+                bodyContainer.addEventListener('scroll', function () {
+                    headContainer.scrollLeft = bodyContainer.scrollLeft;
+                }, { passive: true });
+            }
+
+            var bodyWidth = bodyTable.offsetWidth;
+            if (bodyWidth > 0) {
+                headTable.style.width = bodyWidth + 'px';
+                if (headInner) {
+                    headInner.style.width = bodyWidth + 'px';
+                }
+            }
+
+            var headCells = headTable.querySelectorAll('thead th');
+            var bodyRow = bodyTable.querySelector('tbody tr:not(.dt-empty):not(.dataTables_empty)');
+            var bodyCells = bodyRow ? bodyRow.querySelectorAll('td') : [];
+            var dummyCells = bodyTable.querySelectorAll('thead th');
+
+            if (headCells.length > 0) {
+                var widths = [];
+                if (bodyCells.length === headCells.length) {
+                    for (var i = 0; i < bodyCells.length; i++) {
+                        widths[i] = Math.round(bodyCells[i].getBoundingClientRect().width);
+                    }
+                } else {
+                    for (var i = 0; i < headCells.length; i++) {
+                        widths[i] = Math.round(headCells[i].getBoundingClientRect().width);
+                    }
+                }
+
+                for (var j = 0; j < headCells.length; j++) {
+                    var colWidth = widths[j];
+                    if (colWidth && colWidth > 0) {
+                        var px = colWidth + 'px';
+                        headCells[j].style.width = px;
+                        headCells[j].style.minWidth = px;
+                        headCells[j].style.maxWidth = px;
+                        if (dummyCells && dummyCells[j]) {
+                            dummyCells[j].style.width = px;
+                            dummyCells[j].style.minWidth = px;
+                            dummyCells[j].style.maxWidth = px;
+                        }
+                    }
+                }
+            }
+
+            if (headContainer && bodyContainer) {
+                headContainer.scrollLeft = bodyContainer.scrollLeft;
+            }
+        }
+    };
+    R.scheduleReportTableAdjust = function (redraw) {
+        clearTimeout(R.state.tableAdjustTimer);
+
+        R.state.tableAdjustTimer = setTimeout(function () {
+
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+
+                    if (!R.state.table ||
+                        !$.fn.DataTable.isDataTable('#reportResultTable')) {
+                        return;
+                    }
+
+                    R.state.table.columns.adjust();
+                    if (typeof R.syncReportTableColumns === 'function') {
+                        R.syncReportTableColumns();
+                    }
+
+                    if (redraw) {
+                        R.state.table.draw(false);
+                    }
+
+                    if (typeof R.syncReportTableColumns === 'function') {
+                        R.syncReportTableColumns();
+                    }
+
+                });
+            });
+
+        }, 50);
+    };
+    R.bindReportTableAdjustments = function (table) {
+        if (!table || typeof table.off !== 'function' || typeof table.on !== 'function') {
+            return;
+        }
+
+        table
+            .off('draw.reportTableAdjust')
+            .on('draw.reportTableAdjust', function () {
+                R.scheduleReportTableAdjust(false);
+                if (typeof R.syncReportTableColumns === 'function') {
+                    R.syncReportTableColumns();
+                }
+            });
     };
     R.prepareExternalRows = function (rows, request, columns) {
         var prepared = (rows || []).slice(), search = String(request.search && request.search.value || '').trim().toLowerCase(), cellValue = function (row, column, index, type) { var value; if (typeof column.render === 'function') value = column.render(null, type || 'filter', row, { row: index, col: columns.indexOf(column) }); else value = column.data == null ? row : R.getRowValue(row, column.data); return $('<div>').html(value == null ? '' : String(value)).text(); };
@@ -1194,6 +1516,8 @@
         R.state.exportColumns = columns;
         R.state.page = Number(meta.page || meta.current_page || R.state.page || 1); R.state.perPage = perPage; R.state.meta = $.extend({}, meta, { total: total, per_page: perPage }); R.state.currentRows = rows;
         R.state.table = $('#reportResultTable').DataTable($.extend({}, R.getCommonTableOptions(), { serverSide: true, processing: true, columns: columns, paging: true, pageLength: perPage, displayStart: Math.max(0, (R.state.page - 1) * perPage), lengthMenu: [[10, 50, 100, 200], [10, 50, 100, 200]], searching: options.searching !== false, ordering: options.ordering !== false, dom: options.dom || '<"report-datatables-toolbar"<"report-datatables-buttons"B><"report-datatables-controls"<"report-datatables-search"f><"report-datatables-length"l>>>rtip', buttons: R.exportButtons(options.title || (R.state.report && R.state.report.title) || 'Report', options.excludeLast), language: $.extend({ emptyTable: 'No data found', zeroRecords: 'No data found', search: '', searchPlaceholder: 'Search...' }, options.language || {}), ajax: R.externalTableAjax(rows, R.state.meta, columns) }));
+        R.bindReportTableAdjustments(R.state.table);
+        R.scheduleReportTableAdjust(true);
         return R.state.table;
     };
     R.resetTemperatureKpis = function () { $('#temperatureKpiMin,#temperatureKpiAverage,#temperatureKpiMax').text('--'); $('#temperatureKpiTotal').text('0'); };
@@ -1204,11 +1528,10 @@
     R.idleDisplay = function (value) { return value === null || value === undefined || String(value).trim() === '' ? '--' : R.escapeHtml(value); };
     R.resetIdleKpis = function () { $('#idleKpiVehicles').text('0'); $('#idleKpiIdle,#idleKpiMaxIdle,#idleKpiDistance,#idleKpiRunning').text('--'); $('#idleKpiFailed').text('0'); };
     R.buildIdleSummaryPayload = function (page) { var v = R.values(); return { startDate: v.idleStartDate + ' ' + v.idleStartTime, endDate: v.idleEndDate + ' ' + v.idleEndTime, page: String(page || 1), perPage: String(R.state.perPage || 10), timezoneDifference: '330', vehicleList: $('.report-vehicle-check:checked').map(function () { return String(this.value).trim(); }).get().filter(Boolean).join(',') }; };
-    R.renderIdleSummaryResult = function (n) { R.destroyDataTable(); R.destroyChart(); $('#reportResultTitle').text('Idle Summary Report'); $('#reportResultSummary').text(''); $('#reportResultLoading').hide(); $('#reportResultError').addClass('d-none').empty(); $('#reportResultEmpty').addClass('d-none'); $('#temperatureReportKpis,#idleSummaryNotice').hide(); $('#idleSummaryKpis').show(); if (!n.success) { R.resetIdleKpis(); $('#idleSummaryKpis').hide(); $('#reportResultError').removeClass('d-none').text(n.message || 'Unable to load the idle summary report. Please try again.'); R.state.modal.show(); return; } var rows = n.rows || [], meta = n.meta || {}, successful = rows.filter(function (item) { return !item.error || String(item.error).trim() === ''; }), failed = rows.length - successful.length, totalIdle = successful.reduce(function (total, item) { return total + R.parseDurationToMinutes(item['Total Idle Time']); }, 0), totalRunning = successful.reduce(function (total, item) { return total + R.parseDurationToMinutes(item['Total Running Time']); }, 0), maxIdle = successful.reduce(function (maximum, item) { return Math.max(maximum, R.parseDurationToMinutes(item['Max Idle'])); }, 0), totalDistance = successful.reduce(function (total, item) { var value = Number(item['Total Distance']); return Number.isFinite(value) ? total + value : total; }, 0), totalVehicles = meta.total == null ? rows.length : Number(meta.total); $('#idleKpiVehicles').text(String(totalVehicles)); $('#idleKpiIdle').text(successful.length ? R.formatMinutesAsDuration(totalIdle) : '--'); $('#idleKpiMaxIdle').text(successful.length ? R.formatMinutesAsDuration(maxIdle) : '--'); $('#idleKpiDistance').text(successful.length ? R.formatDistance(totalDistance) : '--'); $('#idleKpiRunning').text(successful.length ? R.formatMinutesAsDuration(totalRunning) : '--'); $('#idleKpiFailed').text(String(failed)); if (failed && successful.length) $('#idleSummaryNotice').text('The report loaded successfully, but data for some vehicles could not be retrieved.').show(); else if (failed && !successful.length) $('#idleSummaryNotice').text('Unable to retrieve idle data for the selected vehicles.').show(); R.state.modal.show(); if (!rows.length) { $('#idleSummaryKpis').show(); $('#reportResultEmpty').removeClass('d-none').text('No idle summary data found for the selected filters.'); $('#reportTableWrap').addClass('d-none'); return; } $('#reportTableWrap').removeClass('d-none'); var page = Number(meta.page || R.state.page || 1), perPage = Number(meta.per_page || R.state.perPage || 10), columns = [{ title: 'S.No', data: null, render: function (_, type, item, index) { return ((page - 1) * perPage) + index.row + 1; } }, { title: 'Service ID', data: null, render: function (_, type, item) { return R.escapeHtml(item.service_id ?? item.sys_service_id ?? '--'); } }, { title: 'Vehicle', data: null, render: function (_, type, item) { return R.escapeHtml(item.Unit ?? item.vehiclename ?? '--'); } }, { title: 'Total Idle Time', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['Total Idle Time']); } }, { title: 'Total Halt Time', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['Total Halt Time']); } }, { title: 'Maximum Idle', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['Max Idle']); } }, { title: 'Start Time', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['Start Time']); } }, { title: 'End Time', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['End Time']); } }, { title: 'Total Distance', data: null, render: function (_, type, item) { return item.error ? '--' : R.formatDistance(item['Total Distance']); } }, { title: 'Total Running Time', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['Total Running Time']); } }, { title: 'Maximum Idle Location', data: null, render: function (_, type, item) { return item.error ? '--' : R.renderLocation(item['Max Idle Location']); } }, { title: 'Coordinates', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleCoordinates(item.idle_latitude, item.idle_longitude); } }, { title: 'Status', data: null, render: function (_, type, item) { return item.error ? '<span class="badge text-bg-danger">Failed</span>' : '<span class="badge text-bg-success">Success</span>'; } }]; R.state.page = page; R.state.perPage = perPage; R.state.table = $('#reportResultTable').DataTable($.extend({}, R.getCommonTableOptions(), { data: rows, columns: columns, searching: false, ordering: true, paging: false, info: false, lengthChange: false, dom: 'rt' })); $('#reportResultTable_wrapper').addClass('idle-summary-table-wrapper'); R.renderPager(meta); var last = Number(meta.last_page || 1), first = ((page - 1) * perPage) + 1, lastRecord = Math.min(page * perPage, Number(meta.total || rows.length)); $('#reportApiPager span').text('Page ' + page + ' of ' + last + ' • ' + (rows.length ? 'records ' + first + '-' + lastRecord + ' of ' + (meta.total == null ? rows.length : meta.total) : '0 records')); };
     R.renderIdleSummaryResult = function (n) {
         R.destroyDataTable(); R.destroyChart();
-        $('#reportResultTitle').text('Idle Summary Report'); $('#reportResultSummary').text(''); $('#reportResultLoading').hide(); $('#reportResultError,#reportResultEmpty').addClass('d-none').empty(); $('#reportApiPager,#temperatureReportKpis,#idleSummaryNotice').addClass('d-none').hide(); $('#idleSummaryKpis').show();
-        if (!n.success) { R.resetIdleKpis(); $('#idleSummaryKpis').hide(); $('#reportResultError').removeClass('d-none').text(n.message || 'Unable to load the idle summary report. Please try again.'); R.state.modal.show(); return; }
+        $('#reportResultTitle').text('Idle Summary Report'); $('#reportResultSummary').text(''); $('#reportResultLoading').hide(); $('#reportResultError,#reportResultEmpty').addClass('d-none').empty(); $('#reportApiPager,#temperatureReportKpis,#idleSummaryNotice').addClass('d-none').hide(); $('#idleSummaryKpis').removeClass('d-none').css('display', 'flex');
+        if (!n.success) { R.resetIdleKpis(); $('#idleSummaryKpis').addClass('d-none').hide(); $('#reportResultError').removeClass('d-none').text(n.message || 'Unable to load the idle summary report. Please try again.'); R.state.modal.show(); return; }
         var rows = n.rows || [], meta = n.meta || {}, successful = rows.filter(function (item) { return !item.error || String(item.error).trim() === ''; }), failed = rows.length - successful.length, totalIdle = successful.reduce(function (total, item) { return total + R.parseDurationToMinutes(item['Total Idle Time']); }, 0), totalRunning = successful.reduce(function (total, item) { return total + R.parseDurationToMinutes(item['Total Running Time']); }, 0), maxIdle = successful.reduce(function (maximum, item) { return Math.max(maximum, R.parseDurationToMinutes(item['Max Idle'])); }, 0), totalDistance = successful.reduce(function (total, item) { var value = Number(item['Total Distance']); return Number.isFinite(value) ? total + value : total; }, 0), totalVehicles = meta.total == null ? rows.length : Number(meta.total);
         $('#idleKpiVehicles').text(String(totalVehicles)); $('#idleKpiIdle').text(successful.length ? R.formatMinutesAsDuration(totalIdle) : '--'); $('#idleKpiMaxIdle').text(successful.length ? R.formatMinutesAsDuration(maxIdle) : '--'); $('#idleKpiDistance').text(successful.length ? R.formatDistance(totalDistance) : '--'); $('#idleKpiRunning').text(successful.length ? R.formatMinutesAsDuration(totalRunning) : '--'); $('#idleKpiFailed').text(String(failed));
         if (failed && successful.length) $('#idleSummaryNotice').text('The report loaded successfully, but data for some vehicles could not be retrieved.').removeClass('d-none').show(); else if (failed && !successful.length) $('#idleSummaryNotice').text('Unable to retrieve idle data for the selected vehicles.').removeClass('d-none').show();
@@ -1226,8 +1549,25 @@
             { title: 'End Time', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['End Time']); } },
             { title: 'Total Distance', data: null, render: function (_, type, item) { return item.error ? '--' : R.formatDistance(item['Total Distance']); } },
             { title: 'Total Running Time', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleDisplay(item['Total Running Time']); } },
-            { title: 'Maximum Idle Location', data: null, render: function (_, type, item) { return item.error ? '--' : R.renderLocation(item['Max Idle Location'], item); } },
-            { title: 'Coordinates', data: null, render: function (_, type, item) { return item.error ? '--' : R.idleCoordinates(item.idle_latitude, item.idle_longitude, item); } },
+            {
+                title: 'Maximum Idle Location',
+                data: null,
+                className: 'report-column-location',
+                render: function (_, type, item) {
+                    if (item.error) return '--';
+                    var loc = item['Max Idle Location'] || (item.idle_latitude != null && item.idle_longitude != null && String(item.idle_latitude).trim() !== '' && String(item.idle_longitude).trim() !== '' ? (Number(item.idle_latitude).toFixed(5) + ', ' + Number(item.idle_longitude).toFixed(5)) : '');
+                    if (!loc) return '--';
+                    var coordinates = R.parseCoordinates(loc);
+                    if (type === 'export' || type === 'filter') {
+                        if (coordinates) {
+                            var addr = R.getResolvedAddress(item, coordinates);
+                            return addr || (coordinates.latitude + ', ' + coordinates.longitude);
+                        }
+                        return loc;
+                    }
+                    return R.renderLocation(loc, item) || '--';
+                }
+            },
             { title: 'Status', data: null, render: function (_, type, item) { return item.error ? '<span class="badge text-bg-danger">Failed</span>' : '<span class="badge text-bg-success">Success</span>'; } }
         ];
         R.renderApiDataTable(rows, columns, meta, { title: 'Idle Summary Report', searching: false, ordering: true });
@@ -1283,6 +1623,7 @@
                 return {
                     title: column.title,
                     data: null,
+                    className: (column.title === 'Message' || column.title === 'Messages') ? 'report-column-message' : (column.title === 'Status' ? 'report-column-status' : undefined),
 
                     createdCell: function (cell) {
                         cell.setAttribute(
@@ -1425,7 +1766,8 @@
 
         R.state.table = table;
 
-        table.columns.adjust();
+        R.bindReportTableAdjustments(table);
+        R.scheduleReportTableAdjust(true);
 
         table
             .off('length.reportPageSize')
@@ -1462,7 +1804,7 @@
             R.renderChart(rows);
         }
     };
-    R.adjustReportTable = function () {
+    R.adjustReportTable = function (redraw) {
 
         if (
             !$.fn.dataTable ||
@@ -1473,7 +1815,18 @@
 
         var table = $('#reportResultTable').DataTable();
 
-        table.columns.adjust();
+        var columns = table.columns.adjust();
+        if (typeof R.syncReportTableColumns === 'function') {
+            R.syncReportTableColumns();
+        }
+
+        if (redraw) {
+            columns.draw(false);
+        }
+
+        if (typeof R.syncReportTableColumns === 'function') {
+            R.syncReportTableColumns();
+        }
 
         if (table.fixedHeader) {
             table.fixedHeader.adjust();
@@ -1515,7 +1868,7 @@
         R.renderApiDataTable(rows, columns, meta, { title: 'Temperature Report', searching: false, ordering: true, language: { emptyTable: 'No temperature records available.' } });
     };
     var originalValidateForm = R.validateForm; R.validateForm = function () { if (!(R.state.report && R.state.report.idleSummaryReport)) return originalValidateForm.call(R); var fake = $('<input type="checkbox" class="report-column-check" checked>').appendTo('body'), valid = originalValidateForm.call(R); fake.remove(); var v = R.values(), start = R.parseReportDate(v.idleStartDate + ' ' + v.idleStartTime), end = R.parseReportDate(v.idleEndDate + ' ' + v.idleEndTime); if (start > end) { R.showError('idleEndDate', 'End date/time cannot be earlier than start.'); valid = false; } return valid; };
-    var originalSetLoading = R.setLoading; R.setLoading = function (loading) { var report = R.state.report; if (report && (report.temperatureReport || report.idleSummaryReport)) { if (loading) { $('#reportResultLoading').text(report.idleSummaryReport ? 'Loading idle summary...' : 'Loading temperature report...').removeClass('d-none').show(); $('#reportResultError').addClass('d-none').hide().empty(); $('#reportResultEmpty').addClass('d-none').hide().empty(); $('#temperatureReportKpis,#idleSummaryKpis,#idleSummaryNotice').hide(); $('#reportTableWrap,#reportApiPager').addClass('d-none').hide(); } else $('#reportResultLoading').addClass('d-none').hide(); } originalSetLoading.call(R, loading); };
+    var originalSetLoading = R.setLoading; R.setLoading = function (loading) { var report = R.state.report; if (report && (report.temperatureReport || report.idleSummaryReport)) { if (loading) { $('#reportResultLoading').text(report.idleSummaryReport ? 'Loading idle summary...' : 'Loading temperature report...').removeClass('d-none').show(); $('#reportResultError').addClass('d-none').hide().empty(); $('#reportResultEmpty').addClass('d-none').hide().empty(); $('#temperatureReportKpis,#idleSummaryKpis,#idleSummaryNotice').addClass('d-none').hide(); $('#reportTableWrap,#reportApiPager').addClass('d-none').hide(); } else $('#reportResultLoading').addClass('d-none').hide(); } originalSetLoading.call(R, loading); };
     var originalBuildPayload = R.buildPayload; R.buildPayload = function (page) { if (R.state.report && R.state.report.temperatureReport) return R.buildTemperaturePayload(page); if (R.state.report && R.state.report.idleSummaryReport) return R.buildIdleSummaryPayload(page); var payload = originalBuildPayload.call(R, page); if (R.state.report && R.state.report.legacyDriverPerformance) payload.per_page = String(R.state.perPage || 10); return payload; };
     var reportRenderForm = R.renderForm;
     R.renderForm = function () { var d = R.state.report; if (d && d.temperatureReport) { d.temperatureReport = false; reportRenderForm(); d.temperatureReport = true; $('#reportVehiclesAll').closest('label').hide(); return; } reportRenderForm(); };

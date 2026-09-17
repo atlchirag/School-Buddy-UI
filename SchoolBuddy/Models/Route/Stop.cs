@@ -13,6 +13,15 @@ namespace SchoolBuddy.Models.Route
         public string? stop_order { get; set; }
 
     }
+    public class ExistingStop
+    {
+        public int id { get; set; }
+        public string latitude { get; set; }
+        public string longitude { get; set; }
+        public string user_stop_name { get; set; }
+        public int? stop_order { get; set; }
+        public int? status { get; set; }
+    }
     public class getstop
     {
         public string id { get; set; }

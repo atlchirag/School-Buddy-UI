@@ -20,7 +20,9 @@
 }*/
 
 body {
-    font-family: "Open Sans", sans-serif;
+    /*font-family: Lato, sans-serif;
+*/
+    font-family: "Lato", sans-serif;
     background-color: var(--sb-page-bg);
     color: var(--sb-text);
     font-size: 0.74rem;

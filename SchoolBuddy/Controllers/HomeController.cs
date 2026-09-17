@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -80,7 +80,6 @@ namespace SchoolBuddy.Controllers
             if (ModelState.IsValid)
             {
                 var res = await _loginapi.LoginAPICall(login.username, login.password);
-                HttpContext.Session.SetString("uid", res);
                 if (res != "0" && res != "-1")
                 {
                     var res_json = JsonConvert.DeserializeObject<login_res>(res);
@@ -89,14 +88,53 @@ namespace SchoolBuddy.Controllers
                     HttpContext.Session.SetString("schoolname", res_json.schoolname);
                     HttpContext.Session.SetString("password", login.password);
                     HttpContext.Session.SetString("username", login.username);
+                    HttpContext.Session.SetString("SessionTime", DateTime.UtcNow.ToString("o"));
 
                     string? db = HttpContext.Session.GetString("database");
                     string uid = HttpContext.Session.GetString("uid");
-   
+
+                    Task<string> tokenTask =
+                        _dashboardRepository.SendPayload(login.username, login.password);
+
+                    await Task.WhenAll(tokenTask);
+
+                    //string rfidResponse = await rfidTask;
+                    string tokenResponse = await tokenTask;
+                    string? trackofyToken = null;
+
+                    try
+                    {
+                        if (!string.IsNullOrWhiteSpace(tokenResponse))
+                        {
+                            using JsonDocument tokenDocument =
+                                JsonDocument.Parse(tokenResponse);
+
+
+                            if (tokenDocument.RootElement.TryGetProperty(
+                                    "token",
+                                    out JsonElement tokenElement))
+                            {
+                                trackofyToken =
+                                    tokenElement.GetString();
+                            }
+
+
+                        }
+                        HttpContext.Session.SetString(
+                        "token",
+                        trackofyToken);
+
+                    }
+                    catch
+                    {
+                        trackofyToken = null;
+                    }
+
                     return RedirectToAction("Dashboard", "Home");
                 }
                 else
                 {
+                    HttpContext.Session.Clear();
                     ViewData["status"] = "fail";
                     return View("/Views/Home/Login/index.cshtml");
                 }
@@ -150,84 +188,11 @@ namespace SchoolBuddy.Controllers
                 //Task<string> rfidTask =
                 //    _report.GetRFIDReport(uid, today);
 
-                Task<string> tokenTask =
-                    _dashboardRepository.SendPayload(username, password);
 
-                await Task.WhenAll( tokenTask);
 
-                //string rfidResponse = await rfidTask;
-                string tokenResponse = await tokenTask;
-
-                ///*
-                // * RFID punched count.
-                // */
-                //try
-                //{
-                //    if (!string.IsNullOrWhiteSpace(rfidResponse) &&
-                //        rfidResponse.TrimStart().StartsWith("["))
-                //    {
-                //        JArray rfidRecords = JArray.Parse(rfidResponse);
-
-                //        int totalPunched = rfidRecords.Sum(item =>
-                //            (int?)item["distinct_rfid_punched"] ?? 0);
-
-                //        int totalOther = rfidRecords.Sum(item =>
-                //            (int?)item["other"] ?? 0);
-
-                //        TempData["RFIDPUNCHED"] =
-                //            totalPunched + totalOther;
-                //    }
-                //    else
-                //    {
-                //        TempData["RFIDPUNCHED"] =
-                //            string.IsNullOrWhiteSpace(rfidResponse)
-                //                ? "0"
-                //                : rfidResponse;
-                //    }
-                //}
-                //catch
-                //{
-                //    TempData["RFIDPUNCHED"] = "0";
-                //}
-
-                /*
-                 * Extract Trackofy token.
-                 */
-                string? trackofyToken = null;
-
-                try
-                {
-                    if (!string.IsNullOrWhiteSpace(tokenResponse))
-                    {
-                        using JsonDocument tokenDocument =
-                            JsonDocument.Parse(tokenResponse);
-
-                        if (tokenDocument.RootElement.TryGetProperty(
-                                "token",
-                                out JsonElement tokenElement))
-                        {
-                            trackofyToken =
-                                tokenElement.GetString();
-                        }
-                    }
-                }
-                catch
-                {
-                    trackofyToken = null;
-                }
-
-                if (!string.IsNullOrWhiteSpace(trackofyToken))
-                {
-                    HttpContext.Session.SetString(
-                        "token",
-                        trackofyToken);
-                }
-                else
-                {
-                    trackofyToken =
+                string  trackofyToken =
                         HttpContext.Session.GetString("token");
-                }
-
+               
                 /*
                  * STEP 2:
                  * All these calls are independent, so start them together.
@@ -390,6 +355,7 @@ namespace SchoolBuddy.Controllers
                 int deboardingCount = 0;
                 int pickReachCount = 0;
                 int dropReachCount = 0;
+                int justPunched = 0;
 
                 try
                 {
@@ -479,6 +445,25 @@ namespace SchoolBuddy.Controllers
                                     !string.IsNullOrWhiteSpace(value))
                                 .Distinct()
                                 .Count();
+                            justPunched = records
+                                .Where(record =>
+                                {
+                                    string message =
+                                        GetValue(record, "message");
+
+                                    return message.Contains(
+                                               "just punched his/her RF card",
+                                               StringComparison.OrdinalIgnoreCase) &&
+                                           message.Contains(
+                                               "Dear parent, your ward",
+                                               StringComparison.OrdinalIgnoreCase);
+                                })
+                                .Select(record =>
+                                    GetValue(record, "admission_no"))
+                                .Where(value =>
+                                    !string.IsNullOrWhiteSpace(value))
+                                .Distinct()
+                                .Count();
                         }
                     }
                 }
@@ -488,12 +473,14 @@ namespace SchoolBuddy.Controllers
                     deboardingCount = 0;
                     pickReachCount = 0;
                     dropReachCount = 0;
+                    justPunched = 0;
                 }
 
                 ViewBag.BoardingCount = boardingCount;
                 ViewBag.DeboardingCount = deboardingCount;
                 ViewBag.PickReachCount = pickReachCount;
                 ViewBag.DropReachCount = dropReachCount;
+                ViewBag.justPunched = justPunched;
 
                 /*
                  * Alert counters.

@@ -576,6 +576,12 @@
                     toastr.error('@TempData["result"]');
                 </text>
             }
+                         @if (res.ToString().Contains("already"))
+                {
+                        <text>
+                                toastr.error('@TempData["result"]');
+                        </text>
+                }
             else
             {
                 <text>

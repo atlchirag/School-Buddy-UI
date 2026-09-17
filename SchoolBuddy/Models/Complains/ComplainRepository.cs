@@ -52,6 +52,47 @@ namespace SchoolBuddy.Models.Complains
             }
         }
 
+        public async Task<string> ComplaintPage(string user_id)
+        {
+            try
+            {
+
+                var json = JsonConvert.SerializeObject(new ComplainProperties
+                {
+                    uid = user_id
+                });
+
+                string urlend = $@"Complaint/ComplaintPage?user_id={user_id}";
+                return await _apitemplate.PostApiTemplate(json, urlend);
+            }
+            catch (Exception ex)
+            {
+                General.WriteToLogFile($"{ex.Message} - ResolvedComplaintPageCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
+
+                return "something went wrong";
+            }
+        }
+        public async Task<string> ResolvedComplaintPage(string user_id)
+        {
+            try
+            {
+
+                var json = JsonConvert.SerializeObject(new ComplainProperties
+                {
+                    uid = user_id
+                });
+
+                string urlend = $@"Complaint/ResolvedComplaintPage?user_id={user_id}";
+                return await _apitemplate.PostApiTemplate(json, urlend);
+            }
+            catch (Exception ex)
+            {
+                General.WriteToLogFile($"{ex.Message} - ResolvedComplaintPageCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
+
+                return "something went wrong";
+            }
+        }
+
         public async Task<string> UTicket(string user_id, string comment, int ticketid)
         {
             try

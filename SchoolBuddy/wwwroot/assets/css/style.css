@@ -14,7 +14,8 @@
 }
 
 body {
-    font-family: "Open Sans", sans-serif;
+    /*font-family: "Open Sans", sans-serif;*/
+    font-family: "Lato", sans-serif;
     background: #f6f9ff;
     color: #444444;
 }
@@ -35,7 +36,9 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: "Open Sans", sans-serif;
+/*font-family: Lato, sans-serif;
+*/
+    font-family: "Lato", sans-serif;
 }
 
 /*--------------------------------------------------------------
@@ -237,7 +240,7 @@ h6 {
     font-size: 18px;
     font-weight: 500;
     color: midnightblue;
-    font-family: "Open Sans", sans-serif;
+    font-family: "Lato", sans-serif;
 }
 
     .card-title span {
@@ -257,7 +260,7 @@ h6 {
 /* Alerts */
 .alert-heading {
     font-weight: 500;
-    font-family: "Open Sans", sans-serif;
+    font-family: "Lato", sans-serif;
     font-size: 20px;
 }
 
@@ -306,7 +309,7 @@ h6 {
 /* Breadcrumbs */
 .breadcrumb {
     font-size: 14px;
-    font-family: "Open Sans", sans-serif;
+font-family: Lato, sans-serif;
     color: #899bbd;
     font-weight: 600;
 }
@@ -373,7 +376,7 @@ h6 {
     font-size: 26px;
     font-weight: 700;
     color: #012970;
-    font-family: "Open Sans", sans-serif;
+font-family: Lato, sans-serif;
 }
 
 .header {
@@ -1001,7 +1004,7 @@ span.dt-column-title{
     }
 
     .iconslist .label {
-        font-family: "Open Sans", sans-serif;
+    font-family: Lato, sans-serif;
         display: inline-block;
         width: 100%;
         overflow: hidden;

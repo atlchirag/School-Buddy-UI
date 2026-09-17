@@ -100,6 +100,7 @@ namespace SchoolBuddy.Models.Report
                     "application/json"
                 );
             using var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromMinutes(10);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             using var response = await client.PostAsync(url, content);
             var resp = await response.Content.ReadAsStringAsync();
@@ -233,6 +234,7 @@ namespace SchoolBuddy.Models.Report
         private async Task<string> PostTrackofyFormAsync(string url, Dictionary<string, string> values, string token, string reportName)
         {
             using var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromMinutes(10);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             using var response = await client.PostAsync(url, new FormUrlEncodedContent(values));
             var responseContent = await response.Content.ReadAsStringAsync();

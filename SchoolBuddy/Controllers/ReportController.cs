@@ -443,8 +443,8 @@ namespace SchoolBuddy.Controllers
                 data = model
             });
         }
-            [HttpGet]
-        public async Task<IActionResult> Attandence( string from, string to)
+        [HttpGet]
+        public async Task<IActionResult> Attandence(string from, string to)
         {
             string? school_id = HttpContext.Session.GetString("uid");
             string? database = HttpContext.Session.GetString("database");
@@ -452,40 +452,187 @@ namespace SchoolBuddy.Controllers
             if (string.IsNullOrWhiteSpace(school_id) ||
                 string.IsNullOrWhiteSpace(database))
             {
-                return Unauthorized("Session expired.");
+                return StatusCode(StatusCodes.Status401Unauthorized, new
+                {
+                    status = false,
+                    requireLogin = true,
+                    message = "Session expired. Please login again.",
+                    data = Array.Empty<object>()
+                });
             }
-            if (string.IsNullOrWhiteSpace(from) ||
-           string.IsNullOrWhiteSpace(to))
+
+            if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
             {
                 return BadRequest(new
                 {
                     status = false,
+                    message = "From and To dates are required.",
                     data = Array.Empty<object>()
                 });
             }
-            var model = await _report.Attandence(school_id, database,from,to);
 
+            var model = await _report.Attandence(school_id, database, from, to);
 
-            var attendanceData =
-    JsonConvert.DeserializeObject<object>(
-        model.ToString()
-    );
-
-            if (model == null)
+            if (string.IsNullOrWhiteSpace(model))
             {
                 return Json(new
                 {
                     status = false,
-              
+                    message = "Data not found",
                     data = Array.Empty<object>()
                 });
+            }
+
+            var trimmedModel = model.Trim();
+
+            // Handle session expired / login again
+            if (trimmedModel.Equals("Login Again..", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Equals("Login Again", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Contains("login again", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Contains("session expired", StringComparison.OrdinalIgnoreCase))
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new
+                {
+                    status = false,
+                    requireLogin = true,
+                    message = "Session expired. Please login again.",
+                    data = Array.Empty<object>()
+                });
+            }
+
+            // Handle data not found
+            if (trimmedModel.Equals("Data Not Found", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Contains("data not found", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Equals("0") ||
+                trimmedModel.Equals("[]"))
+            {
+                return Json(new
+                {
+                    status = false,
+                    message = "Data not found",
+                    data = Array.Empty<object>()
+                });
+            }
+
+            // Handle something went wrong / error
+            if (trimmedModel.Equals("Something went wrong", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Equals("Something Went Wrong", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Contains("something went wrong", StringComparison.OrdinalIgnoreCase) ||
+                trimmedModel.Equals("-1"))
+            {
+                return Json(new
+                {
+                    status = false,
+                    message = "Something went wrong",
+                    data = Array.Empty<object>()
+                });
+            }
+
+            // Deserialization with error handling
+            object? attendanceData = null;
+            try
+            {
+                attendanceData = JsonConvert.DeserializeObject<object>(trimmedModel);
+            }
+            catch
+            {
+                return Json(new
+                {
+                    status = false,
+                    message = "Something went wrong",
+                    data = Array.Empty<object>()
+                });
+            }
+
+            if (attendanceData == null)
+            {
+                return Json(new
+                {
+                    status = false,
+                    message = "Data not found",
+                    data = Array.Empty<object>()
+                });
+            }
+
+            // Check if deserialized content is a string or object indicating status
+            if (attendanceData is string strVal)
+            {
+                if (strVal.Contains("login", StringComparison.OrdinalIgnoreCase) ||
+                    strVal.Contains("session", StringComparison.OrdinalIgnoreCase))
+                {
+                    return StatusCode(StatusCodes.Status401Unauthorized, new
+                    {
+                        status = false,
+                        requireLogin = true,
+                        message = "Session expired. Please login again.",
+                        data = Array.Empty<object>()
+                    });
+                }
+
+                if (strVal.Contains("not found", StringComparison.OrdinalIgnoreCase) || strVal == "0")
+                {
+                    return Json(new
+                    {
+                        status = false,
+                        message = "Data not found",
+                        data = Array.Empty<object>()
+                    });
+                }
+
+                if (strVal.Contains("went wrong", StringComparison.OrdinalIgnoreCase) || strVal == "-1")
+                {
+                    return Json(new
+                    {
+                        status = false,
+                        message = "Something went wrong",
+                        data = Array.Empty<object>()
+                    });
+                }
+            }
+            else if (attendanceData is Newtonsoft.Json.Linq.JObject jObj)
+            {
+                var msg = jObj["message"]?.ToString() ?? jObj["error"]?.ToString() ?? jObj["msg"]?.ToString();
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    if (msg.Contains("login", StringComparison.OrdinalIgnoreCase) ||
+                        msg.Contains("session", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return StatusCode(StatusCodes.Status401Unauthorized, new
+                        {
+                            status = false,
+                            requireLogin = true,
+                            message = "Session expired. Please login again.",
+                            data = Array.Empty<object>()
+                        });
+                    }
+
+                    if (msg.Contains("not found", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Json(new
+                        {
+                            status = false,
+                            message = "Data not found",
+                            data = Array.Empty<object>()
+                        });
+                    }
+
+                    if (msg.Contains("went wrong", StringComparison.OrdinalIgnoreCase) ||
+                        msg.Contains("fail", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Json(new
+                        {
+                            status = false,
+                            message = "Something went wrong",
+                            data = Array.Empty<object>()
+                        });
+                    }
+                }
             }
 
             return Json(new
             {
                 status = true,
-           
-                data = model
+                data = attendanceData
             });
             //List<AttendanceExcelModel> attendanceList;
 

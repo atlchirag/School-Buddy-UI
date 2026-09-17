@@ -46,6 +46,33 @@ namespace SchoolBuddy.Controllers
             return "";
         }
 
+        public async Task<string> Complaintpage()
+        {
+            string? school_id = HttpContext.Session.GetString("uid");
+            if (!String.IsNullOrEmpty(school_id))
+            {
+                var model = await _complain.ComplaintPage(school_id);
+                return model;
+            }
+
+            //List<dynamic> nogps = JsonConvert.DeserializeObject<dynamic>(model);
+            //ViewBag.nogps = nogps;
+            return "";
+        }
+        public async Task<string> ResolvedComplaintPage()
+        {
+            string? school_id = HttpContext.Session.GetString("uid");
+            if (!String.IsNullOrEmpty(school_id))
+            {
+                var model = await _complain.ResolvedComplaintPage(school_id);
+                return model;
+            }
+
+            //List<dynamic> nogps = JsonConvert.DeserializeObject<dynamic>(model);
+            //ViewBag.nogps = nogps;
+            return "";
+        }
+
         public async Task<string> UpdateTicket(string comment,int ticketid)
         {
             string school_id = HttpContext.Session.GetString("uid");

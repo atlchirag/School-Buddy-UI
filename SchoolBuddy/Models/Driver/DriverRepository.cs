@@ -208,8 +208,6 @@ namespace SchoolBuddy.Models.Driver
                 string resp =
                     await res.Content.ReadAsStringAsync();
 
-
-
                 if (res.IsSuccessStatusCode)
                 {
                     var apiResponse =

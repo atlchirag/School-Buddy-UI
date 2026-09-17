@@ -2765,6 +2765,8 @@ else
                             <h6 class="sb-card-title">Parent Notifications</h6>
                            <a asp-controller="Report"
    asp-action="Index"
+   asp-route-category="School Transport Reports"
+                           asp-route-highlight="notification-log"
    class="text-xs text-decoration-none">
     View all
 </a>
@@ -2792,6 +2794,12 @@ else
 Drop Notifications</span>
                                     <strong class="text-dark">@ViewBag.DropReachCount</strong>
                                 </div>
+                                <div class="sb-list-item">
+                                   <span>
+    <i class="bi bi-bus-front text-secondary"></i>
+Punched Notifications</span>
+                                    <strong class="text-dark">@ViewBag.justPunched</strong>
+                                </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-2" style="background-color: #eff6ff; padding: 0.5rem 0.75rem; border-radius: 6px;">
                                 <span class="fw-bold text-primary text-xs">Total Sent Today</span>
@@ -2800,6 +2808,7 @@ Drop Notifications</span>
     int deboardingCount = 0;
     int pickReachCount = 0;
     int dropReachCount = 0;
+    int JustPunched=0;
 
     int.TryParse(
         ViewBag.BoardingCount?.ToString(),
@@ -2820,12 +2829,17 @@ Drop Notifications</span>
         ViewBag.DropReachCount?.ToString(),
         out dropReachCount
     );
+    int.TryParse(
+        ViewBag.justPunched?.ToString(),
+        out JustPunched
+    );
+
 
     int totalSentToday =
         boardingCount +
         deboardingCount +
         pickReachCount +
-        dropReachCount;
+        dropReachCount+ JustPunched;
 }
 
 <strong class="text-primary font-monospace fs-6">
@@ -4946,9 +4960,9 @@ document.addEventListener("DOMContentLoaded", function () {
             message: message,
 
             vehicle:
-                item.Vehicle ??
-                item.vehicle ??
-                getVehicleFromMessage(message),
+    item.Vehicle ??
+    item.vehicle ??
+    window.getVehicleFromMessage(message),
 
             sentOn:
                 item.SentOn ??
@@ -5028,6 +5042,12 @@ document.addEventListener("DOMContentLoaded", function () {
     function showNotificationDetailSwal(
         notification
     ) {
+       console.log("Notification object:", notification);
+    console.log("Latitude:", notification.latitude, 
+                "Type:", typeof notification.latitude);
+    console.log("Longitude:", notification.longitude, 
+                "Type:", typeof notification.longitude);
+
 
         const hasLocation =
             hasValidCoordinate(
@@ -5586,7 +5606,7 @@ document.addEventListener("DOMContentLoaded", function () {
        HELPER FUNCTIONS
        ========================================================= */
 
-    function getVehicleFromMessage(message) {
+    window.getVehicleFromMessage = function (message) {
 
         if (!message) {
             return "-";
@@ -5732,8 +5752,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 
-    function hasValidCoordinate(value) {
-
+window.hasValidCoordinate = function (value) {
         if (
             value === null ||
             value === undefined ||
@@ -6669,447 +6688,6 @@ function getVehicleStatusBadge(status) {
     return false;
     });
     });
-function clearAndFillAlertTable(alerts) {
-
-    let table;
-
-    /*
-     * Get existing DataTable or initialize it.
-     */
-    if ($.fn.DataTable.isDataTable("#alertNotificationTable")) {
-
-        table = $("#alertNotificationTable").DataTable();
-
-        /*
-         * Clear all old rows.
-         */
-        table.clear();
-
-    } else {
-
-        table = $("#alertNotificationTable").DataTable({
-            pageLength: 10,
-            lengthMenu: [5, 10, 25, 50],
-            responsive: false,
-            autoWidth: false,
-            ordering: true,
-            searching: true,
-            info: true,
-            paging: true,
-            scrollY: "36vh",
-            scrollCollapse: true,
-
-            language: {
-                search: "Search:",
-                lengthMenu: "Show _MENU_ entries",
-                info: "Showing _START_ to _END_ of _TOTAL_ entries",
-                emptyTable: "No alerts found for selected date and time.",
-                zeroRecords: "No matching alerts found"
-            },
-
-            columnDefs: [
-                {
-                    targets: 0,
-                    orderable: false,
-                    searchable: false
-                }
-            ],
-             dom: 'Bfrtip',
-    buttons: [
-        'copy',
-        'excel',
-        'csv',
-        'pdf',
-        'print'
-    ]
-        });
-    }
-
-    /*
-     * When response is empty, draw the empty DataTable.
-     */
-    if (!alerts || alerts.length === 0) {
-
-        table.clear().draw();
-
-        return;
-    }
-
-    const rows = alerts.map(function (item, index) {
-
-        const message =
-            item.Message ??
-            item.message ??
-            "-";
-
-        const msgStatus =
-            item.MsgStatus ??
-            item.msgStatus ??
-            item.msg_status ??
-            "-";
-
-        const sentOn =
-            item.SentOn ??
-            item.sentOn ??
-            item.sent_on ??
-            null;
-
-        const isRead = Number(
-            item.IsRead ??
-            item.isRead ??
-            item.is_read ??
-            0
-        );
-
-        const vehicle = getVehicleFromMessage(message);
-
-        const statusHtml = isRead === 1
-            ? `
-                <span class="alert-status-pill alert-seen text-success">
-                    Seen
-                </span>
-              `
-            : `
-                <span class="alert-status-pill alert-unseen text-danger">
-                    Unseen
-                </span>
-              `;
-
-        return [
-            index + 1,
-
-            `
-                <span class="alert-type-text">
-                    ${escapeAlertHtml(msgStatus)}
-                </span>
-            `,
-
-            `
-                <span class="fw-semibold">
-                    ${escapeAlertHtml(vehicle)}
-                </span>
-            `,
-
-            `
-                <span class="alert-message-cell">
-                    ${escapeAlertHtml(message)}
-                </span>
-            `,
-
-            `
-                <span class="alert-date-cell">
-                    ${formatAlertDate(sentOn)}
-                </span>
-            `,
-
-            statusHtml
-        ];
-    });
-
-    /*
-     * Add new response rows.
-     */
-    table.rows.add(rows).draw();
-
-    /*
-     * Correct column width inside Bootstrap modal.
-     */
-    setTimeout(function () {
-        table.columns.adjust().draw(false);
-    }, 100);
-    bindAlertNotificationTable(alerts);
-}
-    $(document).on(
-    "click",
-    "#alertNotificationTable tbody tr.notification-click-row",
-    function () {
-
-    const clickedRow = $(this);
-
-    const notification =
-    clickedRow.data("notification");
-
-    if (!notification) {
-    return;
-    }
-
-    /*
-    * Open SweetAlert with clicked row data.
-    */
-    showNotificationDetailSwal(notification);
-
-    /*
-    * Call API using clicked notification ID.
-    */
-    if (notification.id > 0) {
-
-    markNotificationAsRead(
-    notification,
-    clickedRow
-    );
-    }
-    }
-    );
-    function showNotificationDetailSwal(notification) {
-
-    const hasLocation =
-    hasValidCoordinate(notification.latitude) &&
-    hasValidCoordinate(notification.longitude) &&
-    Number(notification.latitude) !== 0 &&
-    Number(notification.longitude) !== 0;
-
-    const latitude = hasLocation
-    ? notification.latitude
-    : "Not available";
-
-    const longitude = hasLocation
-    ? notification.longitude
-    : "Not available";
-
-    Swal.fire({
-    width: 620,
-    padding: 0,
-    showCloseButton: true,
-    showConfirmButton: true,
-    confirmButtonText: `
-    <i class="bi bi-x-lg me-1"></i>
-    Close
-    `,
-    confirmButtonColor: "midnightblue",
-    customClass: {
-    popup: "notification-detail-popup",
-    htmlContainer: "notification-detail-html",
-    actions: "notification-detail-actions",
-    confirmButton: "notification-detail-close-btn",
-    closeButton: "notification-detail-top-close"
-    },
-
-    html: `
-    <div class="notification-detail-card">
-
-    <div class="notification-detail-header">
-
-    <div class="notification-detail-heading">
-
-    <div class="notification-detail-icon">
-    <i class="bi bi-bell-fill"></i>
-    </div>
-
-    <div>
-    <h3>Notification Details</h3>
-    <span>
-    Alert information and vehicle event details
-    </span>
-    </div>
-
-    </div>
-
-    ${
-    hasLocation
-    ? `
-    <button type="button"
-    id="notificationViewLocationButton"
-    class="notification-location-btn">
-
-    <i class="bi bi-geo-alt-fill"></i>
-    View Location
-    </button>
-    `
-    : ""
-    }
-
-    </div>
-
-    <div class="notification-detail-content">
-
-    <div class="notification-detail-grid">
-
-    <div class="notification-detail-field">
-    <div class="notification-detail-label">
-    <i class="bi bi-exclamation-triangle-fill"></i>
-    Alert Type
-    </div>
-
-    <div class="notification-detail-value">
-    <span class="notification-alert-badge">
-    ${escapeAlertHtml(notification.msgStatus)}
-    </span>
-    </div>
-    </div>
-
-    <div class="notification-detail-field">
-    <div class="notification-detail-label">
-    <i class="bi bi-bus-front-fill"></i>
-    Vehicle
-    </div>
-
-    <div class="notification-detail-value notification-vehicle-value">
-    ${escapeAlertHtml(notification.vehicle)}
-    </div>
-    </div>
-
-    </div>
-
-    <div class="notification-detail-field notification-message-field">
-
-    <div class="notification-detail-label">
-    <i class="bi bi-chat-left-text-fill"></i>
-    Message
-    </div>
-
-    <div class="notification-message-box">
-    ${escapeAlertHtml(notification.message)}
-    </div>
-
-    </div>
-
-    <div class="notification-location-grid">
-
-    <div class="notification-coordinate-card">
-
-    <div class="notification-coordinate-icon latitude-icon"
-    data-bs-toggle="tooltip"
-    data-bs-placement="top"
-    title="Latitude">
-
-    <i class="bi bi-geo"></i>
-    </div>
-
-    <div>
-    <span>Latitude</span>
-    <strong>${escapeAlertHtml(latitude)}</strong>
-    </div>
-
-    </div>
-
-    <div class="notification-coordinate-card">
-
-    <div class="notification-coordinate-icon longitude-icon"
-    data-bs-toggle="tooltip"
-    data-bs-placement="top"
-    title="Longitude">
-
-   <i class="bi bi-geo"></i>
-    </div>
-
-    <div>
-    <span>Longitude</span>
-    <strong>${escapeAlertHtml(longitude)}</strong>
-    </div>
-
-    </div>
-
-    </div>
-
-    <div class="notification-sent-card">
-
-    <div class="notification-sent-icon">
-    <i class="bi bi-calendar-check-fill"></i>
-    </div>
-
-    <div>
-    <span>Notification Sent On</span>
-
-    <strong>
-    ${escapeAlertHtml(
-    formatNotificationDetailDate(
-    notification.sentOn
-    )
-    )}
-    </strong>
-    </div>
-
-    </div>
-
-    </div>
-
-    </div>
-    `,
-
-    didOpen: function () {
-
-    const tooltipTriggerList =
-    document.querySelectorAll(
-    ".notification-detail-popup [data-bs-toggle='tooltip']"
-    );
-
-    tooltipTriggerList.forEach(function (element) {
-    new bootstrap.Tooltip(element);
-    });
-
-    const locationButton =
-    document.getElementById(
-    "notificationViewLocationButton"
-    );
-
-    if (locationButton) {
-
-    locationButton.addEventListener(
-    "click",
-    function () {
-
-    const mapUrl =
-    "https://www.google.com/maps?q=" +
-    encodeURIComponent(notification.latitude) +
-    "," +
-    encodeURIComponent(notification.longitude);
-
-    window.open(
-    mapUrl,
-    "_blank",
-    "noopener,noreferrer"
-    );
-    }
-    );
-    }
-    }
-    });
-    }
-    function markNotificationAsRead(
-    notification,
-    clickedRow
-) {
-
-    $.ajax({
-        url: '@Url.Action("MarkNotificationAsRead", "Home")',
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-
-        data: JSON.stringify({
-            id: notification.id
-        }),
-
-        success: function (response) {
-
-            if (!response || response.success !== true) {
-
-              
-
-                return;
-            }
-
-            notification.isRead = 1;
-
-            clickedRow
-                .find(".notification-read-status")
-                .html(`
-                    <span class="alert-status-pill text-success">
-                        Read
-                    </span>
-                `);
-
-            updateDashboardNotificationStatus(
-                notification.id
-            );
-        },
-
-        error: function (xhr, status, error) {
-
-           
-        }
-    });
-}
 function updateDashboardNotificationStatus(notificationId) {
 
     const alertItem =
@@ -7139,31 +6717,6 @@ function updateDashboardNotificationStatus(notificationId) {
     }
 }
 
-function formatNotificationDetailDate(value) {
-
-    if (!value) {
-        return "-";
-    }
-
-    const normalizedValue =
-        String(value).replace(" ", "T");
-
-    const date =
-        new Date(normalizedValue);
-
-    if (Number.isNaN(date.getTime())) {
-        return value;
-    }
-
-    return date.toLocaleString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true
-    });
-}
 function downloadExcel() {
     $('.buttons-excel').click();
 }
@@ -8080,6 +7633,34 @@ function requestDailyAttendanceReport(filters) {
                     response = JSON.parse(response);
                 }
 
+                if (response && response.status === false) {
+                    if (response.requireLogin) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Session Expired',
+                            text: response.message || 'Session expired. Please login again.',
+                            confirmButtonColor: 'midnightblue'
+                        }).then(function () {
+                            window.location.href = '/Home/Index';
+                        });
+                        return;
+                    }
+
+                    const isError = response.message && (
+                        response.message.toLowerCase().includes('wrong') ||
+                        response.message.toLowerCase().includes('error') ||
+                        response.message.toLowerCase().includes('fail')
+                    );
+
+                    Swal.fire({
+                        icon: isError ? 'error' : 'warning',
+                        title: isError ? 'Attendance Report Failed' : 'No Attendance Data',
+                        text: response.message || 'No attendance records were found for the selected date range.',
+                        confirmButtonColor: 'midnightblue'
+                    });
+                    return;
+                }
+
                 // Case 2:
                 // API directly returns an array
                 if (Array.isArray(response)) {
@@ -8814,10 +8395,91 @@ function requestVehicleSummaryReport(filters) {
     setQuickReportLoading(true);
     clearQuickReportError();
 
-    $.ajax({
+    // Close the Quick Reports modal so the user focuses on the download progress popup
+    const quickModalEl = document.getElementById('quickReportsModal');
+    const quickModal = quickModalEl ? bootstrap.Modal.getInstance(quickModalEl) : null;
+    quickModal?.hide();
+
+    let secondsElapsed = 0;
+    let timerInterval = null;
+    let isCancelled = false;
+
+    // Prevent accidental window / tab closure while generating
+    const beforeUnloadHandler = function (e) {
+        e.preventDefault();
+        e.returnValue = 'Vehicle Summary Report is still compiling. If you leave now, the download will be cancelled.';
+        return e.returnValue;
+    };
+    window.addEventListener('beforeunload', beforeUnloadHandler);
+
+    function cleanupLoadingState() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+        window.removeEventListener('beforeunload', beforeUnloadHandler);
+        setQuickReportLoading(false);
+    }
+
+    // Show popup informing user that downloading will start in a few minutes and not to close the window
+    Swal.fire({
+        title: 'Vehicle Summary Report',
+        html: `
+            <div class="py-2 text-center">
+                <div class="spinner-border text-primary my-3" style="width: 3.2rem; height: 3.2rem;" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="fw-bold text-dark mb-2">Downloading will start in a few minutes</h5>
+                <p class="text-secondary mb-3" style="font-size: 0.95rem; line-height: 1.5;">
+                    Compiling comprehensive vehicle summary and telemetry data typically takes <strong>2 to 3 minutes</strong>.<br>
+                    <span class="text-danger fw-semibold mt-1 d-inline-block">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i>Please do not close or refresh this window.
+                    </span>
+                </p>
+                <div class="d-inline-flex align-items-center bg-light border rounded px-3 py-2 text-muted" style="font-size: 0.9rem;">
+                    <i class="bi bi-stopwatch text-primary me-2"></i> Time elapsed: <span id="vehicleSummaryElapsedTimer" class="fw-bold ms-1 text-dark">00:00</span>
+                </div>
+            </div>
+        `,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        showCancelButton: true,
+        cancelButtonText: 'Cancel',
+        cancelButtonColor: '#6c757d',
+        didOpen: () => {
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                const timerEl = document.getElementById('vehicleSummaryElapsedTimer');
+                if (timerEl) {
+                    timerEl.textContent = `${mins}:${secs}`;
+                }
+            }, 1000);
+        }
+    }).then((result) => {
+        if (result.dismiss === Swal.DismissReason.cancel) {
+            isCancelled = true;
+            if (xhr) {
+                xhr.abort();
+            }
+            cleanupLoadingState();
+            Swal.fire({
+                icon: 'info',
+                title: 'Cancelled',
+                text: 'Vehicle Summary Report download was cancelled.',
+                confirmButtonColor: 'midnightblue',
+                timer: 2000
+            });
+        }
+    });
+
+    const xhr = $.ajax({
         url: '/schoolbuddy/Report/VehicleSummaryReport',
         type: 'POST',
         dataType: 'json',
+        timeout: 600000, // 10 minutes timeout to allow 2-3 minute report compilation
         data: {
             columns: filters.columns,
             start_date: filters.from,
@@ -8825,43 +8487,97 @@ function requestVehicleSummaryReport(filters) {
             vehicleList: filters.vehicleList
         },
         success: function (response) {
+            if (isCancelled) return;
+            cleanupLoadingState();
+
             let apiResponse = response;
             try {
                 if (typeof apiResponse === 'string') apiResponse = JSON.parse(apiResponse);
                 if (apiResponse && typeof apiResponse.data === 'string') apiResponse.data = JSON.parse(apiResponse.data);
             } catch (parseError) {
-                showQuickReportError('The Vehicle Summary response was invalid.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Response',
+                    text: 'The Vehicle Summary response was invalid.',
+                    confirmButtonColor: 'midnightblue'
+                });
                 return;
             }
 
             if (!apiResponse || apiResponse.status !== true) {
-                showQuickReportError(apiResponse?.message || 'Unable to generate Vehicle Summary Report.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Report Failed',
+                    text: apiResponse?.message || 'Unable to generate Vehicle Summary Report.',
+                    confirmButtonColor: 'midnightblue'
+                });
                 return;
             }
 
             const reportRows = apiResponse.data?.response;
             if (!Array.isArray(reportRows) || reportRows.length === 0) {
-                Swal.fire({ icon: 'info', title: 'No Data Found', text: 'No data found for the selected filters.', confirmButtonColor: 'midnightblue' });
+                Swal.fire({
+                    icon: 'info',
+                    title: 'No Data Found',
+                    text: 'No data found for the selected filters.',
+                    confirmButtonColor: 'midnightblue'
+                });
                 return;
             }
 
             try {
                 const table = populateVehicleSummaryExportTable(reportRows, getSelectedVehicleSummaryColumns(), filters);
-                downloadVehicleSummaryReport(table, filters.exportType);
-                bootstrap.Modal.getInstance(document.getElementById('quickReportsModal'))?.hide();
+                // Download in Excel format as requested
+                downloadVehicleSummaryReport(table, 'excel');
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Download Started',
+                    text: 'Vehicle Summary Report has been generated and downloaded in Excel format.',
+                    confirmButtonColor: 'midnightblue',
+                    timer: 3500,
+                    timerProgressBar: true
+                });
             } catch (exportError) {
-                showQuickReportError('Vehicle Summary report could not be exported.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Export Failed',
+                    text: 'Vehicle Summary report could not be exported to Excel.',
+                    confirmButtonColor: 'midnightblue'
+                });
             }
         },
-        error: function (xhr) {
+        error: function (xhr, status, error) {
+            if (isCancelled) return;
+            cleanupLoadingState();
+
+            if (status === 'timeout') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Request Timed Out',
+                    text: 'The Vehicle Summary report took too long to compile. Please try selecting a narrower date range or fewer vehicles.',
+                    confirmButtonColor: 'midnightblue'
+                });
+                return;
+            }
+
+            if (xhr.statusText === 'abort') {
+                return;
+            }
+
             const message = xhr.status === 401
                 ? 'Your session has expired. Please log in again.'
                 : (xhr.responseJSON?.message || xhr.responseText || 'Unable to generate Vehicle Summary Report.');
-            showQuickReportError(message);
-            Swal.fire({ icon: 'error', title: 'Vehicle Summary Report Failed', text: message, confirmButtonColor: 'midnightblue' });
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Vehicle Summary Report Failed',
+                text: message,
+                confirmButtonColor: 'midnightblue'
+            });
         },
         complete: function () {
-            setQuickReportLoading(false);
+            cleanupLoadingState();
         }
     });
 }

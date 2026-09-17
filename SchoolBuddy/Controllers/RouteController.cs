@@ -222,19 +222,49 @@ namespace SchoolBuddy.Controllers
 
                 string finalRouteName = $"{route_name} {option}".Trim();
 
+
                 // MVC level duplicate check
                 var allRoutesJson = _route.GetAllRouteAPICall(school_id, db).Result;
-                if (!string.IsNullOrWhiteSpace(allRoutesJson) && allRoutesJson != "Data Not Found")
-                {
-                    var existingRoutes = JsonConvert.DeserializeObject<List<routedetails>>(allRoutesJson) ?? new List<routedetails>();
 
+                if (!string.IsNullOrWhiteSpace(allRoutesJson) &&
+                    allRoutesJson != "Data Not Found")
+                {
+                    var existingRoutes =
+                        JsonConvert.DeserializeObject<List<routedetails>>(allRoutesJson)
+                        ?? new List<routedetails>();
+
+                    // 1. Same route name for user
                     bool isDuplicate = existingRoutes.Any(r =>
                         !string.IsNullOrWhiteSpace(r.route_name) &&
-                        r.route_name.Trim().Equals(finalRouteName, StringComparison.OrdinalIgnoreCase));
+                        r.route_name.Trim().Equals(
+                            finalRouteName,
+                            StringComparison.OrdinalIgnoreCase));
 
                     if (isDuplicate)
                     {
-                        return AddRouteResponse(false, "Same route name already exists for this user.");
+                        return AddRouteResponse(
+                            false,
+                            "Same route name already exists for this user.");
+                    }
+
+                    // 2. Same vehicle + overlapping time
+                    bool isVehicleAssigned = existingRoutes.Any(r =>
+                        !string.IsNullOrWhiteSpace(r.veh_reg) &&
+                        r.veh_reg.Trim().Equals(
+                            veh_reg,
+                            StringComparison.OrdinalIgnoreCase)
+                        &&
+                        TimeSpan.TryParse(r.start_time_up, out var existingStartTime) &&
+                        TimeSpan.TryParse(r.end_time_up, out var existingEndTime) &&
+                        existingStartTime < endTime &&
+                        existingEndTime > startTime
+                    );
+
+                    if (isVehicleAssigned)
+                    {
+                        return AddRouteResponse(
+                            false,
+                            "This vehicle is already assigned to another route during this time.");
                     }
                 }
 
@@ -392,7 +422,7 @@ namespace SchoolBuddy.Controllers
             ViewBag.ApiEndpoint = "/sbapi/api";
 
             var json = _route.GetAllRouteAPICall(uid, db).Result;
-            var routes = string.IsNullOrWhiteSpace(json) || json == "Data Not Found"
+            var routes = string.IsNullOrWhiteSpace(json) || json == "Data Not Found"|| json== "Something Went Wrong"
                 ? new List<SchoolBuddy.Models.Route.routedetails>()
                 : JsonConvert.DeserializeObject<List<SchoolBuddy.Models.Route.routedetails>>(json) ?? new();
             return View("~/Views/Home/Master/Route/Halts.cshtml", routes);
@@ -519,15 +549,68 @@ namespace SchoolBuddy.Controllers
                 route_id = rid,
                 stop_order = stop_order
             };
+            var json = await _route.GetExistingStops(rid);
+
+            if (!string.IsNullOrWhiteSpace(json) &&
+      json != "Data Not Found"  && json!="-1")
+            {
+                var existingStops =
+                    JsonConvert.DeserializeObject<List<ExistingStop>>(json)
+                    ?? new List<ExistingStop>();
+
+                // Parse new coordinates once
+                bool validLat = double.TryParse(lat, out double newLat);
+                bool validLng = double.TryParse(lng, out double newLng);
+
+                // Check duplicate stop by name OR coordinates
+                bool isDuplicate = existingStops.Any(x =>
+                {
+                    // Check same stop name
+                    bool sameName =
+                        !string.IsNullOrWhiteSpace(x.user_stop_name) &&
+                        x.user_stop_name.Trim().Equals(
+                            stopname.Trim(),
+                            StringComparison.OrdinalIgnoreCase);
+
+                    // Check same coordinates
+                    bool sameCoordinates = false;
+
+                    if (validLat &&
+                        validLng &&
+                        double.TryParse(x.latitude, out double existingLat) &&
+                        double.TryParse(x.longitude, out double existingLng))
+                    {
+                        sameCoordinates =
+                            existingLat == newLat &&
+                            existingLng == newLng;
+                    }
+
+                    return sameName || sameCoordinates;
+                });
+
+                if (isDuplicate)
+                {
+                    TempData["result"] =
+                        $"{stopname} or these coordinates already exist in this route.";
+
+                    return RedirectToAction(
+                        "stopSection",
+                        "Route",
+                        new { id = rid });
+                }
+            }
+
             var modal = await _route.AddStop(sp);
-            if (modal == "true")
-            {
-                TempData["result"] = $"{stopname} is added successfully as stop";
-            }
-            else
-            {
-                TempData["result"] = $"Insertion Failed";
-            }
+                if (modal == "true")
+                {
+                    TempData["result"] = $"{stopname} is added successfully as stop";
+                }
+                else
+                {
+                    TempData["result"] = $"Insertion Failed";
+                }
+            
+            
 
             return RedirectToAction("stopSection", "Route", new { id = rid });
 

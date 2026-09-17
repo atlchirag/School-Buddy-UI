@@ -66,6 +66,8 @@
     <!-- Favicons -->
     @* <link href="~/assets/img/favicon.png" rel="icon">
     <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon">*@
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i" rel="stylesheet">
@@ -117,15 +119,15 @@
             :root {
                 --sb-header-height: 60px;
                 --sb-sidebar-width: 250px;
-                --sb-sidebar-bg: midnightblue;
+                --sb-sidebar-bg: #0b73a1;
                 --sb-sidebar-border: #1f2937;
                 --sb-primary: #2563eb;
             }
 
             .iconstyle {
-                border: 2px solid midnightblue;
+                border: 2px solid #0b73a1;
                 border-radius: 50%;
-                color: midnightblue;
+                color: #0b73a1;
                 cursor: pointer;
             }
 
@@ -484,8 +486,10 @@
             }
 
             .app-download-card {
-                background: linear-gradient(180deg,#223A88,#162A6A);
-                border-radius: 16px;
+/*                 background: linear-gradient(180deg,#223A88,#162A6A);
+ */
+background: #184356;
+border-radius: 16px;
                 padding: 16px;
                 color: #fff;
             }
@@ -611,7 +615,7 @@
                 justify-content: center;
                 border-radius: 50%;
                 background: rgba(25, 25, 112, 0.1);
-                color: midnightblue;
+                color: #0b73a1;
                 font-size: 34px;
             }
 
@@ -664,8 +668,8 @@
             /* Logout button */
             .logout-confirm-btn {
                 color: #ffffff !important;
-                background: midnightblue !important;
-                border: 1px solid midnightblue !important;
+                background: #0b73a1 !important;
+                border: 1px solid #0b73a1 !important;
                 box-shadow: 0 7px 18px rgba(25, 25, 112, 0.25);
             }
 
@@ -711,7 +715,7 @@
                 z-index: 99999;
                 width: 45px;
                 height: 45px;
-                background: midnightblue;
+                background: #0b73a1;
                 color: white;
                 border-radius: 50%;
                 text-decoration: none;
@@ -850,7 +854,7 @@
                         <button type="button" class="btn btn-link d-flex align-items-center gap-2 p-0 border-0 text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Open user menu">
                             <div class="rounded-circle border d-flex align-items-center justify-content-center bg-white"
                                  style="width:34px; height:34px;">
-                                <i class="bi bi-person-fill fs-5" style="color: midnightblue;"></i>
+                                <i class="bi bi-person-fill fs-5" style="color: #0b73a1;"></i>
                             </div>                          <span class="header-tool-label text-start d-none d-md-block">
                                 <span class="d-block fw-semibold text-dark text-truncate" style="font-size: .78rem; max-width: 130px;">@userName</span>
                             </span>
@@ -1222,9 +1226,8 @@
             <!-- ===================== -->
             <!-- Sidebar Bottom Widget -->
             <!-- ===================== -->
-            <div class="sidebar-footer mt-auto pt-3">
-
-                <div class="parent-app-widget app-download-card">
+<div class="sidebar-footer mt-auto pt-3">
+                <div class="parent-app-widget app-download-card"  style="background-color:#184356;">
 
                     <div class="top-section">
 
@@ -1281,7 +1284,7 @@
     <footer id="footer" class="footer">
    
     <div class="copyright" style="font-size: 16px;
-        font-weight: 500;color:midnightblue">
+        font-weight: 500;color:#0b73a1">
             &copy; Copyright <strong><span>Atlanta Systems Private Limited</span></strong>. All Rights Reserved
         </div>
         @*<div class="credits">

@@ -1,327 +1,2665 @@
-﻿
-@{
-    ViewData["Title"] = "Parent Complaint Report";
-}
+﻿<style>
 
-<style>
-    .layout {
-        display: flex
+    /* =========================================================
+       PARENT COMPLAINT PAGE
+       ========================================================= */
+
+    * {
+        box-sizing: border-box;
     }
 
-    .iconlayout {
-        border: 2px solid;
-        border-radius: 50%;
-        border-color: midnightblue;
-        padding: 1px;
-        /*font-size:24px;*/
-        width: 3%;
-        height: 3%;
-        text-align: center;
-        margin: 0 5px;
+    .complaint-page {
+        width: 100%;
+        padding: 0 8px 25px;
+        background: var(--sb-page-bg);
+        color: var(--sb-text);
     }
 
-    .icon_color {
-        color: midnightblue
+
+    /* =========================================================
+       HEADER
+       ========================================================= */
+
+    .complaint-header {
+        position: relative;
+        overflow: hidden;
+
+        background: midnightblue;
+        color: #ffffff;
+
+        border: 1px solid midnightblue;
+        border-radius: 12px;
+
+        padding: 20px 22px;
+        margin-top: 18px;
+        margin-bottom: 18px;
+
+        box-shadow: var(--sb-shadow);
     }
 
-    .center {
-        /* text-align:center;
-                font-size:20px*/
+    .complaint-header-content {
+        position: relative;
+        z-index: 2;
+
+        display: flex;
+        align-items: center;
+        gap: 14px;
     }
 
-    .divmarginoutsideicon {
-        margin: 5px
+    .complaint-header-icon {
+        width: 46px;
+        height: 46px;
+        min-width: 46px;
+
+        border-radius: 11px;
+
+        background: rgba(255,255,255,.16);
+        color: #ffffff;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        font-size: 21px;
     }
-   
-    table thead th,
-table.dataTable thead th {
-    background-color: midnightblue !important;
-    color: white !important;
-    text-align: center;
-    vertical-align: middle !important;
-    font-size: 12px;
-    font-weight: 600;
-    padding-right: 25px !important;
+
+    .complaint-header-text h4 {
+        margin: 0;
+
+        color: #ffffff;
+
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+    .complaint-header-text p {
+        margin: 4px 0 0;
+
+        color: rgba(255,255,255,.82);
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       SUMMARY CARDS
+       ========================================================= */
+
+    .complaint-summary {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+
+        gap: 14px;
+
+        margin-bottom: 18px;
+    }
+
+    .summary-card {
+        min-height: 92px;
+
+        display: flex;
+        align-items: center;
+
+        gap: 13px;
+
+        padding: 16px;
+
+        background: var(--sb-surface);
+
+        border: 1px solid var(--sb-border);
+        border-radius: 11px;
+
+        box-shadow: var(--sb-shadow);
+
+        color: var(--sb-text);
+    }
+
+    .summary-icon {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-radius: 11px;
+
+        background: var(--sb-surface-alt);
+        color: midnightblue;
+
+        font-size: 20px;
+    }
+
+    .summary-icon.pending {
+        background: rgba(237,146,0,.12);
+        color: #ed9200;
+    }
+
+    .summary-icon.resolved {
+        background: rgba(22,160,93,.12);
+        color: #16a05d;
+    }
+
+    .summary-icon.students {
+        background: rgba(123,66,213,.12);
+        color: #7b42d5;
+    }
+
+    .summary-title {
+        margin-bottom: 4px;
+
+        color: var(--sb-text-muted);
+
+        font-size: 11px;
+        font-weight: 500;
+    }
+
+    .summary-value {
+        color: var(--sb-text);
+
+        font-size: 23px;
+        font-weight: 700;
+
+        line-height: 1;
+    }
+
+    .summary-subtitle {
+        margin-top: 5px;
+
+        color: var(--sb-text-muted);
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       MAIN CONTENT
+       NO WHITE CARD
+       ========================================================= */
+
+    .complaint-main-card {
+        background: transparent;
+
+        border: 0;
+        border-radius: 0;
+
+        padding: 0;
+
+        box-shadow: none;
+    }
+
+
+    /* =========================================================
+       TOOLBAR
+       ========================================================= */
+
+    .complaint-toolbar {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        margin-bottom: 17px;
+    }
+
+
+    /* =========================================================
+       TABS
+       ========================================================= */
+
+    .complaint-tabs {
+        display: flex;
+        align-items: center;
+
+        gap: 3px;
+
+        padding: 4px;
+
+        background: var(--sb-surface-alt);
+
+        border: 1px solid var(--sb-border);
+
+        border-radius: 9px;
+    }
+
+    .complaint-tab {
+        border: none !important;
+        border-radius: 7px !important;
+
+        background: transparent !important;
+
+        color: var(--sb-text-secondary) !important;
+
+        text-decoration: none !important;
+
+        padding: 8px 20px !important;
+
+        font-size: 12px !important;
+        font-weight: 600 !important;
+
+        cursor: pointer;
+    }
+
+    .complaint-tab:hover {
+        background: var(--sb-surface-hover) !important;
+
+        color: var(--sb-text) !important;
+    }
+
+    .complaint-tab.active {
+        background:midnightblue !important;
+
+        color: #ffffff !important;
+
+        box-shadow: 0 2px 7px rgba(0,0,0,.15);
+    }
+
+
+    /* =========================================================
+       TABLE WRAPPER
+       ========================================================= */
+
+    .complaint-table-wrapper {
+        width: 100%;
+
+        overflow-x: auto;
+    }
+
+
+    /* =========================================================
+       DATATABLE
+       ========================================================= */
+
+    .complaint-page table.dataTable {
+        width: 100% !important;
+
+        border-collapse: separate !important;
+        border-spacing: 0;
+
+        border: 1px solid var(--sb-border);
+
+        border-radius: 8px;
+
+        overflow: hidden;
+
+        margin-top: 0 !important;
+
+        background: var(--sb-surface) !important;
+    }
+
+
+    /* =========================================================
+       TABLE HEADER
+       WHITE TEXT
+       ========================================================= */
+
+    .complaint-page table.dataTable thead > tr > th,
+    .complaint-page table.dataTable thead > tr > td,
+    .complaint-page table.dataTable thead th.sorting,
+    .complaint-page table.dataTable thead th.sorting_asc,
+    .complaint-page table.dataTable thead th.sorting_desc,
+    .complaint-page table.dataTable thead th.sorting_disabled {
+
+        background-color: midnightblue !important;
+
+        color: #ffffff !important;
+
+        border-color: midnightblue !important;
+
+        text-align: left !important;
+
+        vertical-align: middle !important;
+
+        font-size: 11px !important;
+
+        font-weight: 600 !important;
+
+        padding: 12px 11px !important;
+
         white-space: nowrap;
-}
+    }
 
-table thead th *,
-table.dataTable thead th * {
-    color: white !important;
-}
-   
+    .complaint-page table.dataTable thead th *,
+    .complaint-page table.dataTable thead td * {
+
+        color: #ffffff !important;
+    }
+
+    .complaint-page table.dataTable thead .sorting:before,
+    .complaint-page table.dataTable thead .sorting:after,
+    .complaint-page table.dataTable thead .sorting_asc:before,
+    .complaint-page table.dataTable thead .sorting_asc:after,
+    .complaint-page table.dataTable thead .sorting_desc:before,
+    .complaint-page table.dataTable thead .sorting_desc:after {
+
+        color: #ffffff !important;
+    }
+
+
+    /* =========================================================
+       TABLE BODY
+       ========================================================= */
+
+    .complaint-page table.dataTable tbody td {
+
+        color: var(--sb-text);
+
+        font-size: 12px;
+
+        padding: 0 !important;
+
+        vertical-align: middle !important;
+
+        border-color: var(--sb-border) !important;
+
+        background: var(--sb-table-row) !important;
+    }
+
+    .complaint-page table.dataTable tbody tr {
+
+        background: var(--sb-table-row) !important;
+    }
+
+    .complaint-page table.dataTable tbody tr:nth-child(odd) {
+
+        background: var(--sb-table-row-alt) !important;
+    }
+
+    .complaint-page table.dataTable tbody tr:hover,
+    .complaint-page table.dataTable tbody tr:hover td {
+
+        background: var(--sb-surface-hover) !important;
+    }
+
+
+    /* =========================================================
+       PARENT
+       ========================================================= */
+
+    .parent-cell {
+        min-width: 170px;
+
+        padding: 14px 12px !important;
+
+        background: transparent !important;
+
+        vertical-align: middle !important;
+    }
+
+    .parent-name {
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        color: var(--sb-text);
+
+        font-weight: 700;
+
+        line-height: 1.35;
+    }
+
+    .parent-name i {
+        color: midnightblue;
+    }
+
+
+    /* =========================================================
+       STUDENT / ROUTES
+       ========================================================= */
+
+    .student-list,
+    .route-list {
+        min-width: 150px;
+    }
+
+    .student-sub-row,
+    .route-sub-row {
+
+        min-height: 47px;
+
+        display: flex;
+
+        align-items: center;
+
+        padding: 10px 11px;
+
+        border-bottom: 1px solid var(--sb-border);
+    }
+
+    .student-sub-row:last-child,
+    .route-sub-row:last-child {
+
+        border-bottom: none;
+    }
+
+    .student-sub-row:hover,
+    .route-sub-row:hover {
+
+        background: var(--sb-surface-hover);
+    }
+
+    .student-name {
+
+        color: var(--sb-text);
+
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+       ROUTE BADGE
+       ========================================================= */
+
+    .route-badge {
+
+        display: inline-block;
+
+        padding: 5px 8px;
+
+        border-radius: 6px;
+
+        background: var(--sb-surface-alt);
+
+        color: var(--sb-text-secondary);
+
+        font-size: 12px;
+
+        font-weight: 600;
+
+        white-space: nowrap;
+
+        border: 1px solid var(--sb-border);
+    }
+
+
+    /* =========================================================
+       COMPLAINT
+       ========================================================= */
+
+    .complaint-cell {
+
+        min-width: 135px;
+
+        padding: 14px 11px !important;
+
+        color: var(--sb-text) !important;
+
+        font-weight: 600;
+    }
+
+
+    /* =========================================================
+       DESCRIPTION
+       ========================================================= */
+
+    .description-cell {
+
+        min-width: 210px;
+
+        max-width: 300px;
+
+        padding: 14px 11px !important;
+
+        color: var(--sb-text);
+
+        line-height: 1.45;
+
+        word-break: break-word;
+    }
+
+
+    /* =========================================================
+       DATE
+       ========================================================= */
+
+    .date-cell {
+
+        min-width: 105px;
+
+        padding: 14px 11px !important;
+
+        color: var(--sb-text-secondary);
+
+        white-space: nowrap;
+    }
+
+
+    /* =========================================================
+       STATUS
+       ========================================================= */
+
+    .status-cell {
+
+        min-width: 100px;
+
+        padding: 14px 11px !important;
+
+        text-align: center;
+    }
+
+    .complaint-status {
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 6px;
+
+        padding: 6px 11px;
+
+        border-radius: 20px;
+
+        font-size: 12px;
+
+        font-weight: 600;
+
+        white-space: nowrap;
+    }
+
+    .complaint-status.pending {
+
+        color: #d77d00;
+
+        background: rgba(237,146,0,.12);
+
+        border: 1px solid rgba(237,146,0,.20);
+    }
+
+    .complaint-status.resolved {
+
+        color: #14834b;
+
+        background: rgba(22,160,93,.12);
+
+        border: 1px solid rgba(22,160,93,.20);
+    }
+
+    .status-dot {
+
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+
+        background: currentColor;
+    }
+
+
+    /* =========================================================
+       ACTION
+       ========================================================= */
+
+    .action-cell {
+
+        min-width: 90px;
+
+        padding: 14px 11px !important;
+
+        text-align: center;
+    }
+
+    .complaint-action-btn {
+
+        border: 1px solid transparent;
+
+        outline: none;
+
+        background: var(--sb-surface-alt);
+
+        color: var(--bs-primary);
+
+        border-radius: 7px;
+
+        padding: 7px 11px;
+
+        font-size: 11px;
+
+        font-weight: 600;
+
+        cursor: pointer;
+
+        white-space: nowrap;
+    }
+
+    .complaint-action-btn:hover {
+
+        background: var(--bs-primary);
+
+        color: #ffffff;
+
+        border-color: var(--bs-primary);
+    }
+
+
+    /* =========================================================
+       DATATABLE CONTROLS
+       ========================================================= */
+
+    .complaint-page .dataTables_wrapper {
+
+        padding-top: 0 !important;
+
+        color: var(--sb-text);
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_length,
+    .complaint-page .dataTables_wrapper .dataTables_filter {
+
+        margin-bottom: 13px;
+
+        font-size: 11px;
+
+        color: var(--sb-text-muted);
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_filter input {
+
+        width: 220px;
+
+        border: 1px solid var(--sb-border) !important;
+
+        border-radius: 8px !important;
+
+        padding: 8px 11px !important;
+
+        margin-left: 6px !important;
+
+        outline: none;
+
+        background: var(--sb-input-bg);
+
+        color: var(--sb-text);
+
+        font-size: 11px;
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_filter input::placeholder {
+
+        color: var(--sb-text-muted);
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_length select {
+
+        background: var(--sb-input-bg);
+
+        color: var(--sb-text);
+
+        border: 1px solid var(--sb-border);
+
+        border-radius: 6px;
+
+        padding: 4px 7px;
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_info {
+
+        color: var(--sb-text-muted);
+
+        font-size: 11px;
+
+        padding-top: 14px !important;
+    }
+
+
+    /* =========================================================
+       PAGINATION
+       ========================================================= */
+
+    .complaint-page .dataTables_wrapper .dataTables_paginate {
+
+        padding-top: 10px !important;
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_paginate .paginate_button {
+
+        border: 1px solid var(--sb-border) !important;
+
+        background: var(--sb-surface) !important;
+
+        color: var(--sb-text) !important;
+
+        border-radius: 6px !important;
+
+        margin: 2px !important;
+
+        min-width: 30px;
+
+        font-size: 11px;
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+
+        background: var(--sb-surface-hover) !important;
+
+        color: var(--sb-text) !important;
+
+        border-color: var(--sb-border) !important;
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+
+        background: var(--bs-primary) !important;
+
+        color: #ffffff !important;
+
+        border-color: var(--bs-primary) !important;
+    }
+
+    .complaint-page .dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+
+        background: var(--sb-surface) !important;
+
+        color: var(--sb-text-muted) !important;
+
+        border-color: var(--sb-border) !important;
+    }
+
+
+    /* =========================================================
+       EMPTY STATE
+       ========================================================= */
+
+    .empty-state {
+
+        padding: 35px;
+
+        text-align: center;
+
+        color: var(--sb-text-muted);
+
+        font-size: 12px;
+    }
+
+
+    /* =========================================================
+       MODAL
+       ========================================================= */
+
+    #actionontickets .modal-dialog {
+
+        max-width: 520px;
+    }
+
+    #actionontickets .modal-content {
+
+        background: var(--sb-surface);
+
+        color: var(--sb-text);
+
+        border: 1px solid var(--sb-border);
+
+        border-radius: 12px;
+
+        overflow: hidden;
+
+        box-shadow: var(--sb-shadow);
+    }
+
+    #actionontickets .modal-header {
+
+        background: var(--bs-primary);
+
+        color: #ffffff;
+
+        border: none;
+
+        padding: 15px 18px;
+    }
+
+    #actionontickets .modal-title {
+
+        color: #ffffff;
+
+        font-size: 15px;
+
+        font-weight: 600;
+    }
+
+    #actionontickets .modal-header .btn-close {
+
+        filter: brightness(0) invert(1);
+    }
+
+    #actionontickets .modal-body {
+
+        background: var(--sb-surface);
+
+        color: var(--sb-text);
+
+        padding: 22px;
+    }
+
+    #actionontickets .modal-body label {
+
+        color: var(--sb-text);
+
+        font-size: 12px;
+
+        font-weight: 600;
+
+        margin-bottom: 7px;
+    }
+
+    #actionontickets #cmt {
+
+        min-height: 105px;
+
+        resize: vertical;
+
+        background: var(--sb-input-bg);
+
+        color: var(--sb-text);
+
+        border: 1px solid var(--sb-border);
+
+        border-radius: 8px;
+
+        font-size: 12px;
+
+        padding: 10px;
+    }
+
+    #actionontickets #cmt::placeholder {
+
+        color: var(--sb-text-muted);
+    }
+
+    #actionontickets .modal-footer {
+
+        background: var(--sb-surface);
+
+        padding: 13px 18px;
+
+        border-top: 1px solid var(--sb-border);
+    }
+
+    #actionontickets .btn-secondary {
+
+        background: var(--sb-surface-alt);
+
+        color: var(--sb-text);
+
+        border: 1px solid var(--sb-border);
+    }
+
+    #actionontickets .btn-primary {
+
+        background: var(--bs-primary);
+
+        border-color: var(--bs-primary);
+
+        color: #ffffff;
+
+        font-size: 12px;
+
+        border-radius: 7px;
+
+        padding: 8px 14px;
+    }
+
+
+    /* =========================================================
+       DARK THEME
+       ========================================================= */
+
+    [data-bs-theme="dark"] .complaint-page table.dataTable {
+
+        background: var(--sb-surface) !important;
+    }
+
+    [data-bs-theme="dark"] .complaint-page table.dataTable tbody td {
+
+        background: var(--sb-table-row) !important;
+
+        color: var(--sb-text) !important;
+
+        border-color: var(--sb-border) !important;
+    }
+
+    [data-bs-theme="dark"] .complaint-page table.dataTable tbody tr:nth-child(odd) td {
+
+        background: var(--sb-table-row-alt) !important;
+    }
+
+    [data-bs-theme="dark"] .complaint-page table.dataTable tbody tr:hover td {
+
+        background: var(--sb-surface-hover) !important;
+    }
+
+    [data-bs-theme="dark"] .complaint-page .dataTables_filter input,
+    [data-bs-theme="dark"] .complaint-page .dataTables_length select {
+
+        background: var(--sb-input-bg) !important;
+
+        color: var(--sb-text) !important;
+
+        border-color: var(--sb-border) !important;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+       ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .complaint-summary {
+
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 600px) {
+
+        .complaint-summary {
+
+            grid-template-columns: 1fr;
+        }
+
+        .complaint-toolbar {
+
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .complaint-tabs {
+
+            width: 100%;
+        }
+
+        .complaint-tab {
+
+            flex: 1;
+
+            text-align: center;
+        }
+
+        .complaint-page .dataTables_wrapper .dataTables_filter {
+
+            float: none !important;
+
+            text-align: left !important;
+        }
+
+        .complaint-page .dataTables_wrapper .dataTables_filter input {
+
+            width: calc(100% - 55px);
+        }
+    }
+
 </style>
 
-<div class="card container">
-    <div class="row">
 
+<!-- =========================================================
+     PAGE
+     ========================================================= -->
 
-        <div class="col-lg-12"style="margin-top:3vmin">
-            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
-                <p style="font-weight:600;margin:0px">Parent Complain Record</p>
+<div class="container-fluid complaint-page">
+
+    <!-- HEADER -->
+    <div class="complaint-header">
+
+        <div class="complaint-header-content">
+
+            <div class="complaint-header-icon">
+
+                <i class="fa fa-file-text-o"></i>
+
             </div>
-            <div class="card-body rounded" style="background-color:white;">
-                <div class="row">
-                    <div class="col-lg-12 col-xs-12">
-                        <ul class="nav nav-tabs nav-justified d-flex justify-content-center align-content-center mt-1" style="border:0px;cursor: pointer; font-size: 20px; font-weight: 600;margin-left:0px;gap:5px;" role="tablist" id="main">
-                            <li role="presentation">
-                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A1" role="tab" href="#Pending" aria-expanded="false" onclick="changebg();pending()" style="border:1px solid midnightblue;
-                                color:black;
-                                padding:5px;
-                                font-size:14px;">Pending</a>
-                            </li>
-                            <li role="presentation">
-                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A2" role="tab" href="#Resolved" aria-expanded="false" onclick="changebg1();resolved()" style="border:1px solid midnightblue;
-                                color:black;
-                                padding:5px;
-                                font-size:14px;"> Resolved</a>
-                            </li>
-                        </ul>
-                    </div>
+
+            <div class="complaint-header-text">
+
+                <h4>
+                    Parent Complaint Record
+                </h4>
+
+                <p>
+                    View generic parent complaints together with all children and their transport routes.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SUMMARY
+         ===================================================== -->
+
+    <div class="complaint-summary">
+
+        <div class="summary-card">
+
+            <div class="summary-icon">
+
+                <i class="fa fa-file-text-o"></i>
+
+            </div>
+
+            <div>
+
+                <div class="summary-title">
+                    Total Complaints
                 </div>
-                <div class="tab-content">
-                    <div class="tab-pane" id="Pending">
-                        <div class="row" style="margin-top: 20px">
-                            <div class="col-lg-12">
-                                <div class="mt-2 ms-2">
-                                    <table id="pendingticket" style="width:100%" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="dataTables-example_info">
-                                        <thead>
-                                            <tr role="row" style="background-color: #C8D7E3">
-                                               
-                                                <th style="color:black">Student Name</th>
-                                                <th style="color:black">Mobile No</th>
-                                                <th style="color:black">Route</th>
-                                                <th style="color:black">Description</th>
-                                                <th style="color:black">Complaint</th>
-                                                <th style="color:black">Raised on</th>
-                                                <th style="color:black">Action</th>
-                                            </tr>
 
-                                        </thead>
+                <div class="summary-value"
+                     id="totalComplaints">
+                    0
+                </div>
 
-
-                                    </table>
-                                </div>
-                            </div>
-                            <!-- /.col-lg-12 -->
-                        </div>
-                    </div>
-                    <div id="Resolved" class="tab-pane">
-                        <div class="row" style="margin-top: 20px">
-                            <div class="col-lg-12 col-xs-12">
-                                <div class="layout">
-
-                                    <div class="col-lg-12">
-                                        <div class="mt-2 ms-2">
-                                            <table id="resolvedticket" style="width:100%" class="table table-striped table-bordered table-hover dataTable no-footer" role="grid" aria-describedby="dataTables-example_info">
-                                                <thead>
-                                                    <tr role="row" style="background-color: #C8D7E3">
-                                            
-                                                        <th style="color:black">Student Name</th>
-                                                        <th style="color:black">Mobile No</th>
-                
-                                                        <th style="color:black">Route</th>
-                                                        <th style="color:black">Description</th>
-                                                        <th style="color:black">Comment</th>
-                                                        <th style="color:black">Raised on</th>
-                                                        <th style="color:black">Resolved on</th>
-                                                    </tr>
-
-                                                </thead>
-                                              
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                  
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="summary-subtitle">
+                    All complaints
                 </div>
 
             </div>
 
         </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon pending">
+
+                <i class="fa fa-clock-o"></i>
+
+            </div>
+
+            <div>
+
+                <div class="summary-title">
+                    Pending
+                </div>
+
+                <div class="summary-value"
+                     id="pendingComplaints">
+                    0
+                </div>
+
+                <div class="summary-subtitle">
+                    Needs attention
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon resolved">
+
+                <i class="fa fa-check"></i>
+
+            </div>
+
+            <div>
+
+                <div class="summary-title">
+                    Resolved
+                </div>
+
+                <div class="summary-value"
+                     id="resolvedComplaints">
+                    0
+                </div>
+
+                <div class="summary-subtitle">
+                    Successfully resolved
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-icon students">
+
+                <i class="fa fa-users"></i>
+
+            </div>
+
+            <div>
+
+                <div class="summary-title">
+                    Students
+                </div>
+
+                <div class="summary-value"
+                     id="uniqueStudents">
+                    0
+                </div>
+
+                <div class="summary-subtitle">
+                    Students linked to complaints
+                </div>
+
+            </div>
+
+        </div>
+
     </div>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <div class="complaint-main-card">
+
+        <!-- TOOLBAR -->
+
+        <div class="complaint-toolbar">
+
+            <div class="complaint-tabs">
+
+                <a class="complaint-tab active"
+                   id="A1"
+                   href="#"
+                   onclick="showComplaintTab('pending'); return false;">
+
+                    Pending
+
+                </a>
+
+
+                <a class="complaint-tab"
+                   id="A2"
+                   href="#"
+                   onclick="showComplaintTab('resolved'); return false;">
+
+                    Resolved
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PENDING
+             ================================================= -->
+
+        <div id="pendingSection">
+
+            <div class="complaint-table-wrapper">
+
+                <table id="pendingticket"
+                       class="table table-striped table-bordered table-hover"
+                       style="width:100%">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Parent</th>
+
+                            <th>Student</th>
+
+                            <th>Pick Route</th>
+
+                            <th>Drop Route</th>
+
+                            <th>Complaint</th>
+
+                            <th>Description</th>
+
+                            <th>Raised On</th>
+
+                            <th>Status</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RESOLVED
+             ================================================= -->
+
+        <div id="resolvedSection"
+             style="display:none;">
+
+            <div class="complaint-table-wrapper">
+
+                <table id="resolvedticket"
+                       class="table table-striped table-bordered table-hover"
+                       style="width:100%">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Parent</th>
+
+                            <th>Student</th>
+
+                            <th>Pick Route</th>
+
+                            <th>Drop Route</th>
+
+                            <th>Complaint</th>
+
+                            <th>Description</th>
+
+                            <th>Comment</th>
+
+                            <th>Raised On</th>
+
+                            <th>Resolved On</th>
+
+                            <th>Status</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody></tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
 
 
-<!-- Modal -->
-<div class="modal fade sb-common-modal" id="actionontickets" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<!-- =========================================================
+     ACTION MODAL
+     ========================================================= -->
+
+<div class="modal fade sb-common-modal"
+     id="actionontickets"
+     tabindex="-1"
+     aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+
     <div class="modal-dialog">
+
         <div class="modal-content">
+
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Action Taken to Resolve Complain</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+                <h5 class="modal-title"
+                    id="exampleModalLabel">
+
+                    Action Taken to Resolve Complaint
+
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                </button>
+
             </div>
+
+
             <div class="modal-body">
-                <input id="pendingticketid" type="hidden" value=""/>
+
+                <input id="pendingticketid"
+                       type="hidden"
+                       value="" />
+
                 <div class="row">
-                    <div class="col-lg-3">
-                        <label>Action Taken</label>
+
+                    <div class="col-12">
+
+                        <label for="cmt">
+                            Action Taken
+                        </label>
+
+                        <textarea id="cmt"
+                                  class="form-control"
+                                  placeholder="Enter the action taken to resolve this complaint..."></textarea>
+
                     </div>
-                     <div class="col-lg-6">
-                         <textarea id="cmt" class="form-control"></textarea> 
-                    </div>
+
                 </div>
+
             </div>
+
+
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button id="ticketclosureaction" type="button" class="btn btn-primary" onclick="uticket()">Ticket Closed</button>
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                    Close
+
+                </button>
+
+
+                <button id="ticketclosureaction"
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="uticket()">
+
+                    <i class="fa fa-check"></i>
+
+                    Ticket Closed
+
+                </button>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
 
 <script>
-    window.onload = function () {
-        var holidaycontrol = document.getElementById('A1');
-        holidaycontrol.click();
-        holidaycontrol.style.backgroundColor = 'midnightblue';
-        holidaycontrol.style.color = 'white';
-    }
 
-    function changebg() {
-        var holidaycontrol = document.getElementById('A1');
-        var holidaycontrol1 = document.getElementById('A2');
-        holidaycontrol.style.backgroundColor = 'midnightblue';
-        holidaycontrol.style.color = 'white';
+    /* =========================================================
+       VARIABLES
+       ========================================================= */
 
-        holidaycontrol1.style.backgroundColor = 'white';
-        holidaycontrol1.style.color = 'black';
-    }
-    function changebg1() {
-        var holidaycontrol = document.getElementById('A1');
-        var holidaycontrol1 = document.getElementById('A2');
-        holidaycontrol1.style.backgroundColor = 'midnightblue';
-        holidaycontrol1.style.color = 'white';
+    let complaintData = [];
 
-        holidaycontrol.style.backgroundColor = 'white';
-        holidaycontrol.style.color = 'black';
-    }
+    let resolvedComplaintData = [];
+
+    let currentTab = 'pending';
+
+    let pendingTable = null;
+
+    let resolvedTable = null;
+
+    let resolvedLoaded = false;
 
 
+    /* =========================================================
+       PAGE LOAD
+       ========================================================= */
 
-    function pending() {
-        var table = $("#pendingticket").DataTable();
-       // var uid = document.getElementById('user_id').value;
-        // Clear existing data
-        table.clear().draw();
+    $(document).ready(function () {
 
-        $.ajax({
-            url: '/schoolbuddy/Complain/PendingTicket',
-            type: 'POST',
-           // data: { uid: uid },
-            success: function (response) {
-                let data;
-                try {
-                    data = JSON.parse(response);
-                } catch (e) {
-                    console.error('Failed to parse JSON:', e);
-                    alert('Failed to load data.');
-                    return;
-                }
+        initializeComplaintTables();
 
-                const rows = data.map(item => [
-                    item.student_name || "",
-                    item.mobile_no1 || "",
-                    item.route_name || "",
-                    item.description || "",
-                    item.complaint || "",
-                    item.raised_on || "",
-                    `<button  class="btn btn-sm bg-info" onclick="handleActionClick('${item.id || ""}')">Action</button>`
-                ]);
-                table.rows.add(rows).draw();
+        // Initial API
+        // Loads Pending data
+        loadComplaintPage();
 
-            },
-            error: function (xhr, status, error) {
-                console.error('Error occurred:', error);
-                alert('An error occurred while fetching data.');
-            }
-        });
-    }
+    });
 
 
-    function resolved() {
-        var table = $("#resolvedticket").DataTable();
+    /* =========================================================
+       DATATABLE INITIALIZATION
+       ========================================================= */
 
-        // Clear existing data
-        table.clear().draw();
+    function initializeComplaintTables() {
 
-        $.ajax({
-            url: '/schoolbuddy/Complain/ResolvedTicket',
-            type: 'POST',
-            success: function (response) {
-                let data;
-                try {
-                    data = JSON.parse(response);
-                } catch (e) {
-                    console.error('Failed to parse JSON:', e);
-                    alert('Failed to load data.');
-                    return;
-                }
+        /* =====================================================
+           PENDING TABLE
+           ===================================================== */
 
-                // Prepare data array for bulk addition
-                let rows = data.map(item => [
-                    item.student_name || "",
-                    item.mobile_no1 || "",
-                    item.route_name || "",
-                    item.description || "",
-                    item.comments || "",
-                    item.raised_on || "",
-                    item.resolved_on || "",
+        if (!$.fn.DataTable.isDataTable('#pendingticket')) {
 
-                ]);
+            pendingTable = $('#pendingticket').DataTable({
 
-                // Add all rows in a single operation
-                table.rows.add(rows).draw();
-            },
-            error: function (xhr, status, error) {
-                console.error('Error occurred:', error);
-                alert('An error occurred while fetching data.');
-            }
-        });
-    }
+                pageLength: 10,
 
-    function handleActionClick(ticketid){
-        $('#pendingticketid').val(ticketid);
-        $('#actionontickets').modal('show');
-    }
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
 
-   
+                ordering: true,
 
-        function uticket () {
-           // alert('ncjd');
-            var cmnt = $('#cmt').val();
-            var tid = $('#pendingticketid').val();
-            $.ajax({
-            url: '/schoolbuddy/Complain/UpdateTicket',
-                type: 'post',
-                data: { comment: cmnt, ticketid: tid },
-                success: function (response) {
-                    if (response == "true") {
-                        location.reload();
-                    }
-                    else {
-                        alert('Something went wrong');
+                searching: true,
+
+                responsive: false,
+
+                autoWidth: false,
+
+                language: {
+
+                    search: "Search:",
+
+                    lengthMenu: "_MENU_ entries per page",
+
+                    info: "Showing _START_ to _END_ of _TOTAL_ complaints",
+
+                    infoEmpty: "No complaints available",
+
+                    zeroRecords: "No pending complaints found",
+
+                    paginate: {
+
+                        first: "«",
+
+                        last: "»",
+
+                        next: "›",
+
+                        previous: "‹"
+
                     }
 
                 },
-                error: function () {
-                    alert('Something went wrong');
-                }
+
+                columnDefs: [
+
+                    {
+                        targets: [7, 8],
+                        orderable: false
+                    }
+
+                ]
+
             });
 
-        };
+        }
+        else {
+
+            pendingTable = $('#pendingticket').DataTable();
+
+        }
 
 
+        /* =====================================================
+           RESOLVED TABLE
+           ===================================================== */
+
+        if (!$.fn.DataTable.isDataTable('#resolvedticket')) {
+
+            resolvedTable = $('#resolvedticket').DataTable({
+
+                pageLength: 10,
+
+                lengthMenu: [
+                    [10, 25, 50, 100],
+                    [10, 25, 50, 100]
+                ],
+
+                ordering: true,
+
+                searching: true,
+
+                responsive: false,
+
+                autoWidth: false,
+
+                language: {
+
+                    search: "Search:",
+
+                    lengthMenu: "_MENU_ entries per page",
+
+                    info: "Showing _START_ to _END_ of _TOTAL_ complaints",
+
+                    infoEmpty: "No complaints available",
+
+                    zeroRecords: "No resolved complaints found",
+
+                    paginate: {
+
+                        first: "«",
+
+                        last: "»",
+
+                        next: "›",
+
+                        previous: "‹"
+
+                    }
+
+                },
+
+                columnDefs: [
+
+                    {
+                        targets: [9],
+                        orderable: false
+                    }
+
+                ]
+
+            });
+
+        }
+        else {
+
+            resolvedTable = $('#resolvedticket').DataTable();
+
+        }
+
+    }
 
 
+    /* =========================================================
+       LOAD PENDING COMPLAINTS
+       ========================================================= */
 
-   
+    function loadComplaintPage() {
 
+        showLoading();
+
+
+        $.ajax({
+
+            url: '/schoolbuddy/Complain/ComplaintPage',
+
+            type: 'POST',
+
+            success: function (response) {
+
+                let result;
+
+                try {
+
+                    result = typeof response === 'string'
+                        ? JSON.parse(response)
+                        : response;
+
+                }
+                catch (e) {
+
+                    console.error(
+                        'Failed to parse ComplaintPage response:',
+                        e
+                    );
+
+                    showError(
+                        'Failed to load complaint data.'
+                    );
+
+                    return;
+                }
+
+
+                if (!result ||
+                    result.success === false) {
+
+                    showError(
+                        result?.message ||
+                        'Failed to load complaint data.'
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * ComplaintPage should return:
+                 *
+                 * {
+                 *    success: true,
+                 *    summary: {...},
+                 *    data: [...]
+                 * }
+                 */
+
+                complaintData =
+                    Array.isArray(result.data)
+                        ? result.data
+                        : [];
+
+
+                updateSummary(
+                    result.summary || {}
+                );
+
+
+                /*
+                 * Only render pending here.
+                 *
+                 * Resolved API will be called
+                 * when Resolved tab is opened.
+                 */
+
+                const pendingGroups =
+                    groupComplaints(
+                        complaintData.filter(
+                            x => Number(x.is_active) === 1
+                        )
+                    );
+
+
+                renderPendingTable(
+                    pendingGroups
+                );
+
+
+                hideLoading();
+
+            },
+
+            error: function (xhr, status, error) {
+
+                console.error(
+                    'ComplaintPage error:',
+                    error
+                );
+
+                showError(
+                    'An error occurred while fetching complaint data.'
+                );
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       LOAD RESOLVED COMPLAINTS
+       ========================================================= */
+
+    function loadResolvedComplaints() {
+
+        /*
+         * Prevent duplicate API calls when user repeatedly
+         * clicks the Resolved tab.
+         */
+
+        if (resolvedLoaded) {
+
+            if (resolvedTable) {
+
+                setTimeout(function () {
+
+                    resolvedTable
+                        .columns
+                        .adjust();
+
+                }, 100);
+
+            }
+
+            return;
+        }
+
+
+        if (resolvedTable) {
+
+            resolvedTable
+                .clear()
+                .draw();
+
+        }
+
+
+        $.ajax({
+
+            url: '/schoolbuddy/Complain/ResolvedComplaintPage',
+
+            type: 'POST',
+
+            success: function (response) {
+
+                let result;
+
+                try {
+
+                    result = typeof response === 'string'
+                        ? JSON.parse(response)
+                        : response;
+
+                }
+                catch (e) {
+
+                    console.error(
+                        'Failed to parse ResolvedComplaintPage response:',
+                        e
+                    );
+
+                    alert(
+                        'Failed to load resolved complaints.'
+                    );
+
+                    return;
+                }
+
+
+                if (!result ||
+                    result.success === false) {
+
+                    alert(
+                        result?.message ||
+                        'Failed to load resolved complaints.'
+                    );
+
+                    return;
+                }
+
+
+                resolvedComplaintData =
+                    Array.isArray(result.data)
+                        ? result.data
+                        : [];
+
+
+                /*
+                 * Group by complaint_id
+                 *
+                 * Multiple students belonging to
+                 * the same parent complaint will become
+                 * child rows.
+                 */
+
+                const resolvedGroups =
+                    groupComplaints(
+                        resolvedComplaintData
+                    );
+
+
+                renderResolvedTable(
+                    resolvedGroups
+                );
+
+
+                resolvedLoaded = true;
+
+
+                setTimeout(function () {
+
+                    if (resolvedTable) {
+
+                        resolvedTable
+                            .columns
+                            .adjust()
+                            .draw(false);
+
+                    }
+
+                }, 100);
+
+            },
+
+            error: function (xhr, status, error) {
+
+                console.error(
+                    'ResolvedComplaintPage error:',
+                    error
+                );
+
+                alert(
+                    'An error occurred while fetching resolved complaints.'
+                );
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       SUMMARY
+       ========================================================= */
+
+    function updateSummary(summary) {
+
+        $('#totalComplaints')
+            .text(summary.totalComplaints || 0);
+
+        $('#pendingComplaints')
+            .text(summary.pendingComplaints || 0);
+
+        $('#resolvedComplaints')
+            .text(summary.resolvedComplaints || 0);
+
+        $('#uniqueStudents')
+            .text(summary.students || 0);
+
+    }
+
+
+    /* =========================================================
+       GROUP COMPLAINTS
+       ========================================================= */
+
+    function groupComplaints(records) {
+
+        const groups = {};
+
+
+        records.forEach(function (item) {
+
+            const complaintId =
+                item.complaint_id ||
+                item.id ||
+                '';
+
+
+            if (!groups[complaintId]) {
+
+                groups[complaintId] = {
+
+                    complaint_id:
+                        complaintId,
+
+                    parent_name:
+                        item.parent_name || '',
+
+                    complaint:
+                        item.complaint || '',
+
+                    description:
+                        item.description || '',
+
+                    raised_on:
+                        item.raised_on || '',
+
+                    comments:
+                        item.comments || '',
+
+                    resolved_on:
+                        item.resolved_on || '',
+
+                    is_active:
+                        Number(item.is_active) === 1,
+
+                    students: []
+
+                };
+
+            }
+
+
+            const alreadyAdded =
+                groups[complaintId]
+                    .students
+                    .some(function (s) {
+
+                        return String(s.student_id) ===
+                            String(item.student_id);
+
+                    });
+
+
+            if (!alreadyAdded) {
+
+                groups[complaintId]
+                    .students
+                    .push({
+
+                        student_id:
+                            item.student_id || '',
+
+                        student_name:
+                            item.student_name || '',
+
+                        pick_route:
+                            item.pick_route || '',
+
+                        drop_route:
+                            item.drop_route || ''
+
+                    });
+
+            }
+
+        });
+
+
+        return Object.values(groups);
+
+    }
+
+
+    /* =========================================================
+       PENDING TABLE
+       ========================================================= */
+
+    function renderPendingTable(groups) {
+
+        pendingTable.clear();
+
+
+        const rows =
+            groups.map(function (group) {
+
+                return [
+
+                    /* Parent */
+
+                    `
+                    <div class="parent-cell">
+
+                        <div class="parent-name">
+
+
+                            <span>
+                                ${escapeHtml(
+                                    group.parent_name || '-'
+                                )}
+                            </span>
+
+                        </div>
+
+                    </div>
+                    `,
+
+
+                    /* Students */
+
+                    buildStudentList(
+                        group.students
+                    ),
+
+
+                    /* Pick Route */
+
+                    buildPickRouteList(
+                        group.students
+                    ),
+
+
+                    /* Drop Route */
+
+                    buildDropRouteList(
+                        group.students
+                    ),
+
+
+                    /* Complaint */
+
+                    `
+                    <div class="complaint-cell">
+
+                        ${escapeHtml(
+                            group.complaint || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Description */
+
+                    `
+                    <div class="description-cell">
+
+                        ${escapeHtml(
+                            group.description || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Raised On */
+
+                    `
+                    <div class="date-cell">
+
+                        ${escapeHtml(
+                            group.raised_on || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Status */
+
+                    `
+                    <div class="status-cell">
+
+                        <span class="complaint-status pending">
+
+                            <span class="status-dot"></span>
+
+                            Pending
+
+                        </span>
+
+                    </div>
+                    `,
+
+
+                    /* Action */
+
+                    `
+                    <div class="action-cell">
+
+                        <button type="button"
+                                class="complaint-action-btn"
+                                onclick="handleActionClick('${escapeHtml(
+                                    group.complaint_id
+                                )}')">
+
+                            <i class="fa fa-pencil"></i>
+
+                            Action
+
+                        </button>
+
+                    </div>
+                    `
+
+                ];
+
+            });
+
+
+        pendingTable
+            .rows
+            .add(rows)
+            .draw();
+
+    }
+
+
+    /* =========================================================
+       RESOLVED TABLE
+       ========================================================= */
+
+    function renderResolvedTable(groups) {
+
+        resolvedTable.clear();
+
+
+        const rows =
+            groups.map(function (group) {
+
+                return [
+
+                    /* Parent */
+
+                    `
+                    <div class="parent-cell">
+
+                        <div class="parent-name">
+
+
+                            <span>
+                                ${escapeHtml(
+                                    group.parent_name || '-'
+                                )}
+                            </span>
+
+                        </div>
+
+                    </div>
+                    `,
+
+
+                    /* Students */
+
+                    buildStudentList(
+                        group.students
+                    ),
+
+
+                    /* Pick Route */
+
+                    buildPickRouteList(
+                        group.students
+                    ),
+
+
+                    /* Drop Route */
+
+                    buildDropRouteList(
+                        group.students
+                    ),
+
+
+                    /* Complaint */
+
+                    `
+                    <div class="complaint-cell">
+
+                        ${escapeHtml(
+                            group.complaint || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Description */
+
+                    `
+                    <div class="description-cell">
+
+                        ${escapeHtml(
+                            group.description || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Comment */
+
+                    `
+                    <div class="description-cell">
+
+                        ${escapeHtml(
+                            group.comments || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Raised On */
+
+                    `
+                    <div class="date-cell">
+
+                        ${escapeHtml(
+                            group.raised_on || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Resolved On */
+
+                    `
+                    <div class="date-cell">
+
+                        ${escapeHtml(
+                            group.resolved_on || '-'
+                        )}
+
+                    </div>
+                    `,
+
+
+                    /* Status */
+
+                    `
+                    <div class="status-cell">
+
+                        <span class="complaint-status resolved">
+
+                            <span class="status-dot"></span>
+
+                            Resolved
+
+                        </span>
+
+                    </div>
+                    `
+
+                ];
+
+            });
+
+
+        resolvedTable
+            .rows
+            .add(rows)
+            .draw();
+
+    }
+
+
+    /* =========================================================
+       STUDENT LIST
+       ========================================================= */
+
+    function buildStudentList(students) {
+
+        return `
+
+            <div class="student-list">
+
+                ${students.map(function (student) {
+
+                    return `
+
+                        <div class="student-sub-row">
+
+                            <span class="student-name">
+
+                                ${escapeHtml(
+                                    student.student_name || '-'
+                                )}
+
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }).join('')}
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================================
+       PICK ROUTE LIST
+       ========================================================= */
+
+    function buildPickRouteList(students) {
+
+        return `
+
+            <div class="route-list">
+
+                ${students.map(function (student) {
+
+                    return `
+
+                        <div class="route-sub-row">
+
+                            <span class="route-badge">
+
+                                ${escapeHtml(
+                                    student.pick_route || '-'
+                                )}
+
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }).join('')}
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================================
+       DROP ROUTE LIST
+       ========================================================= */
+
+    function buildDropRouteList(students) {
+
+        return `
+
+            <div class="route-list">
+
+                ${students.map(function (student) {
+
+                    return `
+
+                        <div class="route-sub-row">
+
+                            <span class="route-badge">
+
+                                ${escapeHtml(
+                                    student.drop_route || '-'
+                                )}
+
+                            </span>
+
+                        </div>
+
+                    `;
+
+                }).join('')}
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =========================================================
+       TAB SWITCHING
+       ========================================================= */
+
+    function showComplaintTab(tab) {
+
+        currentTab = tab;
+
+
+        /* =====================================================
+           PENDING TAB
+           ===================================================== */
+
+        if (tab === 'pending') {
+
+            $('#A1')
+                .addClass('active');
+
+            $('#A2')
+                .removeClass('active');
+
+
+            $('#pendingSection')
+                .show();
+
+            $('#resolvedSection')
+                .hide();
+
+
+            /*
+             * Adjust pending DataTable
+             * after becoming visible.
+             */
+
+            if (pendingTable) {
+
+                setTimeout(function () {
+
+                    pendingTable
+                        .columns
+                        .adjust()
+                        .draw(false);
+
+                }, 50);
+
+            }
+
+        }
+
+
+        /* =====================================================
+           RESOLVED TAB
+           ===================================================== */
+
+        else {
+
+            $('#A2')
+                .addClass('active');
+
+            $('#A1')
+                .removeClass('active');
+
+
+            $('#pendingSection')
+                .hide();
+
+            $('#resolvedSection')
+                .show();
+
+
+            /*
+             * IMPORTANT:
+             *
+             * ResolvedComplaintPage is called here.
+             *
+             * It is NOT called on initial page load.
+             */
+
+            loadResolvedComplaints();
+
+
+            /*
+             * DataTables calculates width again
+             * when hidden table becomes visible.
+             */
+
+            if (resolvedTable) {
+
+                setTimeout(function () {
+
+                    resolvedTable
+                        .columns
+                        .adjust()
+                        .draw(false);
+
+                }, 100);
+
+            }
+
+        }
+
+    }
+
+
+    /* =========================================================
+       ACTION BUTTON
+       ========================================================= */
+
+    function handleActionClick(ticketid) {
+
+        $('#pendingticketid')
+            .val(ticketid);
+
+        $('#cmt')
+            .val('');
+
+
+        $('#actionontickets')
+            .modal('show');
+
+    }
+
+
+    /* =========================================================
+       CLOSE TICKET
+       ========================================================= */
+
+    function uticket() {
+
+        const cmnt =
+            $('#cmt')
+                .val();
+
+        const tid =
+            $('#pendingticketid')
+                .val();
+
+
+        if (!cmnt ||
+            cmnt.trim() === '') {
+
+            alert(
+                'Please enter the action taken to resolve the complaint.'
+            );
+
+            $('#cmt')
+                .focus();
+
+            return;
+        }
+
+
+        if (!tid) {
+
+            alert(
+                'Invalid complaint selected.'
+            );
+
+            return;
+        }
+
+
+        const button =
+            $('#ticketclosureaction');
+
+
+        button.prop(
+            'disabled',
+            true
+        );
+
+
+        button.html(
+            '<i class="fa fa-spinner fa-spin"></i> Processing...'
+        );
+
+
+        $.ajax({
+
+            url: '/schoolbuddy/Complain/UpdateTicket',
+
+            type: 'POST',
+
+            data: {
+
+                comment: cmnt,
+
+                ticketid: tid
+
+            },
+
+            success: function (response) {
+
+                if (
+                    response === "true" ||
+                    response === true
+                ) {
+
+                    $('#actionontickets')
+                        .modal('hide');
+
+
+                    /*
+                     * Reset resolved cache.
+                     *
+                     * Next time user opens Resolved,
+                     * API will be called again.
+                     */
+
+                    resolvedLoaded = false;
+
+                    resolvedComplaintData = [];
+
+
+                    /*
+                     * Reload Pending list.
+                     *
+                     * The closed complaint should no longer
+                     * appear in Pending.
+                     */
+
+                    loadComplaintPage();
+
+
+                    /*
+                     * Keep user on Pending.
+                     */
+
+                    showComplaintTab(
+                        'pending'
+                    );
+
+                }
+                else {
+
+                    alert(
+                        'Something went wrong while closing the complaint.'
+                    );
+
+                }
+
+
+                button.prop(
+                    'disabled',
+                    false
+                );
+
+
+                button.html(
+                    '<i class="fa fa-check"></i> Ticket Closed'
+                );
+
+            },
+
+            error: function () {
+
+                alert(
+                    'Something went wrong while updating the complaint.'
+                );
+
+
+                button.prop(
+                    'disabled',
+                    false
+                );
+
+
+                button.html(
+                    '<i class="fa fa-check"></i> Ticket Closed'
+                );
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       LOADING
+       ========================================================= */
+
+    function showLoading() {
+
+        if (pendingTable) {
+
+            pendingTable
+                .clear()
+                .draw();
+
+        }
+
+    }
+
+
+    function hideLoading() {
+
+        // Reserved for future loading indicator.
+
+    }
+
+
+    /* =========================================================
+       ERROR
+       ========================================================= */
+
+    function showError(message) {
+
+        hideLoading();
+
+        alert(message);
+
+    }
+
+
+    /* =========================================================
+       HTML ESCAPE
+       ========================================================= */
+
+    function escapeHtml(value) {
+
+        return $('<div>')
+            .text(
+                value == null
+                    ? ''
+                    : value
+            )
+            .html();
+
+    }
 
 </script>
-

@@ -127,8 +127,21 @@ ViewData["Title"] = "Reports";
         display: none;
     }
 
-    .idle-summary-kpis {
-        display: none;
+    #idleSummaryKpis.idle-summary-kpis {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        width: 100% !important;
+    }
+
+    #idleSummaryKpis.idle-summary-kpis[style*="display: none"],
+    #idleSummaryKpis.idle-summary-kpis.d-none {
+        display: none !important;
+    }
+
+    #idleSummaryKpis .col {
+        display: flex;
+        flex-direction: column;
     }
 
     .idle-summary-kpi {
@@ -272,7 +285,7 @@ ViewData["Title"] = "Reports";
                 <div id="reportResultError" class="report-error-state d-none" role="alert"></div>
                 <div id="reportResultEmpty" class="report-empty-state d-none" aria-live="polite"></div>
                 <div id="idleSummaryNotice" class="idle-summary-notice alert alert-warning py-2" role="status"></div>
-                <div id="idleSummaryKpis" class="idle-summary-kpis row row-cols-2 row-cols-lg-3 row-cols-xl-6 g-3 mb-3">
+                <div id="idleSummaryKpis" class="idle-summary-kpis d-none row row-cols-2 row-cols-lg-3 row-cols-xl-6 g-3 mb-3">
                     <div class="col">
                         <div class="idle-summary-kpi">
                             <div class="label">Total Vehicles</div>
