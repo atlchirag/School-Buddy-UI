@@ -217,7 +217,7 @@
 .sb-common-modal .table thead th,
 .sb-common-modal .table thead th * {
     color: #ffffff !important;
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
 }
 
 .sb-common-modal .table thead th {
@@ -312,7 +312,7 @@
     position: sticky;
     top: 0;
     z-index: 3;
-    background: midnightblue;
+    background: #0f2d4e;
 }
 
 .sb-common-modal .dataTables_scrollBody,
@@ -331,7 +331,7 @@
 .sb-common-modal .dt-scroll-head table.dataTable thead th *,
 .sb-common-modal .dt-scroll-head table.dataTable thead td * {
     color: #ffffff !important;
-    background: midnightblue !important;
+    background: #0f2d4e !important;
 }
 
 .sb-common-modal .dataTables_scrollHead table.dataTable thead th,
@@ -460,8 +460,8 @@
 .sb-common-modal .dt-paging .dt-paging-button.current:focus {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
-    background: midnightblue !important;
-    border: 1px solid midnightblue !important;
+    background: #0f2d4e !important;
+    border: 1px solid #0f2d4e !important;
 }
 
 .sb-common-modal .dataTables_paginate .paginate_button.current *,

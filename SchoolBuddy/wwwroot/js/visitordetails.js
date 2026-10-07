@@ -1,7 +1,7 @@
 ﻿window.onload = function () {
     var holidaycontrol = document.getElementById('A1');
     holidaycontrol.click();
-    holidaycontrol.style.backgroundColor = 'midnightblue';
+    holidaycontrol.style.backgroundColor = '#0f2d4e';
     holidaycontrol.style.color = 'white';
 }
 
@@ -9,7 +9,7 @@ function changebg() {
     var holidaycontrol = document.getElementById('A1');
     var holidaycontrol1 = document.getElementById('A2');
     var holidaycontrol3 = document.getElementById('A3');
-    holidaycontrol.style.backgroundColor = 'midnightblue';
+    holidaycontrol.style.backgroundColor = '#0f2d4e';
     holidaycontrol.style.color = 'white';
 
     holidaycontrol1.style.backgroundColor = 'white';
@@ -22,7 +22,7 @@ function changebg1() {
     var holidaycontrol = document.getElementById('A1');
     var holidaycontrol1 = document.getElementById('A2');
     var holidaycontrol3 = document.getElementById('A3');
-    holidaycontrol1.style.backgroundColor = 'midnightblue';
+    holidaycontrol1.style.backgroundColor = '#0f2d4e';
     holidaycontrol1.style.color = 'white';
 
     holidaycontrol.style.backgroundColor = 'white';
@@ -44,6 +44,6 @@ function changebg2() {
     holidaycontrol.style.color = 'black';
 
 
-    holidaycontrol3.style.backgroundColor = 'midnightblue';
+    holidaycontrol3.style.backgroundColor = '#0f2d4e';
     holidaycontrol3.style.color = 'white';
 }

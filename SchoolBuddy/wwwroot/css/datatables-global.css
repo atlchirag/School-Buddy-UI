@@ -59,7 +59,7 @@
     position: sticky;
     top: 0;
     z-index: 3;
-    background: midnightblue;
+    background: #0f2d4e;
 }
 
 .modal .dataTables_scrollBody {
@@ -70,7 +70,7 @@
 
 .modal .dataTables_scrollHead table.dataTable thead th,
 .modal .dataTables_scrollHead table.dataTable thead td {
-    background: midnightblue !important;
+    background: #0f2d4e !important;
     color: #fff !important;
     text-align: center;
     vertical-align: middle;

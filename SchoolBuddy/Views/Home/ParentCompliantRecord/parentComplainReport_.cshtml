@@ -11,7 +11,7 @@
     .iconlayout {
         border: 2px solid;
         border-radius: 50%;
-        border-color: midnightblue;
+        border-color: #0f2d4e;
         padding: 1px;
         /*font-size:24px;*/
         width: 3%;
@@ -21,7 +21,7 @@
     }
 
     .icon_color {
-        color: midnightblue
+        color: #0f2d4e
     }
 
     .center {
@@ -35,7 +35,7 @@
    
     table thead th,
 table.dataTable thead th {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     color: white !important;
     text-align: center;
     vertical-align: middle !important;
@@ -57,7 +57,7 @@ table.dataTable thead th * {
 
 
         <div class="col-lg-12"style="margin-top:3vmin">
-            <div class="card-header rounded-top" style="background-color:midnightblue;color:white;">
+            <div class="card-header rounded-top" style="background-color:#0f2d4e;color:white;">
                 <p style="font-weight:600;margin:0px">Parent Complain Record</p>
             </div>
             <div class="card-body rounded" style="background-color:white;">
@@ -65,13 +65,13 @@ table.dataTable thead th * {
                     <div class="col-lg-12 col-xs-12">
                         <ul class="nav nav-tabs nav-justified d-flex justify-content-center align-content-center mt-1" style="border:0px;cursor: pointer; font-size: 20px; font-weight: 600;margin-left:0px;gap:5px;" role="tablist" id="main">
                             <li role="presentation">
-                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A1" role="tab" href="#Pending" aria-expanded="false" onclick="changebg();pending()" style="border:1px solid midnightblue;
+                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A1" role="tab" href="#Pending" aria-expanded="false" onclick="changebg();pending()" style="border:1px solid #0f2d4e;
                                 color:black;
                                 padding:5px;
                                 font-size:14px;">Pending</a>
                             </li>
                             <li role="presentation">
-                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A2" role="tab" href="#Resolved" aria-expanded="false" onclick="changebg1();resolved()" style="border:1px solid midnightblue;
+                                <a class="tabstyle" aria-controls="Driver" data-bs-toggle="tab" id="A2" role="tab" href="#Resolved" aria-expanded="false" onclick="changebg1();resolved()" style="border:1px solid #0f2d4e;
                                 color:black;
                                 padding:5px;
                                 font-size:14px;"> Resolved</a>
@@ -179,14 +179,14 @@ table.dataTable thead th * {
     window.onload = function () {
         var holidaycontrol = document.getElementById('A1');
         holidaycontrol.click();
-        holidaycontrol.style.backgroundColor = 'midnightblue';
+        holidaycontrol.style.backgroundColor = '#0f2d4e';
         holidaycontrol.style.color = 'white';
     }
 
     function changebg() {
         var holidaycontrol = document.getElementById('A1');
         var holidaycontrol1 = document.getElementById('A2');
-        holidaycontrol.style.backgroundColor = 'midnightblue';
+        holidaycontrol.style.backgroundColor = '#0f2d4e';
         holidaycontrol.style.color = 'white';
 
         holidaycontrol1.style.backgroundColor = 'white';
@@ -195,7 +195,7 @@ table.dataTable thead th * {
     function changebg1() {
         var holidaycontrol = document.getElementById('A1');
         var holidaycontrol1 = document.getElementById('A2');
-        holidaycontrol1.style.backgroundColor = 'midnightblue';
+        holidaycontrol1.style.backgroundColor = '#0f2d4e';
         holidaycontrol1.style.color = 'white';
 
         holidaycontrol.style.backgroundColor = 'white';

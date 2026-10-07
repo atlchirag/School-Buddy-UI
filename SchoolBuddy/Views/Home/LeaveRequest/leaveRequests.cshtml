@@ -1,0 +1,2685 @@
+@* =========================================================================
+   SCHOOL BUDDY - LEAVE REQUESTS MANAGEMENT
+   Compact Dashboard + DataTable
+   ========================================================================= *@
+
+@{
+    ViewData["Title"] = "Leave Requests Portal";
+}
+
+<!-- =========================================================
+     DEPENDENCIES
+     ========================================================= -->
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<link rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+
+<link rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+
+<style>
+
+    /* =========================================================
+           ROOT
+           ========================================================= */
+
+    :root {
+        --sb-font: "Lato", "Inter", sans-serif;
+        --sb-bg: #f5f7fb;
+        --sb-card: #ffffff;
+        --sb-text: #172033;
+        --sb-text-secondary: #667085;
+        --sb-text-light: #98a2b3;
+        --sb-border: #e5e7eb;
+        --sb-border-light: #eef1f5;
+        --sb-border-hover: #cbd5e1;
+        --sb-primary: #2563eb;
+        --sb-primary-dark: #1d4ed8;
+        --sb-primary-soft: #eff6ff;
+        --sb-midnight: #0f2d4e;
+        --sb-warning: #d97706;
+        --sb-warning-soft: #fffbeb;
+        --sb-warning-border: #fde68a;
+        --sb-success: #16a34a;
+        --sb-success-soft: #ecfdf3;
+        --sb-success-border: #bbf7d0;
+        --sb-danger: #dc2626;
+        --sb-danger-soft: #fef2f2;
+        --sb-danger-border: #fecaca;
+        --sb-radius-sm: 8px;
+        --sb-radius-md: 12px;
+        --sb-radius-lg: 16px;
+        --sb-shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04);
+        --sb-shadow-md: 0 4px 12px rgba(16, 24, 40, 0.06);
+        --sb-shadow-lg: 0 10px 30px rgba(16, 24, 40, 0.08);
+        --sb-input-bg: #ffffff;
+        --sb-row-hover: #f8fafc;
+        --sb-label: #475467;
+        --sb-btn-text: #344054;
+        --sb-primary-border: #bfdbfe;
+        --sb-avatar-bg: linear-gradient(135deg, #e0e7ff, #dbeafe);
+        --sb-avatar-text: #3730a3;
+    }
+
+
+    /* =========================================================
+           DARK THEME
+           (html[...] outranks :root so these win when toggled)
+           ========================================================= */
+
+    html[data-bs-theme="dark"] {
+        --sb-bg: #0f172a;
+        --sb-card: #111827;
+        --sb-text: #f8fafc;
+        --sb-text-secondary: #cbd5e1;
+        --sb-text-light: #94a3b8;
+        --sb-border: #334155;
+        --sb-border-light: #1e293b;
+        --sb-border-hover: #475569;
+        --sb-primary: #3b82f6;
+        --sb-primary-dark: #2563eb;
+        --sb-primary-soft: rgba(59, 130, 246, 0.15);
+        --sb-primary-border: rgba(59, 130, 246, 0.45);
+        --sb-warning: #fbbf24;
+        --sb-warning-soft: rgba(251, 191, 36, 0.12);
+        --sb-warning-border: rgba(251, 191, 36, 0.35);
+        --sb-success: #4ade80;
+        --sb-success-soft: rgba(74, 222, 128, 0.12);
+        --sb-success-border: rgba(74, 222, 128, 0.35);
+        --sb-danger: #f87171;
+        --sb-danger-soft: rgba(248, 113, 113, 0.12);
+        --sb-danger-border: rgba(248, 113, 113, 0.35);
+        --sb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.30);
+        --sb-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+        --sb-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.45);
+        --sb-input-bg: #1e293b;
+        --sb-row-hover: #1e293b;
+        --sb-label: #cbd5e1;
+        --sb-btn-text: #e2e8f0;
+        --sb-avatar-bg: linear-gradient(135deg, #312e81, #1e3a8a);
+        --sb-avatar-text: #c7d2fe;
+    }
+
+    html[data-bs-theme="dark"] #leaveTable thead th {
+        background-color: #1e293b !important;
+    }
+
+    html[data-bs-theme="dark"] .input-custom {
+        color-scheme: dark;
+    }
+
+
+    /* =========================================================
+           GLOBAL
+           ========================================================= */
+
+    .leave-container,
+    .leave-container button,
+    .leave-container input,
+    .leave-container select,
+    .swal2-popup {
+        font-family: var(--sb-font);
+    }
+
+    .leave-container {
+        width: 100%;
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 20px 24px 35px;
+        color: var(--sb-text);
+        font-size: 13px;
+    }
+
+
+    /* =========================================================
+           KPI SECTION
+           ========================================================= */
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+
+    /* =========================================================
+           COMPACT KPI CARD
+           ========================================================= */
+
+    .metric-card {
+        position: relative;
+        width: 100%;
+        height: 110px;
+        min-height: 110px;
+        overflow: hidden;
+        padding: 16px 18px;
+        background: var(--sb-card);
+        border: 1px solid var(--sb-border);
+        border-radius: var(--sb-radius-md);
+        box-shadow: var(--sb-shadow-sm);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--sb-border-hover);
+            box-shadow: var(--sb-shadow-md);
+        }
+
+
+        /* =========================================================
+           ACTIVE CARD
+           ========================================================= */
+
+        .metric-card.active-card {
+            border-color: rgba(37, 99, 235, 0.35);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.07), var(--sb-shadow-md);
+        }
+
+
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            height: 3px;
+            background: transparent;
+        }
+
+
+        .metric-card.active-card::after {
+            background: var(--sb-primary);
+        }
+
+
+    /* =========================================================
+           KPI TOP
+           ========================================================= */
+
+    .metric-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+
+    .metric-title {
+        margin: 0 0 7px 0;
+        color: var(--sb-text-secondary);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+
+    .metric-value {
+        color: var(--sb-text);
+        font-size: 27px;
+        font-weight: 750;
+        line-height: 1;
+        letter-spacing: -0.03em;
+    }
+
+
+        .metric-value.pending {
+            color: var(--sb-warning);
+        }
+
+
+        .metric-value.approved {
+            color: var(--sb-success);
+        }
+
+
+        .metric-value.rejected {
+            color: var(--sb-danger);
+        }
+
+
+    /* =========================================================
+           KPI SUBTEXT
+           ========================================================= */
+
+    .metric-sub {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--sb-text-light);
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+
+        .metric-sub i {
+            font-size: 12px;
+        }
+
+
+    /* =========================================================
+           KPI ICON
+           ========================================================= */
+
+    .icon-box {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 17px;
+    }
+
+
+        .icon-box.total {
+            background: var(--sb-primary-soft);
+            color: var(--sb-primary);
+        }
+
+
+        .icon-box.pending {
+            background: var(--sb-warning-soft);
+            color: var(--sb-warning);
+        }
+
+
+        .icon-box.approved {
+            background: var(--sb-success-soft);
+            color: var(--sb-success);
+        }
+
+
+        .icon-box.rejected {
+            background: var(--sb-danger-soft);
+            color: var(--sb-danger);
+        }
+
+
+    /* =========================================================
+           TABLE CARD
+           ========================================================= */
+
+    .table-wrapper-card {
+        width: 100%;
+        background: var(--sb-card);
+        border: 1px solid var(--sb-border);
+        border-radius: var(--sb-radius-lg);
+        box-shadow: var(--sb-shadow-sm);
+        overflow: hidden;
+    }
+
+
+    /* =========================================================
+           TABLE TOOLBAR
+           ========================================================= */
+
+    .table-header-toolbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        min-height: 92px;
+        padding: 15px 18px;
+        background: var(--sb-card);
+        border-bottom: 1px solid var(--sb-border);
+    }
+
+
+    /* =========================================================
+           TABLE TITLE
+           ========================================================= */
+
+    .table-header-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+        padding-top: 6px;
+        color: var(--sb-text);
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+
+        .table-header-title i {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9px;
+            background: var(--sb-primary-soft);
+            color: var(--sb-primary);
+            font-size: 15px;
+        }
+
+
+    /* =========================================================
+           TOOLBAR RIGHT
+           ========================================================= */
+
+    .header-actions-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+        min-width: 0;
+    }
+
+
+    /* =========================================================
+           MONTH FILTER
+           ========================================================= */
+
+    .month-filter-group {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        white-space: nowrap;
+    }
+
+
+        .month-filter-group label {
+            margin: 0;
+            color: var(--sb-label);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+
+    .input-custom {
+        width: 175px;
+        height: 34px;
+        padding: 0 10px;
+        background: var(--sb-input-bg);
+        border: 1px solid var(--sb-border-hover);
+        border-radius: var(--sb-radius-sm);
+        color: var(--sb-text);
+        font-size: 12px;
+        outline: none;
+    }
+
+
+        .input-custom:focus {
+            border-color: var(--sb-primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
+
+    /* =========================================================
+           CURRENT MONTH BUTTON
+           ========================================================= */
+
+    .btn-quick {
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 0 12px;
+        background: var(--sb-input-bg);
+        border: 1px solid var(--sb-border-hover);
+        border-radius: var(--sb-radius-sm);
+        color: var(--sb-btn-text);
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.18s ease;
+    }
+
+
+        .btn-quick i {
+            color: var(--sb-primary);
+        }
+
+
+        .btn-quick:hover {
+            background: var(--sb-primary-soft);
+            border-color: var(--sb-primary);
+            color: var(--sb-primary);
+        }
+
+
+    /* =========================================================
+           SEARCH
+           ========================================================= */
+
+    #leaveSearchContainer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+
+        #leaveSearchContainer .dataTables_filter {
+            float: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: right !important;
+        }
+
+
+            #leaveSearchContainer .dataTables_filter label {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 7px;
+                margin: 0 !important;
+                color: var(--sb-label);
+                font-size: 12px;
+                font-weight: 700;
+            }
+
+
+            #leaveSearchContainer .dataTables_filter input {
+                width: 230px;
+                height: 34px;
+                margin: 0 !important;
+                padding: 0 10px;
+                background: var(--sb-input-bg);
+                border: 1px solid var(--sb-border-hover);
+                border-radius: var(--sb-radius-sm);
+                color: var(--sb-text);
+                font-size: 12px;
+                outline: none;
+            }
+
+
+                #leaveSearchContainer .dataTables_filter input:focus {
+                    border-color: var(--sb-primary);
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+                }
+
+
+    /* =========================================================
+           DATATABLE
+           ========================================================= */
+
+    #leaveTable {
+        width: 100% !important;
+        margin: 0 !important;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        #leaveTable thead th,
+        #leaveTable tbody td {
+            text-align: left !important;
+        }
+
+
+
+        /* =========================================================
+           TABLE HEADER
+           ========================================================= */
+
+        #leaveTable thead th {
+            background-color: #0f2d4e !important;
+            color: white !important;
+            padding: 11px 14px !important;
+            vertical-align: middle !important;
+            white-space: nowrap;
+            font-size: 14px !important;
+            font-weight: 600;
+        }
+
+
+            #leaveTable thead th * {
+                color: white !important;
+                font-size: 14px !important;
+            }
+
+
+        /* =========================================================
+           TABLE BODY
+           ========================================================= */
+
+        #leaveTable tbody tr {
+            background: var(--sb-card);
+            transition: background-color 0.15s ease;
+        }
+
+
+            #leaveTable tbody tr:hover {
+                background: var(--sb-row-hover);
+            }
+
+
+        #leaveTable tbody td {
+            padding: 11px 13px;
+            border-bottom: 1px solid var(--sb-border-light);
+            color: var(--sb-text);
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+
+        #leaveTable tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+
+    /* =========================================================
+           STUDENT
+           ========================================================= */
+
+    .student-cell {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+
+    .avatar-circle {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 9px;
+        background: var(--sb-avatar-bg);
+        color: var(--sb-avatar-text);
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+    }
+
+
+    .student-name {
+        color: var(--sb-text);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+
+    /* =========================================================
+           SUBTEXT
+           ========================================================= */
+
+    .sub-text {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-top: 3px;
+        color: var(--sb-text-secondary);
+        font-size: 11px;
+        line-height: 1.3;
+    }
+
+
+        .sub-text i {
+            font-size: 11px;
+        }
+
+
+    /* =========================================================
+           DATE
+           ========================================================= */
+
+    #leaveTable .bi-calendar-event {
+        margin-right: 4px;
+        color: var(--sb-primary) !important;
+    }
+
+
+    /* =========================================================
+           STATUS
+           ========================================================= */
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+
+        .status-badge.applied {
+            background: var(--sb-warning-soft);
+            border: 1px solid var(--sb-warning-border);
+            color: var(--sb-warning);
+        }
+
+
+        .status-badge.approved {
+            background: var(--sb-success-soft);
+            border: 1px solid var(--sb-success-border);
+            color: var(--sb-success);
+        }
+
+
+        .status-badge.rejected {
+            background: var(--sb-danger-soft);
+            border: 1px solid var(--sb-danger-border);
+            color: var(--sb-danger);
+        }
+
+
+    /* =========================================================
+           ACTION BUTTONS
+           ========================================================= */
+
+    .action-btn-group {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 5px;
+    }
+
+
+    .btn-action-approve,
+    .btn-action-reject {
+        height: 29px;
+        min-width: 65px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 0 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+
+    .btn-action-approve {
+        background: var(--sb-success-soft);
+        border: 1px solid var(--sb-success-border);
+        color: var(--sb-success);
+    }
+
+
+        .btn-action-approve:hover {
+            background: var(--sb-success);
+            border-color: var(--sb-success);
+            color: #ffffff;
+        }
+
+
+    .btn-action-reject {
+        background: var(--sb-danger-soft);
+        border: 1px solid var(--sb-danger-border);
+        color: var(--sb-danger);
+    }
+
+
+        .btn-action-reject:hover {
+            background: var(--sb-danger);
+            border-color: var(--sb-danger);
+            color: #ffffff;
+        }
+
+
+    /* =========================================================
+           DATATABLE INFO
+           ========================================================= */
+
+    .dataTables_wrapper .dataTables_info {
+        padding: 12px 18px !important;
+        color: var(--sb-text-secondary);
+        font-size: 10px;
+    }
+
+
+    /* =========================================================
+           DATATABLE PAGINATION
+           ========================================================= */
+
+    .dataTables_wrapper .dataTables_paginate {
+        padding: 8px 18px 12px !important;
+    }
+
+
+        .dataTables_wrapper
+        .dataTables_paginate
+        .paginate_button {
+            min-width: 30px !important;
+            height: 30px !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            margin-left: 3px !important;
+            padding: 0 !important;
+            border-radius: 6px !important;
+            font-size: 10px !important;
+            line-height: 1 !important;
+        }
+
+
+            .dataTables_wrapper
+            .dataTables_paginate
+            .paginate_button i {
+                font-size: 10px;
+                line-height: 1;
+            }
+
+
+            .dataTables_wrapper
+            .dataTables_paginate
+            .paginate_button.current {
+                background: var(--sb-primary) !important;
+                border-color: var(--sb-primary) !important;
+                color: #ffffff !important;
+            }
+
+
+                .dataTables_wrapper
+                .dataTables_paginate
+                .paginate_button.current:hover {
+                    background: var(--sb-primary-dark) !important;
+                    border-color: var(--sb-primary-dark) !important;
+                    color: #ffffff !important;
+                }
+
+
+            .dataTables_wrapper
+            .dataTables_paginate
+            .paginate_button:hover {
+                background: var(--sb-primary-soft) !important;
+                border-color: var(--sb-primary-border) !important;
+                color: var(--sb-primary) !important;
+            }
+
+
+            .dataTables_wrapper
+            .dataTables_paginate
+            .paginate_button.disabled {
+                opacity: 0.45 !important;
+                cursor: default !important;
+                background: transparent !important;
+                border-color: transparent !important;
+            }
+
+
+    /* =========================================================
+           TABLET
+           ========================================================= */
+
+    @@media (max-width: 1100px) {
+
+        .leave-container {
+            padding: 18px;
+        }
+
+        .metrics-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .metric-card {
+            height: 108px;
+            min-height: 108px;
+        }
+
+        .table-header-toolbar {
+            min-height: auto;
+        }
+
+        .header-actions-right {
+            max-width: 65%;
+        }
+    }
+
+
+    /* =========================================================
+           MOBILE
+           ========================================================= */
+
+    @@media (max-width: 768px) {
+
+        .leave-container {
+            padding: 12px;
+        }
+
+        .metrics-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .metric-card {
+            height: 105px;
+            min-height: 105px;
+            padding: 14px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+        }
+
+        .icon-box {
+            width: 36px;
+            height: 36px;
+            flex-basis: 36px;
+            font-size: 15px;
+        }
+
+        .table-header-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+            padding: 14px;
+        }
+
+        .table-header-title {
+            padding-top: 0;
+        }
+
+        .header-actions-right {
+            width: 100%;
+            max-width: none;
+            align-items: stretch;
+        }
+
+        .month-filter-group {
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .input-custom {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        #leaveSearchContainer {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+            #leaveSearchContainer .dataTables_filter {
+                width: 100%;
+                text-align: left !important;
+            }
+
+                #leaveSearchContainer
+                .dataTables_filter label {
+                    width: 100%;
+                    justify-content: flex-start;
+                }
+
+                #leaveSearchContainer
+                .dataTables_filter input {
+                    flex: 1;
+                    width: auto;
+                }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        #leaveTable {
+            min-width: 1050px;
+        }
+    }
+
+
+    /* =========================================================
+           SMALL MOBILE
+           ========================================================= */
+
+    @@media (max-width: 480px) {
+
+        .leave-container {
+            padding: 11px;
+        }
+
+        .metrics-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .metric-card {
+            height: 100px;
+            min-height: 100px;
+            padding: 12px;
+        }
+
+        .metric-title {
+            font-size: 8px;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 22px;
+        }
+
+        .metric-sub {
+            font-size: 8px;
+        }
+
+        .icon-box {
+            width: 32px;
+            height: 32px;
+            flex-basis: 32px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .month-filter-group {
+            display: grid;
+            grid-template-columns: auto 1fr;
+        }
+
+            .month-filter-group .btn-quick {
+                grid-column: 1 / -1;
+                width: 100%;
+            }
+
+        #leaveSearchContainer
+        .dataTables_filter label {
+            align-items: flex-start;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        #leaveSearchContainer
+        .dataTables_filter input {
+            width: 100%;
+        }
+
+        .action-btn-group {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+
+
+<!-- =========================================================
+     MAIN CONTAINER
+     ========================================================= -->
+
+<div class="leave-container">
+
+
+    <!-- =====================================================
+         KPI CARDS
+         ===================================================== -->
+
+    <div class="metrics-grid">
+
+
+        <!-- =================================================
+             TOTAL REQUESTS
+             ================================================= -->
+
+        <div class="metric-card active-card"
+             id="cardAll"
+             onclick="filterByStatus('all')">
+
+            <div class="metric-top">
+
+                <div>
+
+                    <div class="metric-title">
+                        Total Requests
+                    </div>
+
+                    <div class="metric-value"
+                         id="cntAll">
+                        0
+                    </div>
+
+                </div>
+
+                <div class="icon-box total">
+                    <i class="bi bi-layers-half"></i>
+                </div>
+
+            </div>
+
+
+            <div class="metric-sub">
+
+                <i class="bi bi-calendar3 text-primary"></i>
+
+                <span>
+                    All applications for selected month
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PENDING
+             ================================================= -->
+
+        <div class="metric-card"
+             id="card0"
+             onclick="filterByStatus('0')">
+
+            <div class="metric-top">
+
+                <div>
+
+                    <div class="metric-title">
+                        Pending Action
+                    </div>
+
+                    <div class="metric-value pending"
+                         id="cnt0">
+                        0
+                    </div>
+
+                </div>
+
+                <div class="icon-box pending">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+
+            </div>
+
+
+            <div class="metric-sub">
+
+                <i class="bi bi-exclamation-circle text-warning"></i>
+
+                <span>
+                    Awaiting decision
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             APPROVED
+             ================================================= -->
+
+        <div class="metric-card"
+             id="card1"
+             onclick="filterByStatus('1')">
+
+            <div class="metric-top">
+
+                <div>
+
+                    <div class="metric-title">
+                        Approved
+                    </div>
+
+                    <div class="metric-value approved"
+                         id="cnt1">
+                        0
+                    </div>
+
+                </div>
+
+                <div class="icon-box approved">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+
+            </div>
+
+
+            <div class="metric-sub">
+
+                <i class="bi bi-graph-up-arrow text-success"></i>
+
+                <span>
+                    Granted absence
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             REJECTED
+             ================================================= -->
+
+        <div class="metric-card"
+             id="card2"
+             onclick="filterByStatus('2')">
+
+            <div class="metric-top">
+
+                <div>
+
+                    <div class="metric-title">
+                        Rejected
+                    </div>
+
+                    <div class="metric-value rejected"
+                         id="cnt2">
+                        0
+                    </div>
+
+                </div>
+
+                <div class="icon-box rejected">
+                    <i class="bi bi-x-circle-fill"></i>
+                </div>
+
+            </div>
+
+
+            <div class="metric-sub">
+
+                <i class="bi bi-info-circle text-danger"></i>
+
+                <span>
+                    Declined applications
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLE CARD
+         ===================================================== -->
+
+    <div class="table-wrapper-card">
+
+
+        <!-- =================================================
+             TABLE TOOLBAR
+             ================================================= -->
+
+        <div class="table-header-toolbar">
+
+
+            <!-- LEFT -->
+
+            <h6 class="table-header-title">
+
+                <i class="bi bi-list-task"></i>
+
+                Leave Applications List
+
+            </h6>
+
+
+            <!-- RIGHT -->
+
+            <div class="header-actions-right">
+
+
+                <!-- MONTH -->
+
+                <div class="month-filter-group">
+
+                    <label for="leaveMonth">
+                        Month:
+                    </label>
+
+
+                    <input type="month"
+                           id="leaveMonth"
+                           class="input-custom" />
+
+
+                    <button type="button"
+                            class="btn-quick"
+                            onclick="setCurrentMonth()">
+
+                        <i class="bi bi-calendar-event"></i>
+
+                        Current Month
+
+                    </button>
+
+                </div>
+
+
+                <!-- SEARCH -->
+
+                <div id="leaveSearchContainer"></div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TABLE
+             ================================================= -->
+
+        <div class="table-responsive">
+
+            <table id="leaveTable"
+                   class="table w-100">
+
+                <thead>
+
+                    <tr>
+
+                        <th style="width:50px;">
+                            S.No.
+                        </th>
+
+                        <th>
+                            Leave Date
+                        </th>
+
+                        <th>
+                            Student Information
+                        </th>
+
+                        <th>
+                            Class & Section
+                        </th>
+
+                        <th>
+                            Parent Details
+                        </th>
+
+                        <th>
+                            Reason for Absence
+                        </th>
+
+                        <th>
+                            Applied Date
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th class="text-start"
+                            style="width:170px;">
+                            Actions
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     JAVASCRIPT DEPENDENCIES
+     ========================================================= -->
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+
+    /* =========================================================
+       STATUS CONFIGURATION
+       ========================================================= */
+
+    const LEAVE_STATUS = {
+
+        0: {
+            label: 'Pending',
+            badgeClass: 'applied',
+            icon: 'bi-hourglass-split'
+        },
+
+        1: {
+            label: 'Approved',
+            badgeClass: 'approved',
+            icon: 'bi-check-circle-fill'
+        },
+
+        2: {
+            label: 'Rejected',
+            badgeClass: 'rejected',
+            icon: 'bi-x-circle-fill'
+        }
+
+    };
+
+
+    /* =========================================================
+       GLOBAL VARIABLES
+       ========================================================= */
+
+    let leaveData = [];
+
+    let leaveTable = null;
+
+    let activeLeaveTab = 'all';
+
+
+    /* =========================================================
+       ESCAPE HTML
+       ========================================================= */
+
+    function escapeHtml(value) {
+
+        return String(value ?? '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+
+    }
+
+
+    /* =========================================================
+       FORMAT DATE
+       ========================================================= */
+
+    function formatDate(value, withTime = false) {
+
+        if (!value) {
+            return '';
+        }
+
+        const d = new Date(
+            String(value).replace(' ', 'T')
+        );
+
+        if (isNaN(d)) {
+            return escapeHtml(value);
+        }
+
+        const options = {
+
+            day: '2-digit',
+
+            month: 'short',
+
+            year: 'numeric'
+
+        };
+
+        if (withTime) {
+
+            options.hour = '2-digit';
+
+            options.minute = '2-digit';
+
+        }
+
+        return d.toLocaleString(
+            'en-GB',
+            options
+        );
+
+    }
+
+
+    /* =========================================================
+       GET INITIALS
+       ========================================================= */
+
+    function getInitials(name) {
+
+        if (!name) {
+            return 'S';
+        }
+
+        const parts =
+            name.trim().split(/\s+/);
+
+        if (parts.length > 1) {
+
+            return (
+                parts[0][0] +
+                parts[1][0]
+            ).toUpperCase();
+
+        }
+
+        return parts[0][0].toUpperCase();
+
+    }
+
+
+    /* =========================================================
+       CURRENT MONTH
+       ========================================================= */
+
+    function currentMonthValue() {
+
+        const now = new Date();
+
+        return (
+            now.getFullYear() +
+            '-' +
+            String(
+                now.getMonth() + 1
+            ).padStart(2, '0')
+        );
+
+    }
+
+
+    /* =========================================================
+       SET CURRENT MONTH
+       ========================================================= */
+
+    function setCurrentMonth() {
+
+        $('#leaveMonth')
+            .val(currentMonthValue());
+
+        loadLeaveRequests();
+
+    }
+
+
+    /* =========================================================
+       INITIALIZE DATATABLE
+       ========================================================= */
+
+    function initLeaveTable() {
+
+        leaveTable = $('#leaveTable').DataTable({
+
+            data: [],
+
+            pageLength: 10,
+
+            lengthChange: false,
+
+            ordering: true,
+
+            order: [
+                [1, 'desc']
+            ],
+
+            autoWidth: false,
+
+            responsive: false,
+
+            language: {
+
+                search: 'Search:',
+
+                searchPlaceholder:
+                    'Search student, parent, reason...',
+
+                info:
+                    'Showing _START_ to _END_ of _TOTAL_ leave requests',
+
+                infoEmpty:
+                    'No records found',
+
+                zeroRecords:
+                    'No matching leave requests found',
+
+                emptyTable:
+                    'No leave requests available',
+
+                paginate: {
+
+                    first:
+                        '<i class="bi bi-chevron-double-left"></i>',
+
+                    previous:
+                        '<i class="bi bi-chevron-left"></i>',
+
+                    next:
+                        '<i class="bi bi-chevron-right"></i>',
+
+                    last:
+                        '<i class="bi bi-chevron-double-right"></i>'
+                }
+
+            },
+
+
+            /* =================================================
+               COLUMNS
+               ================================================= */
+
+            columns: [
+
+
+                /* =================================================
+                   S.NO.
+                   ================================================= */
+
+                {
+
+                    data: null,
+
+                    orderable: false,
+
+                    searchable: false,
+
+                    render: function (
+                        data,
+                        type,
+                        row,
+                        meta
+                    ) {
+
+                        return `
+                                <span class="fw-semibold text-muted">
+                                    ${meta.row +
+                            meta.settings._iDisplayStart +
+                            1
+                            }
+                                </span>
+                            `;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   LEAVE DATE
+                   ================================================= */
+
+                {
+
+                    data: 'leave_date',
+
+                    render: function (data) {
+
+                        return `
+
+                                <div class="fw-bold text-dark">
+
+                                    <i class="bi bi-calendar-event"></i>
+
+                                    ${formatDate(data)}
+
+                                </div>
+
+                            `;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   STUDENT
+                   ================================================= */
+
+                {
+
+                    data: 'student_name',
+
+                    render: function (
+                        data,
+                        type,
+                        row
+                    ) {
+
+                        return `
+
+                                <div class="student-cell">
+
+                                    <div class="avatar-circle">
+
+                                        ${getInitials(data)}
+
+                                    </div>
+
+                                    <div>
+
+                                        <div class="student-name">
+
+                                            ${escapeHtml(data)}
+
+                                        </div>
+
+                                        <div class="sub-text">
+
+                                            <i class="bi bi-card-heading"></i>
+
+                                            ${escapeHtml(
+                            row.admission_no ||
+                            'N/A'
+                        )
+                            }
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            `;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   CLASS
+                   ================================================= */
+
+                {
+
+                    data: 'class_name',
+
+                    render: function (
+                        data,
+                        type,
+                        row
+                    ) {
+
+                        return `
+
+                                <div>
+
+                                    <div class="fw-semibold text-dark">
+
+                                        ${escapeHtml(data)}
+
+                                    </div>
+
+                                    ${row.section
+                                ? `
+                                            <div class="sub-text">
+                                                Sec:
+                                                ${escapeHtml(row.section)}
+                                            </div>
+                                          `
+                                : ''
+                            }
+
+                                </div>
+
+                            `;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   PARENT
+                   ================================================= */
+
+                {
+
+                    data: 'parent_name',
+
+                    render: function (
+                        data,
+                        type,
+                        row
+                    ) {
+
+                        return `
+
+                                <div>
+
+                                    <div class="fw-semibold text-dark">
+
+                                        ${escapeHtml(data)}
+
+                                    </div>
+
+                                    <div class="sub-text">
+
+                                        <i class="bi bi-telephone"></i>
+
+                                        ${escapeHtml(
+                            row.mobile_no || ''
+                        )}
+
+                                    </div>
+
+                                </div>
+
+                            `;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   REASON
+                   ================================================= */
+
+                {
+
+                    data: 'reason',
+
+                    render: function (data) {
+
+                        return `
+
+                                <div
+                                    style="
+                                        max-width:220px;
+                                        color:var(--sb-text-secondary);
+                                        font-size:12px;
+                                    "
+                                >
+
+                                    ${escapeHtml(data)}
+
+                                </div>
+
+                            `;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   APPLIED DATE
+                   ================================================= */
+
+                {
+
+                    data: 'applied_on',
+
+                    render: function (data) {
+
+                        return `
+
+                                <div class="text-muted">
+
+                                    ${formatDate(data, true)}
+
+                                </div>
+
+                            `;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   STATUS
+                   ================================================= */
+
+                {
+
+                    data: 'status',
+
+                    render: function (
+                        data,
+                        type,
+                        row
+                    ) {
+
+                        const status =
+                            LEAVE_STATUS[data] ||
+                            {
+
+                                label: 'Unknown',
+
+                                badgeClass: 'applied',
+
+                                icon:
+                                    'bi-question-circle'
+
+                            };
+
+
+                        let html = `
+
+                                <span
+                                    class="
+                                        status-badge
+                                        ${status.badgeClass}
+                                    "
+                                >
+
+                                    <i
+                                        class="
+                                            bi
+                                            ${status.icon}
+                                        "
+                                    ></i>
+
+                                    ${status.label}
+
+                                </span>
+
+                            `;
+
+
+                        if (row.remark) {
+
+                            html += `
+
+                                    <div class="sub-text">
+
+                                        <i class="bi bi-chat-left-text"></i>
+
+                                        ${escapeHtml(row.remark)}
+
+                                    </div>
+
+                                `;
+
+                        }
+
+
+                        return html;
+
+                    }
+
+                },
+
+
+                /* =================================================
+                   ACTIONS
+                   ================================================= */
+
+                {
+
+                    data: null,
+
+                    orderable: false,
+
+                    searchable: false,
+
+                    className: 'text-start',
+
+                    render: function (
+                        data,
+                        type,
+                        row
+                    ) {
+
+
+                        /* ================================
+                           PENDING
+                           ================================ */
+
+                        if (
+                            Number(row.status) === 0
+                        ) {
+
+                            return `
+
+                                    <div class="action-btn-group">
+
+                                        <button
+                                            type="button"
+                                            class="btn-action-approve"
+                                            onclick="
+                                                changeLeaveStatus(
+                                                    ${row.id},
+                                                    1
+                                                )
+                                            "
+                                        >
+
+                                            <i class="bi bi-check-lg"></i>
+
+                                            Approve
+
+                                        </button>
+
+
+                                        <button
+                                            type="button"
+                                            class="btn-action-reject"
+                                            onclick="
+                                                changeLeaveStatus(
+                                                    ${row.id},
+                                                    2
+                                                )
+                                            "
+                                        >
+
+                                            <i class="bi bi-x-lg"></i>
+
+                                            Reject
+
+                                        </button>
+
+                                    </div>
+
+                                `;
+
+                        }
+
+
+                        /* ================================
+                           APPROVED
+                           ================================ */
+
+                        if (
+                            Number(row.status) === 1
+                        ) {
+
+                            return `
+
+                                    <div class="action-btn-group">
+
+                                        <button
+                                            type="button"
+                                            class="btn-action-reject"
+                                            onclick="
+                                                changeLeaveStatus(
+                                                    ${row.id},
+                                                    2
+                                                )
+                                            "
+                                        >
+
+                                            <i class="
+                                                bi
+                                                bi-arrow-counterclockwise
+                                            "></i>
+
+                                            Revoke
+
+                                        </button>
+
+                                    </div>
+
+                                `;
+
+                        }
+
+
+                        /* ================================
+                           REJECTED
+                           ================================ */
+
+                        return `
+
+                                <div class="action-btn-group">
+
+                                    <button
+                                        type="button"
+                                        class="btn-action-approve"
+                                        onclick="
+                                            changeLeaveStatus(
+                                                ${row.id},
+                                                1
+                                            )
+                                        "
+                                    >
+
+                                        <i class="
+                                            bi
+                                            bi-arrow-counterclockwise
+                                        "></i>
+
+                                        Re-approve
+
+                                    </button>
+
+                                </div>
+
+                            `;
+
+                    }
+
+                }
+
+            ]
+
+        });
+
+
+        /* =====================================================
+           MOVE SEARCH TO CUSTOM CONTAINER
+           ===================================================== */
+
+        const searchBox =
+            $('#leaveTable_wrapper .dataTables_filter');
+
+
+        if (searchBox.length) {
+
+            $('#leaveSearchContainer')
+                .empty()
+                .append(searchBox);
+
+        }
+
+
+        /* =====================================================
+           SEARCH ACCESSIBILITY
+           ===================================================== */
+
+        $('#leaveSearchContainer input')
+            .attr(
+                'aria-label',
+                'Search leave applications'
+            );
+
+    }
+
+
+    /* =========================================================
+       RENDER FILTERED TABLE
+       ========================================================= */
+
+    function renderLeaveTab() {
+
+        let rows;
+
+
+        if (
+            activeLeaveTab === 'all'
+        ) {
+
+            rows = leaveData;
+
+        }
+        else {
+
+            rows =
+                leaveData.filter(
+                    function (row) {
+
+                        return String(
+                            row.status
+                        ) === activeLeaveTab;
+
+                    }
+                );
+
+        }
+
+
+        leaveTable
+            .clear()
+            .rows
+            .add(rows)
+            .draw();
+
+    }
+
+
+    /* =========================================================
+       FILTER BY STATUS
+       ========================================================= */
+
+    function filterByStatus(tab) {
+
+        activeLeaveTab = tab;
+
+
+        $('.metric-card')
+            .removeClass('active-card');
+
+
+        if (tab === 'all') {
+
+            $('#cardAll')
+                .addClass('active-card');
+
+        }
+        else {
+
+            $('#card' + tab)
+                .addClass('active-card');
+
+        }
+
+
+        renderLeaveTab();
+
+    }
+
+
+    /* =========================================================
+       UPDATE COUNTS
+       ========================================================= */
+
+    function updateCounts() {
+
+        const counts = {
+
+            0: 0,
+
+            1: 0,
+
+            2: 0
+
+        };
+
+
+        leaveData.forEach(
+            function (row) {
+
+                const status =
+                    Number(row.status);
+
+
+                if (
+                    counts[status] !== undefined
+                ) {
+
+                    counts[status]++;
+
+                }
+
+            }
+        );
+
+
+        $('#cntAll')
+            .text(leaveData.length);
+
+
+        $('#cnt0')
+            .text(counts[0]);
+
+
+        $('#cnt1')
+            .text(counts[1]);
+
+
+        $('#cnt2')
+            .text(counts[2]);
+
+    }
+
+
+    /* =========================================================
+       LOAD LEAVE REQUESTS
+       ========================================================= */
+
+    function loadLeaveRequests() {
+
+        const month =
+            $('#leaveMonth').val() ||
+            currentMonthValue();
+
+
+        $.ajax({
+
+            url:
+                '/schoolbuddy/Leave/GetLeaveRequests',
+
+            type:
+                'GET',
+
+            data: {
+
+                month: month
+
+            },
+
+            cache: false,
+
+
+            /* =================================================
+               SUCCESS
+               ================================================= */
+
+            success: function (response) {
+
+                let res = response;
+
+
+                try {
+
+                    if (
+                        typeof res === 'string'
+                    ) {
+
+                        res =
+                            res
+                                ? JSON.parse(res)
+                                : null;
+
+                    }
+
+                }
+                catch (e) {
+
+                    console.error(
+                        'Leave API JSON parse error:',
+                        e
+                    );
+
+                    res = null;
+
+                }
+
+
+                if (
+                    res &&
+                    res.status === '1'
+                ) {
+
+                    leaveData =
+                        (res.data || [])
+                            .map(
+                                function (row) {
+
+                                    return {
+
+                                        ...row,
+
+                                        status:
+                                            Number(
+                                                row.status
+                                            )
+
+                                    };
+
+                                }
+                            );
+
+                }
+                else {
+
+                    leaveData = [];
+
+                }
+
+
+                updateCounts();
+
+                renderLeaveTab();
+
+            },
+
+
+            /* =================================================
+               ERROR
+               ================================================= */
+
+            error: function (
+                xhr,
+                status,
+                error
+            ) {
+
+                console.error(
+                    'Failed to load leave requests:',
+                    {
+                        xhr: xhr,
+                        status: status,
+                        error: error
+                    }
+                );
+
+
+                leaveData = [];
+
+
+                updateCounts();
+
+                renderLeaveTab();
+
+            }
+
+        });
+
+    }
+
+
+    /* =========================================================
+       CHANGE LEAVE STATUS
+       ========================================================= */
+
+    function changeLeaveStatus(
+        leaveId,
+        targetStatus
+    ) {
+
+
+        const row =
+            leaveData.find(
+                function (r) {
+
+                    return Number(r.id) ===
+                        Number(leaveId);
+
+                }
+            );
+
+
+        if (!row) {
+
+            console.error(
+                'Leave request not found:',
+                leaveId
+            );
+
+            return;
+
+        }
+
+
+        const isApprove =
+            Number(targetStatus) === 1;
+
+
+        const titleText =
+            isApprove
+                ? 'Approve Leave Application?'
+                : 'Reject Leave Application?';
+
+
+        const confirmBtnColor =
+            isApprove
+                ? '#16a34a'
+                : '#dc2626';
+
+
+        const confirmButtonText =
+            isApprove
+                ? '<i class="bi bi-check-circle me-1"></i> Confirm Approve'
+                : '<i class="bi bi-x-circle me-1"></i> Confirm Reject';
+
+
+        Swal.fire({
+
+            title:
+                titleText,
+
+            html: `
+
+                    <div
+                        class="
+                            text-start
+                            mt-2
+                            p-3
+                            bg-body-tertiary
+                            rounded-3
+                        "
+                        style="font-size:13px;"
+                    >
+
+                        <div>
+
+                            <strong>
+                                Student:
+                            </strong>
+
+                            ${escapeHtml(
+                row.student_name
+            )}
+
+                            ${row.admission_no
+                    ? '(' +
+                    escapeHtml(
+                        row.admission_no
+                    ) +
+                    ')'
+                    : ''
+                }
+
+                        </div>
+
+
+                        <div class="mt-1">
+
+                            <strong>
+                                Date:
+                            </strong>
+
+                            ${formatDate(
+                    row.leave_date
+                )}
+
+                        </div>
+
+
+                        <div class="mt-1">
+
+                            <strong>
+                                Reason:
+                            </strong>
+
+                            ${escapeHtml(
+                    row.reason
+                )}
+
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="
+                            text-muted
+                            small
+                            mt-2
+                        "
+                    >
+
+                        A push notification will be
+                        sent automatically to parent.
+
+                    </div>
+
+                `,
+
+            input:
+                'textarea',
+
+            inputPlaceholder:
+                'Add optional remark or note for parent...',
+
+            inputAttributes: {
+
+                maxlength: 500,
+
+                class:
+                    'form-control mt-3'
+
+            },
+
+            showCancelButton:
+                true,
+
+            confirmButtonText:
+                confirmButtonText,
+
+            confirmButtonColor:
+                confirmBtnColor,
+
+            cancelButtonText:
+                'Cancel',
+
+            reverseButtons:
+                true,
+
+            focusCancel:
+                true,
+
+            customClass: {
+
+                popup:
+                    'rounded-4 shadow-lg'
+
+            }
+
+        })
+
+
+            .then(
+                function (result) {
+
+                    if (
+                        !result.isConfirmed
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const remark =
+                        result.value || '';
+
+
+                    $.ajax({
+
+                        url:
+                            '/schoolbuddy/Leave/UpdateLeaveStatus',
+
+                        type:
+                            'POST',
+
+                        data: {
+
+                            leave_id:
+                                leaveId,
+
+                            status:
+                                targetStatus,
+
+                            remark:
+                                remark
+
+                        },
+
+
+                        success:
+                            function (res) {
+
+                                Swal.fire({
+
+                                    icon:
+                                        'success',
+
+                                    title:
+                                        'Status Updated',
+
+                                    text:
+                                        'Leave request status changed successfully.',
+
+                                    timer:
+                                        2000,
+
+                                    showConfirmButton:
+                                        false
+
+                                });
+
+
+                                loadLeaveRequests();
+
+                            },
+
+
+                        error:
+                            function (
+                                xhr,
+                                status,
+                                error
+                            ) {
+
+                                console.error(
+                                    'Update leave status failed:',
+                                    {
+                                        xhr: xhr,
+                                        status: status,
+                                        error: error
+                                    }
+                                );
+
+
+                                Swal.fire({
+
+                                    icon:
+                                        'error',
+
+                                    title:
+                                        'Error',
+
+                                    text:
+                                        'Failed to update leave status. Please try again.'
+
+                                });
+
+                            }
+
+                    });
+
+                }
+            );
+
+    }
+
+
+    /* =========================================================
+       DOCUMENT READY
+       ========================================================= */
+
+    $(function () {
+
+
+        /* =====================================================
+           INITIALIZE DATATABLE
+           ===================================================== */
+
+        initLeaveTable();
+
+
+        /* =====================================================
+           SET CURRENT MONTH
+           ===================================================== */
+
+        $('#leaveMonth')
+            .val(
+                currentMonthValue()
+            );
+
+
+        /* =====================================================
+           MONTH CHANGE
+           ===================================================== */
+
+        $('#leaveMonth')
+            .on(
+                'change',
+                function () {
+
+                    loadLeaveRequests();
+
+                }
+            );
+
+
+        /* =====================================================
+           LOAD DATA
+           ===================================================== */
+
+        loadLeaveRequests();
+
+    });
+
+</script>

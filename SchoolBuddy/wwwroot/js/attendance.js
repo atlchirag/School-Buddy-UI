@@ -1091,7 +1091,7 @@ function showAttendanceMessage(
             title: "Attendance",
             text: message,
             confirmButtonColor:
-                "midnightblue"
+                "#0f2d4e"
         });
 
         return;

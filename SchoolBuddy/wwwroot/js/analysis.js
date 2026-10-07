@@ -10,13 +10,13 @@ var status_ = document.getElementById('A8')
 //window.onload = function () {
 //    var checkvais = document.getElementById('A1');
 //    checkvais.click();
-//    checkvais.style.backgroundColor = 'midnightblue';
+//    checkvais.style.backgroundColor = '#0f2d4e';
 //    checkvais.style.color = 'white';
 //}
 window.onload = function () {
     if (checketa) {
         checketa.click();
-        checketa.style.backgroundColor = 'midnightblue';
+        checketa.style.backgroundColor = '#0f2d4e';
         checketa.style.color = 'white';
     }
 }
@@ -24,7 +24,7 @@ window.onload = function () {
 
 
 
-//    checkvais.style.backgroundColor = 'midnightblue';
+//    checkvais.style.backgroundColor = '#0f2d4e';
 //    checkvais.style.color = 'white';
 
 //    checketa.style.backgroundColor = 'white';
@@ -83,7 +83,7 @@ window.onload = function () {
 
 //}
 function changebg1() {
-    checketa.style.backgroundColor = 'midnightblue';
+    checketa.style.backgroundColor = '#0f2d4e';
     checketa.style.color = 'white';
     //checkvais.style.backgroundColor = 'white';
     //checkvais.style.color = 'black';
@@ -139,7 +139,7 @@ function changebg1() {
 }
 //function changebg2() {
 
-//    routes.style.backgroundColor = 'midnightblue';
+//    routes.style.backgroundColor = '#0f2d4e';
 //    routes.style.color = 'white';
 //    checkvais.style.backgroundColor = 'white';
 //    checkvais.style.color = 'black';
@@ -157,7 +157,7 @@ function changebg1() {
 //    status_.style.color = 'black';
 //}
 function changebg3() {
-    checkroutes.style.backgroundColor = 'midnightblue';
+    checkroutes.style.backgroundColor = '#0f2d4e';
     checkroutes.style.color = 'white';
 
     checketa.style.backgroundColor = 'white';
@@ -171,7 +171,7 @@ function changebg3() {
 }
 //function changebg4() {
 
-//    checkurl.style.backgroundColor = 'midnightblue';
+//    checkurl.style.backgroundColor = '#0f2d4e';
 //    checkurl.style.color = 'white';
 
 //    routes.style.backgroundColor = 'white';
@@ -191,7 +191,7 @@ function changebg3() {
 //}
 //function changebg5() {
 
-//    checksta.style.backgroundColor = 'midnightblue';
+//    checksta.style.backgroundColor = '#0f2d4e';
 //    checksta.style.color = 'white';
 
 //    routes.style.backgroundColor = 'white';
@@ -211,7 +211,7 @@ function changebg3() {
 //}
 function changebg6() {
 
-    checkignition.style.backgroundColor = 'midnightblue';
+    checkignition.style.backgroundColor = '#0f2d4e';
     checkignition.style.color = 'white';
     //checksta.style.backgroundColor = 'white';
     //checksta.style.color = 'black';
@@ -265,7 +265,7 @@ function changebg6() {
 
 function changebg7() {
     
-    status_.style.backgroundColor = 'midnightblue';
+    status_.style.backgroundColor = '#0f2d4e';
     status_.style.color = 'white';
     checkignition.style.backgroundColor = 'white';
     checkignition.style.color = 'black';

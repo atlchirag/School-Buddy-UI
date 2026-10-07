@@ -239,7 +239,7 @@ h6 {
     padding: 20px 0 15px 0;
     font-size: 18px;
     font-weight: 500;
-    color: midnightblue;
+    color: #0f2d4e;
     font-family: "Lato", sans-serif;
 }
 
@@ -713,7 +713,7 @@ font-family: Lato, sans-serif;
             background: #f6f9ff;*/
 
             color: white;
-            background-color: midnightblue;
+            background-color: #0f2d4e;
         }
 
             .sidebar-nav .nav-link:hover i {
@@ -934,9 +934,9 @@ font-family: Lato, sans-serif;
             border: 0;
         }
 .iconstyle {
-    border: 2px solid midnightblue;
+    border: 2px solid #0f2d4e;
     border-radius: 50%;
-    color: midnightblue;
+    color: #0f2d4e;
     cursor: pointer;
 }
 

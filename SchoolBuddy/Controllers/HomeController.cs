@@ -1679,6 +1679,11 @@ namespace SchoolBuddy.Controllers
             return View("Views/Home/ParentCompliantRecord/parentComplainReport.cshtml");
         }
         [HttpGet]
+        public IActionResult leaveRequests()
+        {
+            return View("Views/Home/LeaveRequest/leaveRequests.cshtml");
+        }
+        [HttpGet]
         public IActionResult Trip()
         {
             return View();

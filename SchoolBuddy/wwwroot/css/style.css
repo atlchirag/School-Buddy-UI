@@ -1,7 +1,7 @@
 /* School Transport Management Platform - Production CSS */
 /*:root {
     --sb-bg: #f3f4f6;
-    --sb-sidebar-bg: midnightblue;
+    --sb-sidebar-bg: #0f2d4e;
     --sb-card-bg: #ffffff;
     --sb-text: #1e293b;
     --sb-text-muted: #64748b;
@@ -462,9 +462,9 @@ body {
 .nav-tabs .nav-link.active,
 .nav-tabs a[data-bs-toggle="tab"].active,
 .nav-tabs a.tabstyle.active {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     color: #ffffff !important;
-    border-color: midnightblue !important;
+    border-color: #0f2d4e !important;
 }
 /* Space between tabs */
 
@@ -485,14 +485,14 @@ body {
     .nav-tabs .nav-link:hover,
     .nav-tabs a[data-bs-toggle="tab"]:hover,
     .nav-tabs a.tabstyle:hover {
-        border-color: midnightblue !important;
+        border-color: #0f2d4e !important;
     }
 
     .nav-tabs .nav-item.show .nav-link,
     .nav-tabs .nav-link.active,
     .nav-tabs a[data-bs-toggle="tab"].active,
     .nav-tabs a.tabstyle.active {
-        background-color: midnightblue !important;
+        background-color: #0f2d4e !important;
         color: #ffffff !important;
-        border-color: midnightblue !important;
+        border-color: #0f2d4e !important;
     }

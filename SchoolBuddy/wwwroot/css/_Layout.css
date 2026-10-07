@@ -22,12 +22,12 @@ font-family: Lato, sans-serif;
     
 }*/
 .sidenav a.activecolor:hover, .dropdown-btn:hover {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     box-shadow: 6px 6px 5px lavender !important;
     color: white !important;
 }
 /*.sidenav a.active:active {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     box-shadow: 6px 6px 5px lavender !important;
     color: white !important;
 }*/
@@ -36,15 +36,15 @@ font-family: Lato, sans-serif;
 .dashboard-div {
     margin-top: 18px;
     margin-left: 14px;
-    color: midnightblue;
+    color: #0f2d4e;
 }
 
 .sidebartextcolor{
-    color:midnightblue
+    color:#0f2d4e
 }
 a {
     text-decoration: none;
-    color:midnightblue
+    color:#0f2d4e
 }
 .form-control {
     border-radius: 0px;
@@ -64,7 +64,7 @@ a {
 }
 
 /*.rounded:hover {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     box-shadow: 6px 6px 5px lavender !important;
     color: white !important;
 }*/

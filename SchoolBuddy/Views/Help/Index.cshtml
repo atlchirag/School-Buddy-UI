@@ -1,0 +1,93 @@
+@{
+    ViewData["Title"] = "Help & FAQs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/help/faq-center.css" asp-append-version="true" />
+}
+
+<div class="faq-page container-fluid py-3 py-md-4" id="faqCenter" aria-busy="true">
+
+    <!-- Breadcrumb / back navigation -->
+    <div class="faq-topbar">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb faq-breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Dashboard"><i class="bi bi-grid me-1" aria-hidden="true"></i>Dashboard</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Help &amp; FAQs</li>
+            </ol>
+        </nav>
+        <a asp-controller="Home" asp-action="Dashboard" class="faq-back-btn">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+            <span>Back to Dashboard</span>
+        </a>
+    </div>
+
+    <!-- Hero with search -->
+    <section class="faq-hero" aria-labelledby="faqPageTitle">
+        <div class="faq-hero-icon" aria-hidden="true"><i class="bi bi-question-circle"></i></div>
+        <h1 id="faqPageTitle" class="faq-hero-title">Help &amp; FAQs</h1>
+        <p class="faq-hero-subtitle">Find answers to common questions about using School Buddy.</p>
+
+        <div class="faq-search" role="search">
+            <label for="faqSearch" class="visually-hidden">Search FAQs</label>
+            <i class="bi bi-search faq-search-icon" aria-hidden="true"></i>
+            <input id="faqSearch"
+                   type="search"
+                   class="faq-search-input"
+                   placeholder="Search FAQs..."
+                   autocomplete="off"
+                   spellcheck="false"
+                   aria-describedby="faqResultSummary" />
+            <button type="button" id="faqClearSearch" class="faq-search-clear" aria-label="Clear search" hidden>
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+            <kbd class="faq-search-shortcut d-none d-md-inline-block" aria-hidden="true">/</kbd>
+        </div>
+    </section>
+
+    <!-- Category filters -->
+    <div class="faq-categories" id="faqCategories" role="group" aria-label="FAQ categories"></div>
+
+    <p id="faqResultSummary" class="faq-result-summary" aria-live="polite"></p>
+
+    <!-- FAQ results -->
+    <div id="faqResults" class="faq-results">
+        <div class="faq-loading">
+            <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+            <span>Loading help articles…</span>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="faqEmptyState" class="faq-empty" hidden>
+        <div class="faq-empty-icon" aria-hidden="true"><i class="bi bi-search"></i></div>
+        <h2 class="faq-empty-title">No matching FAQs</h2>
+        <p id="faqEmptyQuery" class="faq-empty-text"></p>
+        <p class="faq-empty-hint">Try fewer or different words, such as “route”, “stop” or “RFID”.</p>
+        <button type="button" id="faqEmptyReset" class="faq-primary-btn">
+            <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i>
+            Clear search &amp; show all FAQs
+        </button>
+    </div>
+
+    <!-- Contact support -->
+    <section class="faq-support" aria-labelledby="faqSupportTitle">
+        <div class="faq-support-icon" aria-hidden="true"><i class="bi bi-headset"></i></div>
+        <div class="faq-support-text">
+            <h2 id="faqSupportTitle">Still need help?</h2>
+            <p>Our support team can help with GPS devices, new buses, data corrections and anything not covered here.</p>
+        </div>
+        <a asp-controller="Contact" asp-action="Index" class="faq-primary-btn">
+            <i class="bi bi-envelope" aria-hidden="true"></i>
+            Contact Support
+        </a>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/help/faq-data.js" asp-append-version="true"></script>
+    <script src="~/js/help/faq-center.js" asp-append-version="true"></script>
+}

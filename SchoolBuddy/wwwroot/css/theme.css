@@ -88,6 +88,13 @@ body,
 .theme-toggle-btn:focus-visible { outline: 3px solid rgba(37, 99, 235, .3); outline-offset: 2px; }
 .theme-toggle-btn i { font-size: 15px; line-height: 1; }
 
+/* Header Help & FAQs link reuses .theme-toggle-btn */
+.header-help-btn,
+.header-help-btn:visited { color: var(--sb-text); text-decoration: none; }
+.header-help-btn:hover { color: #0b73a1; }
+.header-help-btn.active { color: #ffffff; background-color: #0b73a1; border-color: #0b73a1; }
+.header-help-btn i { font-size: 17px; }
+
 [data-bs-theme="dark"] .header-title,
 [data-bs-theme="dark"] .header-tool-label,
 [data-bs-theme="dark"] .header-tool-label span,
@@ -100,7 +107,7 @@ body,
 /* Surfaces */
 [data-bs-theme="dark"] .card,
 [data-bs-theme="dark"] .card-body,
-[data-bs-theme="dark"] .card-header:not([style*="midnightblue" i]),
+[data-bs-theme="dark"] .card-header:not([style*="#0f2d4e" i]),
 [data-bs-theme="dark"] .dashboard-card,
 [data-bs-theme="dark"] .dashboard-chart-card,
 [data-bs-theme="dark"] .dashboard-table-card,
@@ -471,9 +478,9 @@ body,
 }
 
 [data-bs-theme="dark"] .visitor-details-page #main .visitor-tab.active {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     color: #ffffff !important;
-    border-color: midnightblue !important;
+    border-color: #0f2d4e !important;
 }
 
 [data-bs-theme="dark"] .visitor-details-page .form-label {
@@ -490,7 +497,7 @@ body,
 [data-bs-theme="dark"] .visitor-details-page .visitor-save-action {
     background-color: var(--sb-surface-alt) !important;
     color: var(--sb-text) !important;
-    border-color: midnightblue !important;
+    border-color: #0f2d4e !important;
 }
 
 /* Command and Students: exact wrappers around their inline-white DataTable panels. */
@@ -557,10 +564,10 @@ html[data-bs-theme="dark"] .command-page #commands_wrapper .paginate_button.curr
 html[data-bs-theme="dark"] .command-page #commands_wrapper .dt-paging-button.current,
 html[data-bs-theme="dark"] .students-page #students_wrapper .paginate_button.current,
 html[data-bs-theme="dark"] .students-page #students_wrapper .dt-paging-button.current {
-    background: midnightblue !important;
+    background: #0f2d4e !important;
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
-    border-color: midnightblue !important;
+    border-color: #0f2d4e !important;
 }
 
 /* Attendance: page-scoped overrides for its later inline <style> block. */
@@ -593,9 +600,9 @@ html[data-bs-theme="dark"] .students-page #students_wrapper .dt-paging-button.cu
 }
 
 [data-bs-theme="dark"] .attendance-page #main .tabstyle.active {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     color: #ffffff !important;
-    border-color: midnightblue !important;
+    border-color: #0f2d4e !important;
 }
 
 [data-bs-theme="dark"] .attendance-page .attendance-card-title,
@@ -711,9 +718,9 @@ html[data-bs-theme="dark"] .students-page #students_wrapper .dt-paging-button.cu
 }
 
 [data-bs-theme="dark"] .analysis-page #main .tabstyle.active {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     color: #ffffff !important;
-    border-color: midnightblue !important;
+    border-color: #0f2d4e !important;
 }
 
 [data-bs-theme="dark"] .analysis-page label {
@@ -769,7 +776,7 @@ html[data-bs-theme="dark"] #reportResultTable_wrapper .report-export-print {
 }
 
 [data-bs-theme="dark"] .report-result-table thead th {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     color: #ffffff !important;
 }
 
@@ -802,7 +809,7 @@ html[data-bs-theme="dark"] #reportResultTable_wrapper .report-export-print {
 }
 
 [data-bs-theme="dark"] .dashboard-page .sb-table th {
-    background-color: midnightblue !important;
+    background-color: #0f2d4e !important;
     color: #ffffff !important;
     border-color: var(--sb-border) !important;
 }

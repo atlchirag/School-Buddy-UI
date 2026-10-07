@@ -21,7 +21,7 @@ window.onload = function () {
 
 function changebg() {
 
-    notificationlog.style.backgroundColor = 'midnightblue';
+    notificationlog.style.backgroundColor = '#0f2d4e';
     notificationlog.style.color = 'white';
 
     studentnotificationlog.style.backgroundColor = 'white';
@@ -44,7 +44,7 @@ function changebg1() {
     $('#ddl_student_search').val(null).trigger('change');
    
    // console.log('Hi');
-    studentnotificationlog.style.backgroundColor = 'midnightblue';
+    studentnotificationlog.style.backgroundColor = '#0f2d4e';
     studentnotificationlog.style.color = 'white';
     notificationlog.style.backgroundColor = 'white';
     notificationlog.style.color = 'black';
@@ -110,7 +110,7 @@ function changebg1() {
 }
 function changebg2() {
 
-    nogps.style.backgroundColor = 'midnightblue';
+    nogps.style.backgroundColor = '#0f2d4e';
     nogps.style.color = 'white';
     notificationlog.style.backgroundColor = 'white';
     notificationlog.style.color = 'black';
@@ -130,7 +130,7 @@ function changebg2() {
 }
 function changebg3() {
 
-    loginreport.style.backgroundColor = 'midnightblue';
+    loginreport.style.backgroundColor = '#0f2d4e';
     loginreport.style.color = 'white';
 
     nogps.style.backgroundColor = 'white';
@@ -148,9 +148,9 @@ function changebg3() {
 }
 function changebg4() {
 
-    //rfidreport.style.backgroundColor = 'midnightblue';
+    //rfidreport.style.backgroundColor = '#0f2d4e';
     //rfidreport.style.color = 'white';
-    document.getElementById("A55").style.backgroundColor = "midnightblue";
+    document.getElementById("A55").style.backgroundColor = "#0f2d4e";
     document.getElementById("A55").style.color = "white";
 
     nogps.style.backgroundColor = 'white';
@@ -171,7 +171,7 @@ function changebg5() {
 
     $('#ddl_route_search option').prop("selected", false);
     $('#ddl_route_search').trigger('change');
-    stopviolation.style.backgroundColor = 'midnightblue';
+    stopviolation.style.backgroundColor = '#0f2d4e';
     stopviolation.style.color = 'white';
     nogps.style.backgroundColor = 'white';
     nogps.style.color = 'black';
@@ -220,7 +220,7 @@ function changebg5() {
 }
 function changebg6() {
 
-    uhfreport.style.backgroundColor = 'midnightblue';
+    uhfreport.style.backgroundColor = '#0f2d4e';
     uhfreport.style.color = 'white';
     stopviolation.style.backgroundColor = 'white';
     stopviolation.style.color = 'black';

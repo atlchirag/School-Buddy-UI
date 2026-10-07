@@ -407,7 +407,7 @@
                 icon: icon,
                 title: title,
                 text: message || '',
-                confirmButtonColor: 'midnightblue'
+                confirmButtonColor: '#0f2d4e'
             });
         }
         else {
@@ -1109,7 +1109,7 @@
             'data-latitude="' + coordinates.latitude + '" ' +
             'data-longitude="' + coordinates.longitude + '" ' +
             'title="Load address" ' +
-            'style="color: midnightblue; font-size: 1.25rem; text-decoration: none; cursor: pointer;">' +
+            'style="color: #0f2d4e; font-size: 1.25rem; text-decoration: none; cursor: pointer;">' +
             '<i class="bi bi-geo-alt" aria-hidden="true"></i>' +
             '</button>' +
             '</span>';
@@ -1196,7 +1196,7 @@
         if (!$('#distanceChartModal').length) $('body').append('<div class="modal fade sb-common-modal report-distance-chart-modal" id="distanceChartModal" tabindex="-1" aria-labelledby="distanceChartModalLabel" aria-hidden="true"><div class="modal-dialog modal-lg modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="distanceChartModalLabel"></h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div><div class="modal-body"><div class="report-distance-chart-wrap"><canvas id="distanceChartCanvas"></canvas></div></div></div></div></div>');
         if (R.state.distanceChart) { R.state.distanceChart.destroy(); R.state.distanceChart = null; }
         $('#distanceChartModal .modal-title').text((isMaxSpeed ? 'Max Speed Chart - ' : 'Distance Chart - ') + (row.Units || 'Vehicle'));
-        R.state.distanceChart = new Chart(document.getElementById('distanceChartCanvas'), { type: 'line', data: { labels: keys, datasets: [{ label: isMaxSpeed ? 'Max Speed (km/h)' : 'Distance (km)', data: keys.map(function (k) { return Number(dates[k]) || 0; }), borderColor: 'midnightblue', backgroundColor: 'rgba(25,25,112,.12)', fill: true, tension: .25 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: isMaxSpeed ? 'Max Speed (km/h)' : 'Distance (km)' } } }, plugins: { legend: { display: true } } } });
+        R.state.distanceChart = new Chart(document.getElementById('distanceChartCanvas'), { type: 'line', data: { labels: keys, datasets: [{ label: isMaxSpeed ? 'Max Speed (km/h)' : 'Distance (km)', data: keys.map(function (k) { return Number(dates[k]) || 0; }), borderColor: '#0f2d4e', backgroundColor: 'rgba(25,25,112,.12)', fill: true, tension: .25 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: isMaxSpeed ? 'Max Speed (km/h)' : 'Distance (km)' } } }, plugins: { legend: { display: true } } } });
         bootstrap.Modal.getOrCreateInstance(document.getElementById('distanceChartModal')).show();
     };
 
