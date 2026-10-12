@@ -963,9 +963,17 @@
                     return;
                 }
 
-                if (!confirm("Are you sure you want to unassign this student?")) {
-                    return;
-                }
+                sbConfirm("Are you sure you want to unassign this student?", {
+                    title: "Unassign Student",
+                    confirmText: "Unassign"
+                }).then(function (confirmed) {
+                    if (confirmed) {
+                        unassignStudent(id);
+                    }
+                });
+            }
+
+            function unassignStudent(id) {
 
                 $.ajax({
 

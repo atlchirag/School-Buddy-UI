@@ -1,0 +1,109 @@
+@section Styles {
+    <link rel="stylesheet" href="~/css/videotelematics/video-telematics.css" asp-append-version="true" />
+}
+
+<div class="vt-page container-fluid py-3" id="vtRoot"
+     data-api="@Url.Content("~/VideoTelematics/")"
+     data-cms="@ViewData["VtCmsBaseUrl"]">
+
+    <partial name="~/Views/Home/VideoTelematics/_ModuleHeader.cshtml" />
+
+    <section class="vt-card vt-data-card">
+        <div class="vt-page-head inside">
+            <span class="vt-head-icon"><i class="bi bi-play-btn-fill" aria-hidden="true"></i></span>
+            <div class="vt-head-text">
+                <h1>Video Playback <span class="vt-count-chip" id="vtFileCountChip">0 files</span></h1>
+                <p>Search recorded MDVR files and review vehicle playback</p>
+            </div>
+        </div>
+
+        <!-- Playback Filters (StandardApiAction_getVideoFileInfo) -->
+        <form id="vtPlaybackForm" novalidate>
+            <div class="vt-filter-bar">
+                <button type="button" class="vt-filter-toggle" id="vtPbToggle" aria-expanded="true" aria-controls="vtPbFilters">
+                    <i class="bi bi-sliders"></i>Playback Filters<i class="bi bi-chevron-up vt-chevron"></i>
+                </button>
+                <div class="vt-filter-actions">
+                    <button type="button" class="vt-btn-text" id="vtPbReset">Reset</button>
+                    <button type="submit" class="vt-btn-primary" id="vtPbSearch"><i class="bi bi-search"></i>Find Files</button>
+                </div>
+            </div>
+            <div class="vt-filter-grid vt-filter-grid-playback" id="vtPbFilters">
+                <div id="vtPbVehicle" data-label="Vehicle" data-required></div>
+                <div id="vtPbChannel" data-label="Channel" data-required></div>
+                <label class="vt-field vt-input has-value">
+                    <span class="vt-field-body">
+                        <span class="vt-field-label">Date<span class="vt-req">*</span></span>
+                        <input type="date" id="vtPbDate" required />
+                    </span>
+                </label>
+                <label class="vt-field vt-input has-value">
+                    <span class="vt-field-body">
+                        <span class="vt-field-label">From Time<span class="vt-req">*</span></span>
+                        <input type="time" step="1" id="vtPbFrom" value="00:00:00" required />
+                    </span>
+                </label>
+                <label class="vt-field vt-input has-value">
+                    <span class="vt-field-body">
+                        <span class="vt-field-label">To Time<span class="vt-req">*</span></span>
+                        <input type="time" step="1" id="vtPbTo" value="23:59:59" required />
+                    </span>
+                </label>
+            </div>
+        </form>
+
+        <div class="vt-playback-grid">
+            <!-- Playback Files -->
+            <section class="vt-panel vt-files-panel" aria-labelledby="vtFilesTitle">
+                <div class="vt-panel-head">
+                    <div class="vt-panel-title">
+                        <div>
+                            <h2 id="vtFilesTitle">Playback Files <span class="vt-count-chip" id="vtFileCount">0</span></h2>
+                            <p id="vtFilesSub">Search to load recorded video files</p>
+                        </div>
+                    </div>
+                    <button type="button" class="vt-icon-btn plain" id="vtPbRefresh" title="Refresh files" aria-label="Refresh files"><i class="bi bi-arrow-clockwise"></i></button>
+                </div>
+                <div id="vtFileList" class="vt-file-list" aria-live="polite">
+                    <div class="vt-empty">
+                        <span class="vt-empty-icon"><i class="bi bi-search"></i></span>
+                        <strong>Search playback files</strong>
+                        <span>Set filters and click Find Files.</span>
+                    </div>
+                </div>
+                <div id="vtFileFooter" class="vt-file-footer" hidden></div>
+            </section>
+
+            <!-- Playback Video (CMSV6 player) -->
+            <section class="vt-panel vt-player-panel" aria-labelledby="vtPlayerTitle">
+                <div class="vt-panel-head">
+                    <div class="vt-panel-title">
+                        <span class="vt-head-icon sm round"><i class="bi bi-play-circle-fill" aria-hidden="true"></i></span>
+                        <div>
+                            <h2 id="vtPlayerTitle">Playback Video</h2>
+                            <p id="vtPlayerLabel">Select a file to start playback</p>
+                        </div>
+                    </div>
+                    <button type="button" class="vt-icon-btn plain" id="vtPlayerFullscreen" title="Fullscreen" aria-label="Fullscreen"><i class="bi bi-fullscreen"></i></button>
+                </div>
+                <div class="vt-player-frame" id="vtPlayerFrame">
+                    <div id="vtPlayerHost" class="vt-player-host"></div>
+                    <div class="vt-empty" id="vtPlayerEmpty">
+                        <span class="vt-empty-icon"><i class="bi bi-collection-play-fill"></i></span>
+                        <strong id="vtPlayerEmptyTitle">No playback selected</strong>
+                        <span id="vtPlayerEmptyText">Search recorded files and select one from the Playback Files panel.</span>
+                    </div>
+                    <div class="vt-player-loading" id="vtPlayerLoading" hidden>
+                        <div class="spinner-border" role="status"></div>
+                        <span>Loading playback video...</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/videotelematics/vt-common.js" asp-append-version="true"></script>
+    <script src="~/js/videotelematics/vt-playback.js" asp-append-version="true"></script>
+}

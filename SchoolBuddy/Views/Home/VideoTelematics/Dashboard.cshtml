@@ -1,0 +1,84 @@
+@section Styles {
+    <link rel="stylesheet" href="~/css/videotelematics/video-telematics.css" asp-append-version="true" />
+}
+
+<div class="vt-page container-fluid py-3" id="vtRoot" data-api="@Url.Content("~/VideoTelematics/")">
+
+    <partial name="~/Views/Home/VideoTelematics/_ModuleHeader.cshtml" />
+
+    <div class="vt-card vt-page-head">
+        <span class="vt-head-icon"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i></span>
+        <div class="vt-head-text">
+            <h1>Video Telematics Dashboard</h1>
+            <p>Live fleet monitoring, camera status and safety events</p>
+        </div>
+        <div class="vt-head-actions">
+            <span class="vt-live-chip"><span class="vt-live-dot" aria-hidden="true"></span>Live Monitoring</span>
+        </div>
+    </div>
+
+    <!-- KPI strip (get_adas_kpi_header) -->
+    <section class="vt-card vt-kpis" aria-label="Fleet summary">
+        <div class="vt-kpi"><span class="vt-kpi-icon tone-neutral"><i class="bi bi-truck"></i></span><div><span class="vt-kpi-label">Total Vehicles</span><strong class="vt-kpi-value" data-kpi="total_vehicles">0</strong></div></div>
+        <div class="vt-kpi"><span class="vt-kpi-icon tone-success"><i class="bi bi-wifi"></i></span><div><span class="vt-kpi-label">Online</span><strong class="vt-kpi-value" data-kpi="online_vehicles">0</strong></div></div>
+        <div class="vt-kpi"><span class="vt-kpi-icon tone-danger"><i class="bi bi-wifi-off"></i></span><div><span class="vt-kpi-label">Offline</span><strong class="vt-kpi-value" data-kpi="offline_vehicles">0</strong></div></div>
+        <div class="vt-kpi"><span class="vt-kpi-icon tone-neutral"><i class="bi bi-bell-fill"></i></span><div><span class="vt-kpi-label">Alerts Today</span><strong class="vt-kpi-value" data-kpi="total_alerts_today">0</strong></div></div>
+        <div class="vt-kpi"><span class="vt-kpi-icon tone-danger"><i class="bi bi-exclamation-triangle-fill"></i></span><div><span class="vt-kpi-label">Critical Alerts</span><strong class="vt-kpi-value" data-kpi="critical">0</strong></div></div>
+        <div class="vt-kpi"><span class="vt-kpi-icon tone-warning"><i class="bi bi-exclamation-triangle-fill"></i></span><div><span class="vt-kpi-label">Warning</span><strong class="vt-kpi-value" data-kpi="warning">0</strong></div></div>
+        <div class="vt-kpi"><span class="vt-kpi-icon tone-info"><i class="bi bi-info-circle-fill"></i></span><div><span class="vt-kpi-label">Info</span><strong class="vt-kpi-value" data-kpi="info">0</strong></div></div>
+    </section>
+
+    <div class="row g-3">
+        <!-- Live video (808GPS web player) -->
+        <div class="col-xl-8">
+            <section class="vt-card vt-panel h-100" aria-labelledby="vtLiveTitle">
+                <div class="vt-panel-head">
+                    <div class="vt-panel-title">
+                        <span class="vt-head-icon sm"><i class="bi bi-camera-video-fill" aria-hidden="true"></i></span>
+                        <div>
+                            <h2 id="vtLiveTitle">Live Video <span class="vt-live-badge"><span class="vt-live-dot" aria-hidden="true"></span>LIVE</span></h2>
+                            <p id="vtLiveSub">Select a vehicle to start live video</p>
+                        </div>
+                    </div>
+                    <div class="vt-panel-tools">
+                        <div id="vtLiveVehicle" class="vt-tool-select vt-tool-wide"></div>
+                        <div id="vtLiveChannels" class="vt-tool-select"></div>
+                        <button type="button" class="vt-icon-btn" id="vtLiveRefresh" title="Refresh stream" aria-label="Refresh stream"><i class="bi bi-arrow-clockwise"></i></button>
+                        <button type="button" class="vt-icon-btn" id="vtLiveFullscreen" title="Fullscreen" aria-label="Fullscreen"><i class="bi bi-fullscreen"></i></button>
+                    </div>
+                </div>
+                <div class="vt-video-frame vt-live-frame" id="vtLiveFrameHost">
+                    <div class="vt-empty vt-empty-dark" id="vtLiveEmpty">
+                        <i class="bi bi-camera-video-off" aria-hidden="true"></i>
+                        <strong>No live video</strong>
+                        <span id="vtLiveEmptyText">Select an MDVR vehicle to start streaming.</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Alerts & Notifications (get_adas_alert_history, today) -->
+        <div class="col-xl-4">
+            <section class="vt-card vt-panel h-100 d-flex flex-column" aria-labelledby="vtAlertsTitle">
+                <div class="vt-panel-head">
+                    <div class="vt-panel-title">
+                        <div>
+                            <h2 id="vtAlertsTitle">Alerts &amp; Notifications <span class="vt-count-chip danger" id="vtAlertsCount">0</span></h2>
+                            <p>Recent alerts from today</p>
+                        </div>
+                    </div>
+                    <button type="button" class="vt-icon-btn plain" id="vtAlertsRefresh" title="Refresh alerts" aria-label="Refresh alerts"><i class="bi bi-arrow-clockwise"></i></button>
+                </div>
+                <div class="vt-alert-feed flex-grow-1" id="vtAlertFeed" aria-live="polite">
+                    <div class="vt-loading"><div class="spinner-border spinner-border-sm" role="status"></div><span>Loading alerts...</span></div>
+                </div>
+                <a class="vt-feed-footer" href="@Url.Action("Report", "VideoTelematics")"><i class="bi bi-clock-history me-1"></i>View alert history</a>
+            </section>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/videotelematics/vt-common.js" asp-append-version="true"></script>
+    <script src="~/js/videotelematics/vt-dashboard.js" asp-append-version="true"></script>
+}

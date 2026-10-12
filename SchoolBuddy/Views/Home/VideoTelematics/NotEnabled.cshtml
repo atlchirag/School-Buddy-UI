@@ -1,0 +1,23 @@
+@model VtMdvrStatus
+@*
+    Shown instead of any Video Telematics page when the account has no MDVR vehicles
+    (or the MDVR check could not reach Trackofy).
+*@
+@section Styles {
+    <link rel="stylesheet" href="~/css/videotelematics/video-telematics.css" asp-append-version="true" />
+}
+
+<div class="vt-page container-fluid py-3">
+    <section class="vt-card">
+        <div class="vt-empty">
+            <span class="vt-empty-icon"><i class="bi bi-camera-video-off"></i></span>
+            <strong>Video Telematics is not enabled</strong>
+            <span>@(Model.Message ?? "No MDVR vehicles are linked to this account.")</span>
+            @if (!Model.Checked)
+            {
+                <a class="vt-btn-text mt-2" asp-controller="VideoTelematics" asp-action="Dashboard">Try again</a>
+            }
+            <a class="vt-btn-primary mt-2" asp-controller="Home" asp-action="Dashboard"><i class="bi bi-grid"></i>Back to Dashboard</a>
+        </div>
+    </section>
+</div>

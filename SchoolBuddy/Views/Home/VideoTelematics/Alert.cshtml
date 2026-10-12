@@ -1,0 +1,194 @@
+@section Styles {
+    <link rel="stylesheet" href="~/css/videotelematics/video-telematics.css" asp-append-version="true" />
+}
+
+<div class="vt-page container-fluid py-3" id="vtRoot" data-api="@Url.Content("~/VideoTelematics/")">
+
+    <partial name="~/Views/Home/VideoTelematics/_ModuleHeader.cshtml" />
+
+    <section class="vt-card vt-data-card">
+        <div class="vt-page-head inside">
+            <span class="vt-head-icon"><i class="bi bi-bell-fill" aria-hidden="true"></i></span>
+            <div class="vt-head-text">
+                <h1>Alert Configuration <span class="vt-count-chip" id="vtRuleCount">0 alerts</span></h1>
+                <p>Configure and manage video telematics alert rules</p>
+            </div>
+            <div class="vt-head-actions">
+                <div id="vtFilterVehicle" class="vt-tool-select vt-tool-wide"></div>
+                <div id="vtFilterPriority" class="vt-tool-select vt-tool-mid"></div>
+                <button type="button" class="vt-btn-primary" id="vtAddAlert"><i class="bi bi-plus-lg"></i>Add Alert</button>
+            </div>
+        </div>
+
+        <div id="vtRuleToolbar"></div>
+
+        <div class="vt-table-wrap">
+            <table class="vt-table" id="vtRuleTable">
+                <thead>
+                    <tr>
+                        <th class="text-center">Sr No</th>
+                        <th class="text-center">Category</th>
+                        <th>Vehicle</th>
+                        <th>Alert</th>
+                        <th class="text-center">Priority</th>
+                        <th class="text-center">WhatsApp</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Delivery</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Edit</th>
+                        <th class="text-center">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="11"><div class="vt-loading"><div class="spinner-border spinner-border-sm" role="status"></div><span>Loading alert rules...</span></div></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="vtRuleFooter" hidden></div>
+    </section>
+</div>
+
+<!-- Create Video Alert (save_adas_alert_config) -->
+<div class="modal fade vt-modal" id="vtAddModal" tabindex="-1" aria-labelledby="vtAddModalTitle" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <form class="modal-content" id="vtAddForm" novalidate>
+            <div class="vt-modal-head">
+                <div class="vt-modal-title">
+                    <h5 id="vtAddModalTitle">Create Video Alert</h5>
+                    <p>Select vehicle and configure alert delivery.</p>
+                </div>
+                <button type="button" class="vt-drawer-close" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="vt-section">
+                    <div class="vt-section-head">
+                        <span class="vt-section-icon"><i class="bi bi-car-front-fill"></i></span>
+                        <div><h6>Vehicle Selection</h6><p>Select the vehicle to which this alert configuration should apply.</p></div>
+                        <span class="vt-selected-chip" id="vtAddVehicleCount">0 selected</span>
+                    </div>
+                    <div class="vt-section-body">
+                        <div id="vtAddVehicles"></div>
+                    </div>
+                </div>
+
+                <div class="vt-section">
+                    <div class="vt-section-head">
+                        <span class="vt-section-icon"><i class="bi bi-bell-fill"></i></span>
+                        <div><h6>Alert Configuration</h6><p>Configure alert type, priority and delivery settings.</p></div>
+                    </div>
+                    <div class="vt-section-body">
+                        <div class="row g-3">
+                            <div class="col-md-6"><div id="vtAddAlerts" data-label="Alerts" data-required></div></div>
+                            <div class="col-md-6"><div id="vtAddPriority" data-label="Priority" data-required></div></div>
+                        </div>
+                    </div>
+
+                    <div class="vt-section-row">
+                        <div class="vt-row-title"><i class="bi bi-send-fill"></i>Delivery Channels</div>
+                        <div class="vt-row-controls">
+                            <label class="vt-check-label"><input type="checkbox" checked disabled /> Application</label>
+                            <label class="vt-check-label"><input type="checkbox" id="vtAddEmail" /> Email</label>
+                            <label class="vt-check-label"><input type="checkbox" id="vtAddWhatsapp" checked /> WhatsApp</label>
+                        </div>
+                    </div>
+
+                    <div class="vt-section-row">
+                        <div class="vt-row-title"><i class="bi bi-truck"></i>Delivery</div>
+                        <div class="vt-row-controls">
+                            <label class="vt-radio-label"><input type="radio" name="vtAddDelivery" value="REALTIME" checked /> Real time</label>
+                            <label class="vt-radio-label"><input type="radio" name="vtAddDelivery" value="INTERVAL" /> Interval</label>
+                        </div>
+                        <div class="vt-row-fields">
+                            <label class="vt-field vt-input has-icon" id="vtAddIntervalWrap" hidden>
+                                <i class="bi bi-stopwatch vt-field-icon" aria-hidden="true"></i>
+                                <span class="vt-field-body">
+                                    <span class="vt-field-label">Interval Minutes<span class="vt-req">*</span></span>
+                                    <input type="number" min="1" step="1" id="vtAddIntervalMinutes" />
+                                </span>
+                                <span class="vt-field-error" hidden></span>
+                            </label>
+                            <label class="vt-field vt-input has-icon has-value">
+                                <i class="bi bi-hourglass-split vt-field-icon" aria-hidden="true"></i>
+                                <span class="vt-field-body">
+                                    <span class="vt-field-label">Cooldown Minutes<span class="vt-req">*</span></span>
+                                    <input type="number" min="0" step="1" id="vtAddCooldown" value="30" />
+                                </span>
+                                <span class="vt-field-error" hidden></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="vt-section-row">
+                        <div class="vt-row-title"><i class="bi bi-toggle-on"></i>Status</div>
+                        <div class="vt-row-controls">
+                            <label class="vt-check-label"><input type="checkbox" id="vtAddEnabled" checked /> Enabled</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="vt-modal-foot">
+                <button type="button" class="vt-btn-text" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="vt-btn-primary" id="vtAddSubmit"><i class="bi bi-bell-fill"></i>Create Alert</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Update Video Alert (update_adas_alert_config + toggle_adas_alert_config) -->
+<div class="modal fade vt-modal" id="vtEditModal" tabindex="-1" aria-labelledby="vtEditModalTitle" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <form class="modal-content" id="vtEditForm" novalidate>
+            <div class="vt-modal-head">
+                <div class="vt-modal-title">
+                    <h5 id="vtEditModalTitle">Update Video Alert</h5>
+                    <p>Update cooldown minutes or alert status.</p>
+                </div>
+                <button type="button" class="vt-drawer-close" data-bs-dismiss="modal" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="vt-info-box">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <div>
+                        <strong>Update availability</strong>
+                        <span>Only Cooldown Minutes and Status can be updated. Vehicle, Alert Type, Priority, Delivery Channels, and Delivery Mode cannot be changed after the alert configuration is created.</span>
+                    </div>
+                </div>
+                <div class="vt-section">
+                    <div class="vt-section-head">
+                        <span class="vt-section-icon"><i class="bi bi-bell-fill"></i></span>
+                        <div><h6>Editable Settings</h6><p id="vtEditSummary">Update the cooldown period or enable/disable this alert.</p></div>
+                    </div>
+                    <div class="vt-section-row">
+                        <div class="vt-row-title"><i class="bi bi-hourglass-split"></i>Cooldown</div>
+                        <div class="vt-row-fields">
+                            <label class="vt-field vt-input has-icon has-value">
+                                <i class="bi bi-hourglass-split vt-field-icon" aria-hidden="true"></i>
+                                <span class="vt-field-body">
+                                    <span class="vt-field-label">Cooldown Minutes<span class="vt-req">*</span></span>
+                                    <input type="number" min="0" step="1" id="vtEditCooldown" />
+                                </span>
+                                <span class="vt-field-error" hidden></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="vt-section-row">
+                        <div class="vt-row-title"><i class="bi bi-toggle-on"></i>Status</div>
+                        <div class="vt-row-controls">
+                            <label class="vt-check-label"><input type="checkbox" id="vtEditEnabled" /> Enabled</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="vt-modal-foot">
+                <button type="button" class="vt-btn-text" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="vt-btn-primary" id="vtEditSubmit"><i class="bi bi-floppy-fill"></i>Update Alert</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/videotelematics/vt-common.js" asp-append-version="true"></script>
+    <script src="~/js/videotelematics/vt-alert.js" asp-append-version="true"></script>
+}

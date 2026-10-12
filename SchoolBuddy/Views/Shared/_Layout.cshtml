@@ -11,6 +11,10 @@
        action == "staffDetails" ||
        action == "visitorDetails");
     bool driverManagementActive = controller == "Driver_Management";
+    bool videoTelematicsActive = controller == "VideoTelematics";
+    // "1" / "0" once /VideoTelematics/MdvrStatus has checked this session; null = not checked yet.
+    string? mdvrFlag = Context.Session.GetString(SchoolBuddy.Models.VideoTelematics.VideoTelematicsRepository.MdvrEnabledSessionKey);
+    bool showVideoTelematics = mdvrFlag == "1";
     bool masterActive =
         (controller == "Home" &&
             (action == "Students" ||
@@ -357,9 +361,15 @@
                 font-weight: 600;
             }
 
+            /* Submenu icons: sized relative to the link text (em), fixed width so labels line up. */
             .sidebar-nav .collapse .nav-link i,
             .sidebar-nav .collapsing .nav-link i {
-                font-size: .45rem;
+                font-size: 1.15em;
+                width: 1.25em;
+                margin-right: .6em;
+                line-height: 1;
+                text-align: center;
+                flex-shrink: 0;
             }
 
             .sidebar-nav .collapse .nav-link:hover,
@@ -485,11 +495,12 @@
                 transition: all .3s ease;
             }
 
+            /* One solid colour: the Help & FAQs hero navy (#0f2d4e). */
             .app-download-card {
-/*                 background: linear-gradient(180deg,#223A88,#162A6A);
- */
-                background: linear-gradient(#0169a9, #0169a9, #0169a9);
-border-radius: 16px;
+                background: #0f2d4e;
+                border: 0;
+                border-radius: 16px;
+                box-shadow: var(--sb-shadow);
                 padding: 16px;
                 color: #fff;
             }
@@ -505,7 +516,7 @@ border-radius: 16px;
                 width: 52px;
                 height: 52px;
                 border-radius: 14px;
-                background: linear-gradient(135deg,#223A88,#223A88);
+                background: rgba(255, 255, 255, 0.12);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -542,7 +553,7 @@ border-radius: 16px;
             .store-badge {
                 flex: 1;
                 height: 36px;
-                background: #111;
+                background: rgba(255, 255, 255, 0.12);
                 border-radius: 6px;
                 display: flex;
                 align-items: center;
@@ -963,7 +974,7 @@ border-radius: 16px;
                                        asp-route-id="0"
                                        class="nav-link @(controller == "Home" && action == "Students" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-people" aria-hidden="true"></i>
                                         <span>Students</span>
 
                                     </a>
@@ -974,7 +985,7 @@ border-radius: 16px;
                                        asp-route-id="0"
                                        class="nav-link @(controller == "Home" && action == "Attendance" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-calendar-check" aria-hidden="true"></i>
                                         <span>Attendance</span>
 
                                     </a>
@@ -997,7 +1008,7 @@ border-radius: 16px;
                                        asp-action="Trip"
                                        class="nav-link @(controller == "Route" && action == "Trip" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-signpost-split" aria-hidden="true"></i>
                                         <span>Route</span>
 
                                     </a>
@@ -1008,7 +1019,7 @@ border-radius: 16px;
                                        asp-action="Halts"
                                        class="nav-link @(controller == "Route" && action == "Halts" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-geo-alt" aria-hidden="true"></i>
                                         <span>Automatic Stops</span>
 
                                     </a>
@@ -1019,7 +1030,7 @@ border-radius: 16px;
                                        asp-action="EventHoliday"
                                        class="nav-link @(controller == "Home" && action == "EventHoliday" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-calendar-event" aria-hidden="true"></i>
                                         <span>Holiday & Event</span>
 
                                     </a>
@@ -1030,7 +1041,7 @@ border-radius: 16px;
                                        asp-action="Getcommandss"
                                        class="nav-link @(controller == "Command" && action == "Getcommandss" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-terminal" aria-hidden="true"></i>
                                         <span>Command</span>
 
                                     </a>
@@ -1041,7 +1052,7 @@ border-radius: 16px;
                                        asp-action="teacherDetails"
                                        class="nav-link @(controller == "Home" && action == "teacherDetails" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-person-badge" aria-hidden="true"></i>
                                         <span>Teacher's Detail</span>
 
                                     </a>
@@ -1065,6 +1076,83 @@ border-radius: 16px;
                             <span>Report</span>
 
                         </a>
+                    </li>
+
+                    <!-- ===================== -->
+                    <!-- Video Telematics (only when MDVR is enabled) -->
+                    <!-- ===================== -->
+                    <li class="nav-item"
+                        id="vtNavItem"
+                        data-mdvr-checked="@(mdvrFlag != null ? "1" : "0")"
+                        data-mdvr-url="@Url.Action("MdvrStatus", "VideoTelematics")"
+                        hidden="@(!showVideoTelematics)">
+
+                        <a class="nav-link d-flex justify-content-between align-items-center @(videoTelematicsActive ? "active" : "collapsed")"
+                           data-bs-toggle="collapse"
+                           data-bs-target="#videotelematics-nav"
+                           href="#">
+
+                            <i class="bi bi-camera-video"></i>
+                            <span class="flex-grow-1">Video Telematics</span>
+
+                            <i class="bi bi-chevron-down"></i>
+
+                        </a>
+
+                        <div id="videotelematics-nav"
+                             class="collapse @(videoTelematicsActive ? "show" : "")"
+                             data-bs-parent="#sidebar-nav">
+
+                            <ul class="nav flex-column">
+
+                                <li class="nav-item">
+                                    <a asp-controller="VideoTelematics"
+                                       asp-action="Dashboard"
+                                       class="nav-link @(videoTelematicsActive && action == "Dashboard" ? "active" : "")">
+
+                                        <i class="bi bi-speedometer2" aria-hidden="true"></i>
+                                        <span>Dashboard</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="VideoTelematics"
+                                       asp-action="Alert"
+                                       class="nav-link @(videoTelematicsActive && action == "Alert" ? "active" : "")">
+
+                                        <i class="bi bi-bell" aria-hidden="true"></i>
+                                        <span>Alert</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="VideoTelematics"
+                                       asp-action="Playback"
+                                       class="nav-link @(videoTelematicsActive && action == "Playback" ? "active" : "")">
+
+                                        <i class="bi bi-play-circle" aria-hidden="true"></i>
+                                        <span>Playback</span>
+
+                                    </a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a asp-controller="VideoTelematics"
+                                       asp-action="Report"
+                                       class="nav-link @(videoTelematicsActive && action == "Report" ? "active" : "")">
+
+                                        <i class="bi bi-file-earmark-bar-graph" aria-hidden="true"></i>
+                                        <span>Report</span>
+
+                                    </a>
+                                </li>
+
+                            </ul>
+
+                        </div>
+
                     </li>
 
                     <!-- Parent Complaint -->
@@ -1112,7 +1200,7 @@ border-radius: 16px;
                                        asp-action="Index"
                                        class="nav-link @(controller == "Driver_Management" && action == "Index" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-person-vcard" aria-hidden="true"></i>
                                         <span>Driver</span>
 
                                     </a>
@@ -1123,7 +1211,7 @@ border-radius: 16px;
                                        asp-action="Performance"
                                        class="nav-link @(controller == "Driver_Management" && action == "Performance" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
                                         <span>Driver Performance</span>
 
                                     </a>
@@ -1162,7 +1250,7 @@ border-radius: 16px;
                                        asp-action="uhfGates"
                                        class="nav-link @(controller == "Home" && action == "uhfGates" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-door-open" aria-hidden="true"></i>
                                         <span>UHF Gates</span>
 
                                     </a>
@@ -1173,7 +1261,7 @@ border-radius: 16px;
                                        asp-action="uwbTracking"
                                        class="nav-link @(controller == "Home" && action == "uwbTracking" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-broadcast" aria-hidden="true"></i>
                                         <span>UWB Tracking</span>
 
                                     </a>
@@ -1184,7 +1272,7 @@ border-radius: 16px;
                                        asp-action="blTracking"
                                        class="nav-link @(controller == "Home" && action == "blTracking" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-bluetooth" aria-hidden="true"></i>
                                         <span>BL Tracking</span>
 
                                     </a>
@@ -1195,7 +1283,7 @@ border-radius: 16px;
                                        asp-action="staffDetails"
                                        class="nav-link @(controller == "Home" && action == "staffDetails" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-person-workspace" aria-hidden="true"></i>
                                         <span>Staff Details</span>
 
                                     </a>
@@ -1206,7 +1294,7 @@ border-radius: 16px;
                                        asp-action="visitorDetails"
                                        class="nav-link @(controller == "Home" && action == "visitorDetails" ? "" : "")">
 
-                                        <i class="bi bi-circle"></i>
+                                        <i class="bi bi-person-check" aria-hidden="true"></i>
                                         <span>Visitor Details</span>
 
                                     </a>
@@ -1254,7 +1342,7 @@ border-radius: 16px;
             <!-- Sidebar Bottom Widget -->
             <!-- ===================== -->
 <div class="sidebar-footer mt-auto pt-3">
-            <div class="parent-app-widget app-download-card" style="background-color:#0169a9;">
+            <div class="parent-app-widget app-download-card">
 
                     <div class="top-section">
 
@@ -1360,10 +1448,27 @@ border-radius: 16px;
 *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.11.0/sweetalert2.min.js" integrity="sha512-Wi5Ms24b10EBwWI9JxF03xaAXdwg9nF51qFUDND/Vhibyqbelri3QqLL+cXCgNYGEgokr+GA2zaoYaypaSDHLg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/sb-sweetalert.js" asp-append-version="true"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://unpkg.com/gijgo@1.9.14/js/gijgo.min.js" type="text/javascript"></script>
     <script src="~/js/site.js"></script>
     <script src="~/js/theme-manager.js" asp-append-version="true"></script>
+    <script>
+        // Video Telematics menu: shown only when the account has MDVR vehicles.
+        // The server renders it once the session knows; otherwise ask /VideoTelematics/MdvrStatus once.
+        (function () {
+            var item = document.getElementById('vtNavItem');
+            if (!item || item.getAttribute('data-mdvr-checked') === '1' || !window.fetch) return;
+
+            fetch(item.getAttribute('data-mdvr-url'), {
+                credentials: 'same-origin',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+                .then(function (response) { return response.ok ? response.json() : null; })
+                .then(function (data) { item.hidden = !(data && data.isMdvrEnabled); })
+                .catch(function () { item.hidden = true; });
+        })();
+    </script>
     <script>
 
         // Prevent browser back cache after logout

@@ -1,0 +1,29 @@
+@*
+    Shared by every Video Telematics page: the anti-forgery token the module scripts
+    send with POST requests, and a warning when a Trackofy sign-in failed.
+    Each page renders its own Trackofy-style header card.
+*@
+@{
+    var connection = ViewData["VtConnection"] as VtConnectionState;
+}
+
+@Html.AntiForgeryToken()
+
+@if (connection != null && (!connection.CoreReady || !connection.CmsReady))
+{
+    <div class="alert alert-warning vt-connection-alert" role="alert">
+        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+        @if (!connection.CoreReady)
+        {
+            <span>Could not sign in to the Trackofy API, so alerts and reports may not load.</span>
+        }
+        @if (!connection.CmsReady)
+        {
+            <span>Could not sign in to the video server, so live video and playback are unavailable.</span>
+        }
+        @if (!string.IsNullOrWhiteSpace(connection.Message))
+        {
+            <small class="d-block mt-1 text-muted">@connection.Message</small>
+        }
+    </div>
+}

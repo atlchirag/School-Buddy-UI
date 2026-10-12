@@ -1,0 +1,89 @@
+@section Styles {
+    <link rel="stylesheet" href="~/css/videotelematics/video-telematics.css" asp-append-version="true" />
+}
+
+<div class="vt-page container-fluid py-3" id="vtRoot" data-api="@Url.Content("~/VideoTelematics/")">
+
+    <partial name="~/Views/Home/VideoTelematics/_ModuleHeader.cshtml" />
+
+    <section class="vt-card vt-data-card">
+        <div class="vt-page-head inside">
+            <span class="vt-head-icon"><i class="bi bi-bar-chart-fill" aria-hidden="true"></i></span>
+            <div class="vt-head-text">
+                <h1>Video Telematics Reports <span class="vt-count-chip" id="vtRpCount">0 records</span></h1>
+                <p>Review ADAS and DMS alert history, evidence and notification activity</p>
+            </div>
+        </div>
+
+        <!-- Report Filters (get_adas_alert_history) -->
+        <form id="vtReportForm" novalidate>
+            <div class="vt-filter-bar">
+                <button type="button" class="vt-filter-toggle" id="vtRpToggle" aria-expanded="true" aria-controls="vtRpFilters">
+                    <i class="bi bi-sliders"></i>Report Filters<i class="bi bi-chevron-up vt-chevron"></i>
+                </button>
+                <div class="vt-filter-actions">
+                    <button type="button" class="vt-btn-text" id="vtRpClear">Clear All</button>
+                    <button type="submit" class="vt-btn-primary" id="vtRpGenerate"><i class="bi bi-play-fill"></i>Generate Report</button>
+                </div>
+            </div>
+            <div id="vtRpFilters">
+                <div class="vt-filter-grid vt-filter-grid-report">
+                    <label class="vt-field vt-input has-value">
+                        <span class="vt-field-body">
+                            <span class="vt-field-label">From Date</span>
+                            <input type="date" id="vtRpFrom" required />
+                        </span>
+                    </label>
+                    <label class="vt-field vt-input has-value">
+                        <span class="vt-field-body">
+                            <span class="vt-field-label">To Date</span>
+                            <input type="date" id="vtRpTo" required />
+                        </span>
+                    </label>
+                    <div id="vtRpVehicles" data-label="Vehicle"></div>
+                    <div id="vtRpAlerts" data-label="Alert Type"></div>
+                    <div id="vtRpNotify" data-label="Notification"></div>
+                    <div id="vtRpData" data-label="Report Data"></div>
+                </div>
+                <div class="vt-active-chips" id="vtRpChips" aria-live="polite"></div>
+            </div>
+        </form>
+
+        <div id="vtRpToolbar"></div>
+
+        <div class="vt-table-wrap">
+            <table class="vt-table" id="vtReportTable">
+                <thead>
+                    <tr>
+                        <th class="text-center">Sr No</th>
+                        <th>Vehicle</th>
+                        <th>Date / Time</th>
+                        <th class="text-center">Category</th>
+                        <th>Alert</th>
+                        <th>Location</th>
+                        <th class="text-center">Notification</th>
+                        <th class="text-center">Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="8">
+                            <div class="vt-empty">
+                                <span class="vt-empty-icon"><i class="bi bi-bar-chart-fill"></i></span>
+                                <strong>Generate a report</strong>
+                                <span>Select your report filters and click Generate Report</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="vtRpFooter" hidden></div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/videotelematics/vt-common.js" asp-append-version="true"></script>
+    <script src="~/js/videotelematics/vt-report.js" asp-append-version="true"></script>
+}

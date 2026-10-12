@@ -202,9 +202,11 @@
                     data: JSON.stringify(holidayData),
                     success: function (response) {
                         console.log("📥 Response:", response);
-                        alert(response.message);
                         $("#holidayModal").modal("hide");
-                        location.reload();
+                        // Reload only after the SweetAlert box is closed.
+                        sbAlert(response.message).then(function () {
+                            location.reload();
+                        });
                     },
                     error: function (xhr) {
                         console.log("❌ Error:", xhr.responseText);
@@ -218,31 +220,38 @@
                 var holidayId = $(this).data("id");
                 var schoolid = $("#schoolid").val(); // ✅ Ensure schoolid is included
 
-                if (!confirm("Are you sure you want to delete this holiday?")) {
-                    return;
-                }
-
-                // ✅ Only passing required fields (id & schoolid)
-                var deleteData = {
-                    id: holidayId,
-                    schoolid: schoolid
-                };
-
-                console.log("📤 Sending Delete Request:", deleteData);
-
-                $.ajax({
-                    url: "/schoolbuddy/Home/DeleteHoliday",
-                    type: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(deleteData),
-                    success: function (response) {
-                        alert(response.message);
-                        location.reload();
-                    },
-                    error: function (xhr) {
-                        console.log("❌ Delete Error:", xhr.responseText);
-                        alert("Error deleting holiday.");
+                sbConfirm("Are you sure you want to delete this holiday?", {
+                    title: "Delete Holiday",
+                    confirmText: "Delete"
+                }).then(function (confirmed) {
+                    if (!confirmed) {
+                        return;
                     }
+
+                    // ✅ Only passing required fields (id & schoolid)
+                    var deleteData = {
+                        id: holidayId,
+                        schoolid: schoolid
+                    };
+
+                    console.log("📤 Sending Delete Request:", deleteData);
+
+                    $.ajax({
+                        url: "/schoolbuddy/Home/DeleteHoliday",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify(deleteData),
+                        success: function (response) {
+                            // Reload only after the SweetAlert box is closed.
+                            sbAlert(response.message).then(function () {
+                                location.reload();
+                            });
+                        },
+                        error: function (xhr) {
+                            console.log("❌ Delete Error:", xhr.responseText);
+                            alert("Error deleting holiday.");
+                        }
+                    });
                 });
             });
 

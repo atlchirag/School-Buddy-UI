@@ -65,7 +65,7 @@
                 "2. Click the **Delete Record** (trash) icon on the route's row.",
                 "3. Confirm the deletion.",
                 "Before deleting, open **Student Wise** and move any assigned students to another route with **Migrate Student**, otherwise those students will be left without a route.",
-                "There is no separate \"inactive\" switch for a route. If a route is only paused for a while (for example during holidays), keep the route and add the dates under **Master > Holiday & Event** instead of deleting it."
+                // "There is no separate \"inactive\" switch for a route. If a route is only paused for a while (for example during holidays), keep the route and add the dates under **Master > Holiday & Event** instead of deleting it."
             ].join("\n"),
             keywords: ["remove route", "deactivate", "disable route", "inactive", "trash"]
         },
@@ -78,23 +78,23 @@
                 "3. Click **Add Stop**.",
                 "4. Enter the **Stop Name**, **Latitude** and **Longitude**.",
                 "5. Click **SAVE**. Repeat for each stop, in the order the bus visits them.",
-                "If the bus has already been running on this route, you can use **Master > Automatic Stops** to detect stops from the bus's GPS history instead of typing coordinates."
+                // "If the bus has already been running on this route, you can use **Master > Automatic Stops** to detect stops from the bus's GPS history instead of typing coordinates."
             ].join("\n"),
             keywords: ["add stop", "stop section", "new stop", "halt"]
         },
-        {
-            id: "route-stop-order", category: "route-management", order: 5,
-            question: "How do I change the order of stops in a route?",
-            answer: [
-                "The **Stop Order** column in the route's **Stop Section** shows the sequence the bus follows.",
-                "1. Open **Master > Automatic Stops**.",
-                "2. Select the route and a date range, then load the stops.",
-                "3. Set the **Order** value for each stop in the sequence the bus visits them.",
-                "4. Click **Submit All**.",
-                "Stops added manually through **Add Stop** take the next order number, so add them in route sequence. If the order is still wrong, delete and re-add the affected stops in the correct sequence, or contact School Buddy support."
-            ].join("\n"),
-            keywords: ["stop order", "sequence", "reorder stops", "arrange stops"]
-        },
+        // {
+        //     id: "route-stop-order", category: "route-management", order: 5,
+        //     question: "How do I change the order of stops in a route?",
+        //     answer: [
+        //         "The **Stop Order** column in the route's **Stop Section** shows the sequence the bus follows.",
+        //         "1. Open **Master > Automatic Stops**.",
+        //         "2. Select the route and a date range, then load the stops.",
+        //         "3. Set the **Order** value for each stop in the sequence the bus visits them.",
+        //         "4. Click **Submit All**.",
+        //         "Stops added manually through **Add Stop** take the next order number, so add them in route sequence. If the order is still wrong, delete and re-add the affected stops in the correct sequence, or contact School Buddy support."
+        //     ].join("\n"),
+        //     keywords: ["stop order", "sequence", "reorder stops", "arrange stops"]
+        // },
         {
             id: "route-assign-bus", category: "route-management", order: 6,
             question: "How do I assign a bus to a route?",
@@ -143,8 +143,8 @@
             answer: [
                 "You can get stop coordinates in two ways:",
                 "- **From the bus's GPS history:** open **Master > Automatic Stops**, select the route and a date range when the bus ran normally, and School Buddy lists the places where the bus halted with their latitude and longitude. Name the correct halts and click **Submit All**.",
-                "- **From a map:** open Google Maps, right-click the exact pickup point and click the coordinates shown at the top of the menu to copy them. The first number is the latitude, the second is the longitude.",
-                "Pick the point where the bus actually stops, on the correct side of the road, so arrival alerts are accurate."
+               " - **From the Route:** Go to **Route → Stops → Find the required stop**, then get the **Latitude** and **Longitude** from that stop row.",
+"- Make sure the selected stop is the actual bus pickup point for accurate arrival alerts."
             ].join("\n"),
             keywords: ["location", "coordinates", "latitude", "longitude", "gps", "google maps", "automatic stops"]
         },
@@ -267,7 +267,7 @@
             answer: [
                 "Buses come from your school's GPS tracking account, so a bus appears in School Buddy once its GPS device is installed and registered.",
                 "1. Contact School Buddy support with the bus registration number and the GPS device IMEI.",
-                "2. Once support confirms the bus is registered, it appears in **Select Bus** when you create or edit a route, in **Driver Management**, and in **Live Tracking**.",
+                "2. Once Support confirms that the bus is registered, it will appear under **Select Bus** when creating or editing a route, as well as in **Driver Management** and **Live Tracking**.",
                 "3. Assign the bus to a route and a driver."
             ].join("\n"),
             keywords: ["new bus", "vehicle", "register bus", "fleet"]
@@ -515,6 +515,7 @@
             question: "How are boarding and deboarding notifications triggered?",
             answer: [
                 "When a student taps their RFID card on the reader in the bus, School Buddy records the tap and sends the parent a notification that the child has boarded (or got off) the bus, with the bus and time.",
+                "When the student taps their RFID card on the reader at the school during deboarding, School Buddy records the tap and sends the parent a deboarding notification, including the school, bus details, and time.",
                 "If the card is not tapped, or the RFID tag saved for the student is wrong, no notification is sent."
             ].join("\n"),
             keywords: ["boarding", "deboarding", "rfid", "tap", "punch"]
@@ -533,20 +534,20 @@
             ].join("\n"),
             keywords: ["not receiving", "missing notification", "parent app", "push"]
         },
-        {
-            id: "notif-fcm-token", category: "notifications", order: 5,
-            question: "What should I check if an FCM token is invalid or expired?",
-            answer: [
-                "An FCM token is the address of the parent's phone for push notifications. It becomes invalid when the app is reinstalled, its data is cleared, the parent changes phone, or the app has not been opened for a long time.",
-                "1. Ask the parent to update the Parent App to the latest version.",
-                "2. Ask them to sign out and sign in again. This registers a new token.",
-                "3. Make sure notifications are allowed for the app on the phone.",
-                "4. Check **Reports > Login Reports** to confirm the new sign-in was recorded.",
-                "5. Check **Reports > Notification Log** after the next trip to confirm delivery.",
-                "If notifications still fail for a valid token, contact support with the parent's mobile number."
-            ].join("\n"),
-            keywords: ["fcm", "token", "expired", "invalid", "firebase", "reinstall"]
-        },
+        // {
+        //     id: "notif-fcm-token", category: "notifications", order: 5,
+        //     question: "What should I check if an FCM token is invalid or expired?",
+        //     answer: [
+        //         "An FCM token is the address of the parent's phone for push notifications. It becomes invalid when the app is reinstalled, its data is cleared, the parent changes phone, or the app has not been opened for a long time.",
+        //         "1. Ask the parent to update the Parent App to the latest version.",
+        //         "2. Ask them to sign out and sign in again. This registers a new token.",
+        //         "3. Make sure notifications are allowed for the app on the phone.",
+        //         "4. Check **Reports > Login Reports** to confirm the new sign-in was recorded.",
+        //         "5. Check **Reports > Notification Log** after the next trip to confirm delivery.",
+        //         "If notifications still fail for a valid token, contact support with the parent's mobile number."
+        //     ].join("\n"),
+        //     keywords: ["fcm", "token", "expired", "invalid", "firebase", "reinstall"]
+        // },
 
         /* ---------------- Reports ---------------- */
         {

@@ -16,6 +16,7 @@ using SchoolBuddy.Models.Route;
 using SchoolBuddy.Models.Students;
 using SchoolBuddy.Models.Tracking;
 using SchoolBuddy.Repositories.Attendance;
+using SchoolBuddy.Models.VideoTelematics;
 
 var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -57,6 +58,7 @@ builder.Services.AddSingleton<Iapitemplate,api>();
 builder.Services.AddSingleton<ITracking, Tracking>();
 builder.Services.AddSingleton<IDriverRepository, DriverRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+builder.Services.AddScoped<IVideoTelematics, VideoTelematicsRepository>();
 
 
 var app = builder.Build();
