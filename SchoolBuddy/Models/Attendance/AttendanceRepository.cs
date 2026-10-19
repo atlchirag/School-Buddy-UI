@@ -58,6 +58,7 @@ public sealed class AttendanceRepository : IAttendanceRepository
         }
         catch (Exception ex)
         {
+            General.LogException(ex);
             return new List<DayWiseAttendanceStudentResponse>();
         }
     }
@@ -107,6 +108,7 @@ public sealed class AttendanceRepository : IAttendanceRepository
         }
         catch (Exception ex)
         {
+            General.LogException(ex);
             return new List<ClassWiseAttendanceRowResponse>();
         }
     }

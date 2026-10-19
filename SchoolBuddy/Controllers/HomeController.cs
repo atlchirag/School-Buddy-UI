@@ -32,6 +32,7 @@ namespace SchoolBuddy.Controllers
         private readonly IHoliday _holiday;
         private readonly IConfiguration _configure;
         private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ITracking _tracking;
         private readonly IReportRepository _report;
         private readonly IDriverRepository _driver;
@@ -45,7 +46,7 @@ namespace SchoolBuddy.Controllers
 
         //ViewData["Admin"]=null;
         private readonly Iapitemplate _apitemplate;
-        public HomeController(ILogger<HomeController> logger,ILoginRepository login, IStudentsRepository students, IDashboardRepository dashboardRepository,IHoliday holiday, IConfiguration configuration, Iapitemplate apitemplate, IReportRepository report, ITracking tracking,IDriverRepository driver)
+        public HomeController(ILogger<HomeController> logger,ILoginRepository login, IStudentsRepository students, IDashboardRepository dashboardRepository,IHoliday holiday, IConfiguration configuration, Iapitemplate apitemplate, IReportRepository report, ITracking tracking,IDriverRepository driver, IHttpClientFactory httpClientFactory)
         {
             _driver = driver;
             _tracking = tracking;
@@ -56,7 +57,8 @@ namespace SchoolBuddy.Controllers
             _dashboardRepository = dashboardRepository;
             _holiday = holiday;
             _configure = configuration;
-            _httpClient = new HttpClient();
+            _httpClientFactory = httpClientFactory;
+            _httpClient = httpClientFactory.CreateClient(HttpClientNames.SchoolBuddyApi);
             _apitemplate = apitemplate;
             _report = report;
         }
@@ -83,12 +85,16 @@ namespace SchoolBuddy.Controllers
                 if (res != "0" && res != "-1")
                 {
                     var res_json = JsonConvert.DeserializeObject<login_res>(res);
+                    // Drop anything stored before login so no earlier session data carries over.
+                    HttpContext.Session.Clear();
                     HttpContext.Session.SetString("uid", res_json.user_id);
                     HttpContext.Session.SetString("database", res_json.database);
                     HttpContext.Session.SetString("schoolname", res_json.schoolname);
                     HttpContext.Session.SetString("password", login.password);
                     HttpContext.Session.SetString("username", login.username);
                     HttpContext.Session.SetString("SessionTime", DateTime.UtcNow.ToString("o"));
+
+                    General.LogLogin(res_json.user_id, $"SUCCESS  username={login.username}  school={res_json.schoolname}  database={res_json.database}  source=WEB  ip={HttpContext.Connection.RemoteIpAddress}");
 
                     string? db = HttpContext.Session.GetString("database");
                     string uid = HttpContext.Session.GetString("uid");
@@ -125,8 +131,9 @@ namespace SchoolBuddy.Controllers
                         trackofyToken);
 
                     }
-                    catch
+                    catch (Exception ex)
                     {
+                        General.LogException(ex);
                         trackofyToken = null;
                     }
 
@@ -134,6 +141,7 @@ namespace SchoolBuddy.Controllers
                 }
                 else
                 {
+                    General.LogLogin(null, $"FAILED  username={login.username}  api_result={res}  source=WEB  ip={HttpContext.Connection.RemoteIpAddress}");
                     HttpContext.Session.Clear();
                     ViewData["status"] = "fail";
                     return View("/Views/Home/Login/index.cshtml");
@@ -192,69 +200,73 @@ namespace SchoolBuddy.Controllers
 
                 string  trackofyToken =
                         HttpContext.Session.GetString("token");
-               
+
+                Stopwatch pageStopwatch = Stopwatch.StartNew();
+
                 /*
                  * STEP 2:
                  * All these calls are independent, so start them together.
+                 * Each one is timed and gets DashboardApiTimeout before its fallback is used.
                  */
-                var vehicleHealthTask =
-                    _dashboardRepository.Vehicle_health(trackofyToken);
+                var vehicleHealthTask = WithDashboardTimeout("Vehicle_health",
+                    _dashboardRepository.Vehicle_health(trackofyToken),
+                    new List<VehicleHealthModel>());
 
-                var totalStudentTask =
-                    _dashboardRepository.CountTotalStudentAPICall(uid);
+                var totalStudentTask = WithDashboardTimeout("CountTotalStudentAPICall",
+                    _dashboardRepository.CountTotalStudentAPICall(uid), "0");
 
-                var totalLiveRouteTask =
-                    _dashboardRepository.countTotalLiveRouteApiCall(uid, db);
+                var totalLiveRouteTask = WithDashboardTimeout("countTotalLiveRouteApiCall",
+                    _dashboardRepository.countTotalLiveRouteApiCall(uid, db), "0");
 
-                var totalBusTask =
-                    _dashboardRepository.countTotalBusApiCall(uid);
+                var totalBusTask = WithDashboardTimeout("countTotalBusApiCall",
+                    _dashboardRepository.countTotalBusApiCall(uid), "0");
 
-                var totalRouteTask =
-                    _dashboardRepository.counttotalrouteApiCall(uid);
+                var totalRouteTask = WithDashboardTimeout("counttotalrouteApiCall",
+                    _dashboardRepository.counttotalrouteApiCall(uid), "0");
 
-                var stoppedBusTask =
-                    _dashboardRepository.countStopBusesApiCall(uid);
+                var stoppedBusTask = WithDashboardTimeout("countStopBusesApiCall",
+                    _dashboardRepository.countStopBusesApiCall(uid), "0");
 
-                var idleBusTask =
-                    _dashboardRepository.countIdleBusApiCall(uid);
+                var idleBusTask = WithDashboardTimeout("countIdleBusApiCall",
+                    _dashboardRepository.countIdleBusApiCall(uid), "0");
 
-                var assignedStudentTask =
-                    _dashboardRepository.countassignedstudent(uid);
+                var assignedStudentTask = WithDashboardTimeout("countassignedstudent",
+                    _dashboardRepository.countassignedstudent(uid), "0");
 
-                var driverPerformanceTask =
+                var driverPerformanceTask = WithDashboardTimeout("DriverPerformance",
                     _dashboardRepository.DriverPerformance(
                         username,
-                        password);
+                        password),
+                    new driverdashboard { Status = false });
 
-                var vehicleInServiceTask =
-                    _dashboardRepository.VehicleInServices(uid, db);
+                var vehicleInServiceTask = WithDashboardTimeout("VehicleInServices",
+                    _dashboardRepository.VehicleInServices(uid, db),
+                    new List<VehicleInService>());
 
-                var notificationTask =
+                var notificationTask = WithDashboardTimeout("GetNotification",
                     _report.GetNotification(
                         uid,
                         notificationDate,
-                        db);
+                        db),
+                    "[]");
 
-                var alertTask =
-                    _dashboardRepository.Alerts(trackofyToken);
+                var alertTask = WithDashboardTimeout("Alerts",
+                    _dashboardRepository.Alerts(trackofyToken),
+                    new List<NotificationItem>());
 
-                var routePerformanceTask =
-                    _dashboardRepository.RoutePerformance(uid, db);
+                var routePerformanceTask = WithDashboardTimeout("RoutePerformance",
+                    _dashboardRepository.RoutePerformance(uid, db),
+                    new List<RouteLiveStatusModel>());
 
-                var vehiclesTask =
+                var vehiclesTask = WithDashboardTimeout("GetVehiclesAsync",
                     _tracking.GetVehiclesAsync(
                         username,
                         password,
-                        db, trackofyToken);
+                        db, trackofyToken),
+                    new List<DeviceIdAndVehiclenew>());
 
-                //                var vehiclesTask = Task.Run(() =>
-                //   _tracking.GetVehicles(
-                //       username,
-                //       password,
-                //       db
-                //   )
-                //);
-                var holidays =  _holiday.GetHolidays(uid);
+                var holidays = WithDashboardTimeout("GetHolidays",
+                    _holiday.GetHolidays(uid), "[]");
 
 
                 /*
@@ -278,13 +290,27 @@ namespace SchoolBuddy.Controllers
                     holidays
                 );
 
+                _logger.LogInformation(
+                    "Dashboard data loaded in {ElapsedMs} ms",
+                    pageStopwatch.ElapsedMilliseconds);
+
                 /*
                  * Read completed results.
                  */
                 string holidayJson = await holidays;
 
-                var holidayList = JsonConvert.DeserializeObject<List<holiday_list>>(holidayJson)
+                List<holiday_list> holidayList;
+                try
+                {
+                    holidayList = JsonConvert.DeserializeObject<List<holiday_list>>(holidayJson)
                                   ?? new List<holiday_list>();
+                }
+                catch (Newtonsoft.Json.JsonException ex)
+                {
+                    General.LogException(ex);
+                    // The holiday API returns a plain error string on failure; don't let it blank the whole dashboard.
+                    holidayList = new List<holiday_list>();
+                }
 
                 var upcomingHoliday = holidayList
                     .Where(x =>
@@ -467,8 +493,9 @@ namespace SchoolBuddy.Controllers
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
+                    General.LogException(ex);
                     boardingCount = 0;
                     deboardingCount = 0;
                     pickReachCount = 0;
@@ -587,6 +614,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 System.Diagnostics.Debug.WriteLine(
                     $"Dashboard loading error: {ex}");
 
@@ -635,237 +663,46 @@ namespace SchoolBuddy.Controllers
                     });
             }
         }
-        //       [HttpGet]
-        //       public async Task<IActionResult> Dashboard(Login login)
-        //       {
-        //           string? uid = HttpContext.Session.GetString("uid");
-        //           string?db = HttpContext.Session.GetString("database");
-        //           string? password = HttpContext.Session.GetString("password");
-        //           string? username = HttpContext.Session.GetString("username");
+        // How long the dashboard waits for one external API before showing its fallback value.
+        private static readonly TimeSpan DashboardApiTimeout = TimeSpan.FromSeconds(30);
 
+        /*
+         * Waits up to DashboardApiTimeout for one dashboard API call and logs how long it took,
+         * so the slowest external API shows up in the logs. On timeout or error the fallback is
+         * returned and the page still loads.
+         */
+        private async Task<T> WithDashboardTimeout<T>(string apiName, Task<T> call, T fallback)
+        {
+            Stopwatch stopwatch = Stopwatch.StartNew();
+            using var delayCancellation = new CancellationTokenSource();
 
-        //           if (HttpContext.Session.GetString("uid") == null)
-        //           {
-        //               return RedirectToAction("Index", "Home");
-        //           }
+            try
+            {
+                Task finished = await Task.WhenAny(call, Task.Delay(DashboardApiTimeout, delayCancellation.Token));
+                if (finished != call)
+                {
+                    _logger.LogWarning(
+                        "Dashboard API {ApiName} timed out after {ElapsedMs} ms; showing fallback value",
+                        apiName, stopwatch.ElapsedMilliseconds);
+                    return fallback;
+                }
 
-        //           if (!String.IsNullOrEmpty(uid))
-        //           {
-        //               string today = DateTime.Now.ToString("yyyy-MM-dd");
-        //               var model = await _report.GetRFIDReport(uid, today);
-        //               if (model.Trim().StartsWith("["))
-        //               {
-        //                   var jsonArray = JArray.Parse(model);
-        //                   int totalPunched = jsonArray.Sum(x => (int)x["distinct_rfid_punched"]);
-        //                   int totalOther = jsonArray.Sum(x => (int)x["other"]);
-        //                   TempData["RFIDPUNCHED"] = totalPunched+totalOther;
-        //               }
-        //               else
-        //               {
-        //                   TempData["RFIDPUNCHED"] = model;
-        //               }
-        //               var token = await _dashboardRepository.SendPayload(username, password);
-
-        //               if (!string.IsNullOrEmpty(token))
-        //               {
-        //                   using JsonDocument doc = JsonDocument.Parse(token);
-
-        //                   if (doc.RootElement.TryGetProperty("token", out JsonElement tokenElement))
-        //                   {
-        //                       string token1 = tokenElement.GetString();
-
-        //                       if (!string.IsNullOrEmpty(token1))
-        //                       {
-        //                           HttpContext.Session.SetString("token", token1);
-        //                       }
-        //                   }
-        //               }
-        //               List<VehicleHealthModel> vehicleHealth = await _dashboardRepository.Vehicle_health(HttpContext.Session.GetString("token"));
-
-        //               //var StopWiseVoilation = await _dashboardRepository.StopWiseVoilation(uid,db);
-        //               string total_student = await _dashboardRepository.CountTotalStudentAPICall(uid);
-        //               string total_live_route = await _dashboardRepository.countTotalLiveRouteApiCall(uid,db);
-        //               string total_buses = await _dashboardRepository.countTotalBusApiCall(uid);
-        //               /*string today_notify = await _dashboardRepository.countTodayNotificationApiCall(uid)*/;
-        //               string total_route = await _dashboardRepository.counttotalrouteApiCall(uid);
-        //               //string total_nofify = await _dashboardRepository.counttotalNotificationApiCall(uid);
-        //               string total_stop_buses = await _dashboardRepository.countStopBusesApiCall(uid);
-        //               string total_idle_buses = await _dashboardRepository.countIdleBusApiCall(uid);
-        //               //string upcomingHolidays = await _dashboardRepository.GetUpcomingHolidays(uid);
-        //               //string upcomingEvents = await _dashboardRepository.UpcomingEentSummary(uid);
-        //               string totalassigned_student = await _dashboardRepository.countassignedstudent(uid);
-        //               var driverPerformance= await _dashboardRepository.DriverPerformance(username,password);
-        //               var vehicleinservice = await _dashboardRepository.VehicleInServices(uid, db);
-        //               ViewBag.vehicleserve = vehicleinservice;
-        //               string notification = await _report.GetNotification(
-        //     uid,
-        //     DateTime.Now.ToString("MM-dd-yyyy"),
-        //     db
-        // );
-
-
-        //               using JsonDocument document = JsonDocument.Parse(notification);
-
-        //               var records = document.RootElement.EnumerateArray().ToList();
-
-        //               int boardingCount = records
-        //                   .Where(r =>
-        //                   {
-        //                       string message = GetJsonValue(r, "message");
-        //                       return message.Contains("boarded", StringComparison.OrdinalIgnoreCase)
-        //                              && !message.Contains("deboarded", StringComparison.OrdinalIgnoreCase);
-        //                   })
-        //                   .Select(r => GetJsonValue(r, "admission_no"))
-        //                   .Distinct()
-        //                   .Count();
-
-        //               int deboardingCount = records
-        //                   .Where(r =>
-        //                   {
-        //                       string message = GetJsonValue(r, "message");
-        //                       return message.Contains("deboarded", StringComparison.OrdinalIgnoreCase);
-        //                   })
-        //                   .Select(r => GetJsonValue(r, "admission_no"))
-        //                   .Distinct()
-        //                   .Count();
-        //               int pickReachCount = records
-        //   .Where(row =>
-        //   {
-        //       string message = GetJsonValue(row, "message");
-
-        //       return message.Contains("reach your stop within 10 min", StringComparison.OrdinalIgnoreCase)
-        //           && message.Contains("pick", StringComparison.OrdinalIgnoreCase);
-        //   })
-        //   .Select(row => GetJsonValue(row, "admission_no"))
-        //   .Where(x => !string.IsNullOrWhiteSpace(x))
-        //   .Distinct()
-        //   .Count();
-        //               int dropReachCount = records
-        //   .Where(row =>
-        //   {
-        //       string message = GetJsonValue(row, "message");
-
-        //       return message.Contains("reach your stop within 10 min", StringComparison.OrdinalIgnoreCase)
-        //           && message.Contains("drop", StringComparison.OrdinalIgnoreCase);
-        //   })
-        //   .Select(row => GetJsonValue(row, "admission_no"))
-        //   .Where(x => !string.IsNullOrWhiteSpace(x))
-        //   .Distinct()
-        //   .Count();
-        //               ViewBag.PickReachCount = pickReachCount;
-        //               ViewBag.DropReachCount = dropReachCount;
-
-        //               ViewBag.BoardingCount = boardingCount;
-        //               ViewBag.DeboardingCount = deboardingCount;
-        //               var alert = await _dashboardRepository.Alerts(HttpContext.Session.GetString("token"))
-        //           ?? new List<NotificationItem>();
-
-        //               ViewBag.harshcount = alert.Count(x =>
-        //                   !string.IsNullOrWhiteSpace(x.msg_status) &&
-        //                   x.msg_status.Contains("harsh", StringComparison.OrdinalIgnoreCase));
-
-        //               ViewBag.batterylow = alert.Count(x =>
-        //                   !string.IsNullOrWhiteSpace(x.msg_status) &&
-        //                   x.msg_status.Contains("Battery Low", StringComparison.OrdinalIgnoreCase));
-
-        //               ViewBag.batterydisconnection = alert.Count(x =>
-        //                   !string.IsNullOrWhiteSpace(x.msg_status) &&
-        //                   x.msg_status.Contains("Battery dis", StringComparison.OrdinalIgnoreCase));
-
-        //               ViewBag.tamperalert = alert.Count(x =>
-        //                   !string.IsNullOrWhiteSpace(x.msg_status) &&
-        //                   x.msg_status.Contains("tamper", StringComparison.OrdinalIgnoreCase));
-
-        //               ViewData["total_sos"] = alert.Count(x =>
-        //                   !string.IsNullOrWhiteSpace(x.msg_status) &&
-        //                   x.msg_status.Contains("panic", StringComparison.OrdinalIgnoreCase));
-        //               ViewData["total_overspeed"] = alert.Count(x =>
-        //                 !string.IsNullOrWhiteSpace(x.msg_status) &&
-        //                 x.msg_status.Contains("speed", StringComparison.OrdinalIgnoreCase));
-
-        //               if (alert != null && alert.Any())
-        //               {
-        //                   ViewBag.Alerts = alert?.ToList() ?? new List<NotificationItem>();
-        //               }
-        //               else
-        //               {
-        //                   ViewBag.Alerts = null;
-
-        //   }
-
-        //               if (driverPerformance != null &&
-        //   driverPerformance.Status &&
-        //   driverPerformance.Data != null)
-        //               {
-        //                   ViewBag.DriverPerformance = driverPerformance.Data;
-        //               }
-        //               else
-        //               {
-
-        //               }
-        //               var RoutePerformance = await _dashboardRepository.RoutePerformance(uid,db);
-        //               if (RoutePerformance != null 
-        //   )
-        //               {
-        //                   ViewBag.RoutePerformance = RoutePerformance;
-        //               }
-        //               else
-        //               {
-
-        //               }
-
-        //           //    var events = JsonConvert.DeserializeObject<List<Event>>(upcomingEvents);
-        //             //  var holidays = JsonConvert.DeserializeObject<List<Event>>(upcomingHolidays);
-        //               List<DeviceIdAndVehicle> vehicles = new List<DeviceIdAndVehicle>();
-        //               vehicles = _tracking.GetVehicles(username, password, db);
-
-        //               // Filter events for current month and year
-        //              // var filteredEvents = JsonConvert.DeserializeObject<List<dynamic>>(upcomingEvents)
-        ////.Where(x =>
-        ////{
-        ////    DateTime d = x.from_date;
-        ////    return d.Month == DateTime.Now.Month && d.Year == DateTime.Now.Year;
-        ////})
-        ////.ToList();
-        //             //  var filteredHolidays = JsonConvert.DeserializeObject<List<dynamic>>(upcomingHolidays)
-        ////.Where(x =>
-        ////{
-        ////    DateTime d = x.from_date;
-        ////    return d.Month == DateTime.Now.Month && d.Year == DateTime.Now.Year;
-        ////})
-        ////.ToList();
-        //               ViewBag.VehicleHealth = vehicleHealth;
-        //               ViewBag.VehicleList = vehicles;
-        //               //ViewBag.filteredEvents = filteredEvents;
-        //              // ViewBag.filteredholiday = filteredHolidays;
-        //               //dynamic obj = JsonConvert.DeserializeObject<dynamic>(StopWiseVoilation);
-        //               //ViewBag.StopViolationCount = (int)obj.stopViolationCount;
-        //               //ViewBag.Violations = obj["violations"];
-        //               //ViewBag.RouteViolations = obj["routeViolations"];
-        //               //ViewBag.RouteViolationCount = (int)obj.routeViolationCount;
-
-        //               //ViewBag.Events = events;
-        //               //ViewBag.Holidays = holidays;
-        //               ViewData["total_bus"] = total_buses;
-        //               ViewData["total_running"] = total_live_route;
-        //               ViewData["total_idle"] = total_idle_buses;
-        //               ViewData["total_stopped"] = total_stop_buses;
-
-        //               Dashboard ds = new Dashboard();
-        //               ds.assignedstudent = totalassigned_student;
-        //               ds.totalstudentcount = total_student;
-        //               //ds.totalnotificationcount = total_nofify;
-        //               ds.totalroutecount = total_route;
-        //               ds.totalbuscount = total_buses;
-        //               ds.totalliveroutecount = total_live_route;
-        //               //ds.todaynotificationcount = today_notify;
-        //               ViewData["Admin"] = login.username;
-        //               return View("Views/Home/Dashboard/Dashboard.cshtml", ds);
-        //           }
-
-        //           return RedirectToAction("Index","Home");
-
-        //       }
+                delayCancellation.Cancel();
+                T result = await call;
+                _logger.LogInformation(
+                    "Dashboard API {ApiName} took {ElapsedMs} ms",
+                    apiName, stopwatch.ElapsedMilliseconds);
+                return result ?? fallback;
+            }
+            catch (Exception ex)
+            {
+                General.LogException(ex);
+                _logger.LogWarning(ex,
+                    "Dashboard API {ApiName} failed after {ElapsedMs} ms; showing fallback value",
+                    apiName, stopwatch.ElapsedMilliseconds);
+                return fallback;
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> StopViolationSummary()
@@ -891,8 +728,9 @@ namespace SchoolBuddy.Controllers
                 JToken.Parse(response);
                 return Content(response, "application/json");
             }
-            catch (JsonReaderException)
+            catch (JsonReaderException ex)
             {
+                General.LogException(ex);
                 return StatusCode(StatusCodes.Status502BadGateway,
                     new { message = "The stop violation service returned invalid JSON." });
             }
@@ -937,7 +775,7 @@ namespace SchoolBuddy.Controllers
                 content.Add(new StringContent(userId), "user_id");
 
                 string? apiUrl = _configure["api_endpoint"];
-                using (HttpClient client = new HttpClient())
+                using (HttpClient client = _httpClientFactory.CreateClient(HttpClientNames.SchoolBuddyApi))
                 {
                     var response = await client.PostAsync($"{apiUrl}Students/UpdateRFIDInBulk", content);
                     string responseBody = await response.Content.ReadAsStringAsync();
@@ -963,6 +801,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 TempData["ErrorMessage"] = "Error occurred during upload: " + ex.Message;
             }
 
@@ -1062,7 +901,7 @@ namespace SchoolBuddy.Controllers
 
                 TempData["action"] = "Update";
                 HttpContext.Session.SetString("editoradd", "edit");
-                var model = _students.GetStudentByID(id).Result;
+                var model = await _students.GetStudentByID(id);
                 Students? students = new Students();
                 students = JsonConvert.DeserializeObject<Students>(model);
                 var m = await _students.classes();
@@ -1111,8 +950,9 @@ namespace SchoolBuddy.Controllers
                             }
                         }
                     }
-                    catch (Exception)
+                    catch (Exception ex)
                     {
+                        General.LogException(ex);
                         TempData["ErrorMessage"] = "Unexpected response format: " + response;
                     }
                 }
@@ -1123,6 +963,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("Error in AddStudentsInBulk: " + ex.Message);
                 TempData["ErrorMessage"] = "An unexpected error occurred during bulk upload.";
             }
@@ -1175,6 +1016,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Error fetching teacher details: {ex.Message}");
                 return View("Views/Home/Master/TeacherDetails/teacherDetails.cshtml", new List<TeacherModel>());
             }
@@ -1340,6 +1182,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Error: {ex.Message}");
                 TempData["ErrorMessage"] = "An error occurred while adding the teacher.";
                 return RedirectToAction("addTeacherDetails", "Home");
@@ -1369,6 +1212,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Error fetching teacher details: {ex.Message}");
                 return RedirectToAction("teacherDetails", "Home");
             }
@@ -1399,6 +1243,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Error: {ex.Message}");
                 TempData["ErrorMessage"] = "An error occurred while updating the teacher.";
                 return View("addTeacherDetails", model);
@@ -1427,6 +1272,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Error: {ex.Message}");
                 TempData["ErrorMessage"] = "An error occurred while deleting the teacher.";
                 return RedirectToAction("teacherDetails", "Home");
@@ -1468,6 +1314,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Ok("");
             }
         }
@@ -1589,6 +1436,7 @@ namespace SchoolBuddy.Controllers
                 }
                 catch (Exception ex)
                 {
+                    General.LogException(ex);
                     Console.WriteLine("Error in AddStudent: " + ex.Message);
                     TempData["ErrorMessage"] = "An error occurred while processing your request.";
                     return RedirectToAction("Students", "Home");
@@ -1611,6 +1459,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("Error fetching class dropdown: " + ex.Message);
                 ViewBag.class_dropdown = new List<class_dropdown>();
             }
@@ -1690,14 +1539,14 @@ namespace SchoolBuddy.Controllers
         }
 
         [HttpGet] // Delete Student
-        public IActionResult deleteStudent(int id)
+        public async Task<IActionResult> deleteStudent(int id)
         {
             try
             {
                 string? uid = HttpContext.Session.GetString("uid");
 
-                var model = _students.DeleteStudent(id).Result;
-                var model1 = _students.GetAllStudentAPICall(uid).Result;
+                var model = await _students.DeleteStudent(id);
+                var model1 = await _students.GetAllStudentAPICall(uid);
                 student_list = JsonConvert.DeserializeObject<List<Students>>(model1);
 
                 if (!string.IsNullOrEmpty(model) && (model.Trim().ToLower() == "true" || model.ToLower().Contains("success")))
@@ -1713,6 +1562,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("Error in deleteStudent: " + ex.Message);
                 TempData["ErrorMessage"] = "An unexpected error occurred while deleting the student.";
                 return RedirectToAction("Students", "Home");
@@ -1760,6 +1610,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("❌ Exception: " + ex.Message);
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
@@ -1801,6 +1652,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("❌ Exception: " + ex.Message);
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
@@ -1829,6 +1681,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
         }
@@ -1849,6 +1702,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json("");
 
             }
@@ -1871,6 +1725,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json("");
 
             }
@@ -1892,6 +1747,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json("");
 
             }
@@ -1915,6 +1771,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json("");
 
             }
@@ -1937,6 +1794,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json("");
 
             }
@@ -1963,13 +1821,15 @@ namespace SchoolBuddy.Controllers
                         .Select(value => value.Value<string>()?.Trim())
                         .FirstOrDefault(value => !string.IsNullOrWhiteSpace(value)) ?? "";
                 }
-                catch
+                catch (Exception ex)
                 {
+                    General.LogException(ex);
                     return result.Trim().Trim('"');
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -2009,6 +1869,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("Error in DownloadStudentsExcel: " + ex.Message);
                 TempData["ErrorMessage"] = "An error occurred while downloading student excel.";
                 return RedirectToAction("Students", "Home");
@@ -2100,6 +1961,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 TempData["ErrorMessage"] = "Unable to load staff details: " + ex.Message;
             }
 
@@ -2313,6 +2175,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 TempData["ErrorMessage"] = "An unexpected error occurred during staff bulk upload: " + ex.Message;
             }
 
@@ -2351,6 +2214,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 TempData["ErrorMessage"] = "Something Went Wrong !";
                 return RedirectToAction("StaffDetails");
             }
@@ -2422,6 +2286,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 TempData["ErrorMessage"] = "Unable to download staff details: " + ex.Message;
                 return RedirectToAction("staffDetails");
             }
@@ -2451,8 +2316,9 @@ namespace SchoolBuddy.Controllers
 
                 return Json(new List<dynamic>());
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new List<dynamic>());
             }
         }
@@ -2494,6 +2360,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 _logger.LogError(
                     ex,
                     "Error loading filtered notifications"
@@ -2538,6 +2405,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 _logger.LogError(
                     ex,
                     "Error loading filtered notifications"

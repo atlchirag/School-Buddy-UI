@@ -91,12 +91,14 @@ namespace SchoolBuddy.Controllers
             {
                 return Content(await _report.GenerateTrackofyReportAsync(request!, token), "application/json");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                General.LogException(ex);
                 return Unauthorized(new { status = false, message = "Session expired. Please log in again." });
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 _logger.LogError(ex, "Unable to generate Trackofy report {ReportType}.", request?.ReportType);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = false, message = "Unable to generate the selected report. Please try again." });
             }
@@ -234,12 +236,14 @@ namespace SchoolBuddy.Controllers
                 };
                 return Json(new { success = true, message = "Temperature report loaded successfully.", data, meta = metaPayload });
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                General.LogException(ex);
                 return Unauthorized(new { success = false, message = "Session expired. Please log in again.", data = Array.Empty<object>(), meta = (object?)null });
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 _logger.LogError(ex, "Unable to load Temperature Report.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { success = false, message = "Unable to load the temperature report.", data = Array.Empty<object>(), meta = (object?)null });
             }
@@ -317,12 +321,14 @@ namespace SchoolBuddy.Controllers
                     meta = new { page = meta.Page, per_page = meta.PerPage, total = meta.Total, last_page = meta.LastPage, count = meta.Count }
                 });
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                General.LogException(ex);
                 return Unauthorized(new { success = false, message = "Session expired. Please log in again.", data = Array.Empty<object>(), meta = (object?)null });
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 _logger.LogError(ex, "Unable to load Idle Summary Report.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { success = false, message = "Unable to load the idle summary report.", data = Array.Empty<object>(), meta = (object?)null });
             }
@@ -346,12 +352,14 @@ namespace SchoolBuddy.Controllers
             {
                 return Content(await request(), "application/json");
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                General.LogException(ex);
                 return Unauthorized(new { status = false, message = "Session expired. Please log in again." });
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 _logger.LogError(ex, "Dashboard Trackofy report request failed.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { status = false, message = "Unable to generate the selected report." });
             }
@@ -534,8 +542,9 @@ namespace SchoolBuddy.Controllers
             {
                 attendanceData = JsonConvert.DeserializeObject<object>(trimmedModel);
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     status = false,

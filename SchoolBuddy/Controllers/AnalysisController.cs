@@ -43,6 +43,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 ViewBag.RouteList = "[]";
                 return View("Views/Home/Analysis/analysis.cshtml");
             }

@@ -108,6 +108,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -137,6 +138,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -167,6 +169,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
             //var std = students.FirstOrDefault(std => std.Id==id);
@@ -209,6 +212,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
 
@@ -257,6 +261,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -302,6 +307,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Exception: {ex.Message}");  
                 return "";
             }
@@ -331,6 +337,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -355,6 +362,7 @@ namespace SchoolBuddy.Models.Students
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Exception in DownloadStudentsExcel: {ex.Message}");
                 return null;
             }

@@ -73,6 +73,7 @@ namespace SchoolBuddy.Controllers
             return "";
         }
 
+        [HttpPost]
         public async Task<string> UpdateTicket(string comment,int ticketid)
         {
             string school_id = HttpContext.Session.GetString("uid");

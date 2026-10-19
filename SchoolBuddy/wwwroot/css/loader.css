@@ -1,0 +1,105 @@
+/* =========================================================
+   GLOBAL WAVE LOADER (#globalLoader)
+   Shown/hidden by wwwroot/js/loader.js.
+   Bars use the sidebar colour (--sb-sidebar-bg from _Layout).
+   Follows the theme via [data-bs-theme] on <html>.
+   ========================================================= */
+
+.sb-loader {
+    /* Light theme (default) */
+    --sbl-bg: rgba(248, 250, 252, 0.35);
+    --sbl-wave: var(--sb-sidebar-bg, #0f2d4e);
+    --sbl-card: #ffffff;
+    --sbl-card-border: rgba(15, 45, 78, 0.12);
+    --sbl-text: var(--sb-sidebar-bg, #0f2d4e);
+
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* Translucent overlay: page stays visible but blurred behind the loader */
+    background: var(--sbl-bg);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    z-index: 99999;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    font-family: 'Open Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Hidden state toggled by loader.js; fades out instead of blinking */
+.sb-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* Card stays light in dark mode so the sidebar-navy bars keep their contrast */
+[data-bs-theme="dark"] .sb-loader {
+    --sbl-bg: rgba(15, 23, 42, 0.4);
+    --sbl-card: #f1f5f9;
+    --sbl-card-border: rgba(255, 255, 255, 0.2);
+}
+
+.sb-loader-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 28px 36px 22px;
+    background: var(--sbl-card);
+    border: 1px solid var(--sbl-card-border);
+    border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.25);
+}
+
+.sb-loader-wave {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 64px;
+}
+
+.sb-loader-wave span {
+    display: block;
+    width: 10px;
+    height: 100%;
+    background-color: var(--sbl-wave);
+    border-radius: 5px;
+    transform: scaleY(0.35);
+    animation: sbl-wave 1s ease-in-out infinite;
+}
+
+.sb-loader-wave span:nth-child(2) { animation-delay: 0.1s; }
+.sb-loader-wave span:nth-child(3) { animation-delay: 0.2s; }
+.sb-loader-wave span:nth-child(4) { animation-delay: 0.3s; }
+.sb-loader-wave span:nth-child(5) { animation-delay: 0.4s; }
+
+@keyframes sbl-wave {
+    0%, 40%, 100% { transform: scaleY(0.35); }
+    20% { transform: scaleY(1); }
+}
+
+.sb-loader-text {
+    color: var(--sbl-text);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: sbl-pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes sbl-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sb-loader-wave span,
+    .sb-loader-text {
+        animation-duration: 2.5s;
+    }
+}

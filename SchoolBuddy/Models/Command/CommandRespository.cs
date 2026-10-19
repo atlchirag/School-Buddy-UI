@@ -31,6 +31,7 @@ namespace SchoolBuddy.Models.Command
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTodayNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "something went wrong";
@@ -50,6 +51,7 @@ namespace SchoolBuddy.Models.Command
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTodayNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "something went wrong";
@@ -72,6 +74,7 @@ namespace SchoolBuddy.Models.Command
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTodayNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "something went wrong";

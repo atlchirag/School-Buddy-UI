@@ -34,6 +34,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -55,6 +56,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -78,6 +80,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -96,6 +99,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -116,6 +120,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -135,6 +140,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -157,6 +163,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -180,6 +187,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -199,6 +207,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -221,6 +230,7 @@ namespace SchoolBuddy.Models.Report
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }

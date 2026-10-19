@@ -69,6 +69,7 @@ namespace SchoolBuddy.Models.VideoTelematics
             }
             catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
+                General.LogException(ex);
                 _logger.LogWarning(ex, "Video Telematics: Trackofy API login failed.");
                 messages.Add("Trackofy API login failed: " + ex.Message);
             }
@@ -80,6 +81,7 @@ namespace SchoolBuddy.Models.VideoTelematics
             }
             catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
+                General.LogException(ex);
                 _logger.LogWarning(ex, "Video Telematics: video server login failed.");
                 messages.Add("Video server login failed: " + ex.Message);
             }
@@ -205,8 +207,9 @@ namespace SchoolBuddy.Models.VideoTelematics
                     .ToLowerInvariant();
                 return message.Contains("token") || message.Contains("unauthori") || message.Contains("expired");
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
+                General.LogException(ex);
                 return false;
             }
         }
@@ -254,6 +257,7 @@ namespace SchoolBuddy.Models.VideoTelematics
             }
             catch (JsonException ex)
             {
+                General.LogException(ex);
                 // PostApiTemplate returns "something went wrong" (not JSON) when the API fails.
                 _logger.LogWarning(ex, "Video Telematics: MDVR check returned a non-JSON response.");
                 var status = new VtMdvrStatus(false, 0, false, "Unable to check MDVR status. Please try again.");
@@ -262,6 +266,7 @@ namespace SchoolBuddy.Models.VideoTelematics
             }
             catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
             {
+                General.LogException(ex);
                 _logger.LogWarning(ex, "Video Telematics: MDVR check failed.");
                 var status = new VtMdvrStatus(false, 0, false,
                     ex is VideoTelematicsAuthException ? ex.Message : "Unable to check MDVR status. Please try again.");
@@ -426,8 +431,9 @@ namespace SchoolBuddy.Models.VideoTelematics
                     return value.ValueKind == JsonValueKind.String ? value.GetString() : value.ToString();
                 }
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
+                General.LogException(ex);
             }
 
             return null;

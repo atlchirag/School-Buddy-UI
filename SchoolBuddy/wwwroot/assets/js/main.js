@@ -120,19 +120,20 @@
   /**
    * Initiate quill editors
    */
-  if (select('.quill-editor-default')) {
+  // Quill, TinyMCE and ECharts are no longer loaded by the layout; a page that needs one loads it itself.
+  if (window.Quill && select('.quill-editor-default')) {
     new Quill('.quill-editor-default', {
       theme: 'snow'
     });
   }
 
-  if (select('.quill-editor-bubble')) {
+  if (window.Quill && select('.quill-editor-bubble')) {
     new Quill('.quill-editor-bubble', {
       theme: 'bubble'
     });
   }
 
-  if (select('.quill-editor-full')) {
+  if (window.Quill && select('.quill-editor-full')) {
     new Quill(".quill-editor-full", {
       modules: {
         toolbar: [
@@ -187,7 +188,7 @@
   const useDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
   const isSmallScreen = window.matchMedia('(max-width: 1023.5px)').matches;
 
-  tinymce.init({
+  if (window.tinymce && select('textarea.tinymce-editor')) tinymce.init({
     selector: 'textarea.tinymce-editor',
     plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons accordion',
     editimage_cors_hosts: ['picsum.photos'],
@@ -282,7 +283,7 @@
    * Autoresize echart charts
    */
   const mainContainer = select('#main');
-  if (mainContainer) {
+  if (mainContainer && window.echarts) {
     setTimeout(() => {
       new ResizeObserver(function() {
         select('.echart', true).forEach(getEchart => {

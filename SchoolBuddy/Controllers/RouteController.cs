@@ -27,7 +27,7 @@ namespace SchoolBuddy.Controllers
             _cfg = cfg;
         }
         [HttpGet]
-        public IActionResult Trip(string? id = null)
+        public async Task<IActionResult> Trip(string? id = null)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace SchoolBuddy.Controllers
 
                     ViewBag.SysUserId = uid;
 
-                    var model = _route.GetAllRouteAPICall(uid, db).Result;
+                    var model = await _route.GetAllRouteAPICall(uid, db);
                     route_list = JsonConvert.DeserializeObject<List<routedetails>>(model);
                     ViewBag.RouteList = route_list.Select(x => new
                     {
@@ -59,7 +59,7 @@ namespace SchoolBuddy.Controllers
 
                     TempData["action"] = "Edit";
                     HttpContext.Session.SetString("editoradd", "edit");
-                    var model = _route.GetRouteByID(id).Result;
+                    var model = await _route.GetRouteByID(id);
                     routedetails? rd = new routedetails();
                     rd = JsonConvert.DeserializeObject<routedetails>(model);
                     return View("~/Views/Home/Master/Student/AddStudent.cshtml", rd);
@@ -71,6 +71,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return View("~/Views/Home/Master/Route/Trip.cshtml");
 
             }
@@ -95,7 +96,7 @@ namespace SchoolBuddy.Controllers
                 else
                 {
 
-                    var model = _route.GetRouteByID(id).Result;
+                    var model = await _route.GetRouteByID(id);
 
                     return Ok(model);
                     //return RedirectToAction("AddStudent", "Home", new {student = students });
@@ -106,6 +107,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Ok("");
 
             }
@@ -149,14 +151,14 @@ namespace SchoolBuddy.Controllers
             return View();
         }
 
-        public IActionResult createtrip()
+        public async Task<IActionResult> createtrip()
         {
 
             string uid = HttpContext.Session.GetString("uid");
             string db = HttpContext.Session.GetString("database");
 
 
-            var model = _route.GetBuses(uid, db).Result;
+            var model = await _route.GetBuses(uid, db);
             if (model == "Data Not Found")
             {
                 return View("~/Views/Home/Master/Route/createtrip.cshtml");
@@ -170,7 +172,7 @@ namespace SchoolBuddy.Controllers
 
         }
         [HttpPost]
-        public IActionResult addRoute(string route_name, string veh_reg, string start_time_up, string end_time_up, string option)
+        public async Task<IActionResult> addRoute(string route_name, string veh_reg, string start_time_up, string end_time_up, string option)
         {
             try
             {
@@ -224,7 +226,7 @@ namespace SchoolBuddy.Controllers
 
 
                 // MVC level duplicate check
-                var allRoutesJson = _route.GetAllRouteAPICall(school_id, db).Result;
+                var allRoutesJson = await _route.GetAllRouteAPICall(school_id, db);
 
                 if (!string.IsNullOrWhiteSpace(allRoutesJson) &&
                     allRoutesJson != "Data Not Found")
@@ -276,7 +278,7 @@ namespace SchoolBuddy.Controllers
                     end_time_up = end_time_up
                 };
 
-                var model = _route.AddRoute(routedetails, school_id).Result;
+                var model = await _route.AddRoute(routedetails, school_id);
 
                 if (!string.IsNullOrEmpty(model) && model.Trim().ToLower() == "true")
                 {
@@ -289,6 +291,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("Error in addRoute: " + ex.Message);
                 return AddRouteResponse(false, "An unexpected error occurred while creating trip.");
             }
@@ -315,7 +318,7 @@ namespace SchoolBuddy.Controllers
 
 
         [HttpPost]
-        public IActionResult editRoute(string routeid, string route_name, string veh_reg, string start_time_up, string end_time_up, string option)
+        public async Task<IActionResult> editRoute(string routeid, string route_name, string veh_reg, string start_time_up, string end_time_up, string option)
         {
             string school_id = HttpContext.Session.GetString("uid");
 
@@ -363,7 +366,7 @@ namespace SchoolBuddy.Controllers
                 service_id = veh_reg   // NEW: this is the selected bus id
 
             };
-            var model = _route.UpdateRoute(routedetails, school_id).Result;
+            var model = await _route.UpdateRoute(routedetails, school_id);
             //var model1 = _route.GetAllRouteAPICall(school_id).Result;
             route_list.Clear();
             //route_list = JsonConvert.DeserializeObject<List<routedetails>>(model1);
@@ -409,7 +412,7 @@ namespace SchoolBuddy.Controllers
         //}
 
         [HttpGet]
-        public IActionResult Halts()
+        public async Task<IActionResult> Halts()
         {
             var uid = HttpContext.Session.GetString("uid") ?? "";
             var db = HttpContext.Session.GetString("database") ?? "";
@@ -421,7 +424,7 @@ namespace SchoolBuddy.Controllers
             //ViewBag.ApiEndpoint = api; 
             ViewBag.ApiEndpoint = "/sbapi/api";
 
-            var json = _route.GetAllRouteAPICall(uid, db).Result;
+            var json = await _route.GetAllRouteAPICall(uid, db);
             var routes = string.IsNullOrWhiteSpace(json) || json == "Data Not Found"|| json== "Something Went Wrong"
                 ? new List<SchoolBuddy.Models.Route.routedetails>()
                 : JsonConvert.DeserializeObject<List<SchoolBuddy.Models.Route.routedetails>>(json) ?? new();
@@ -441,8 +444,9 @@ namespace SchoolBuddy.Controllers
                 var json = await _route.GetHaltsMultiDayTelemetry(req.schoolId, req.routeId, req.startDate, req.endDate, pass, user);
                 return Content(string.IsNullOrWhiteSpace(json) ? "[]" : json, "application/json");
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return Content("[]", "application/json");
             }
         }
@@ -461,8 +465,9 @@ namespace SchoolBuddy.Controllers
 
                 return Content(json, "application/json");
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return Content("[]", "application/json");
             }
         }
@@ -505,8 +510,9 @@ namespace SchoolBuddy.Controllers
                     total = stops.Count
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new { success = false, message = "Something went wrong" });
             }
         }
@@ -715,6 +721,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return " ";
             }
 
@@ -825,8 +832,9 @@ namespace SchoolBuddy.Controllers
                 // The API returns a DataTable JSON (array of rows). Just pass it through.
                 return Content(model, "application/json");
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(Array.Empty<object>());
             }
         }
@@ -858,6 +866,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("Error in DownloadAssignedStudentsExcel: " + ex.Message);
                 TempData["ErrorMessage"] = "An error occurred while downloading assigned students excel.";
                 return RedirectToAction("Trip", "Route");
@@ -970,6 +979,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
                     new
@@ -998,8 +1008,9 @@ namespace SchoolBuddy.Controllers
 
                 return Ok(stopList);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return Ok(new List<getstop>());
             }
         }
@@ -1028,8 +1039,9 @@ namespace SchoolBuddy.Controllers
                     message = response   // use actual API message
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return StatusCode(StatusCodes.Status400BadRequest, new
                 {
                     message = "Student update failed."

@@ -2,10 +2,10 @@
 {
     public interface ITracking
     {
-        List<DeviceIdAndVehicle> GetVehicles(string school_name,string password, string database);
+        Task<List<DeviceIdAndVehicle>> GetVehicles(string school_name,string password, string database);
         Task<string> GetImei(string id, string datbabase);
 
-        string GetLiveTrackingURL(string imei, string database);
+        Task<string> GetLiveTrackingURL(string imei, string database);
         Task<List<DeviceIdAndVehiclenew> >GetVehiclesAsync(
     string schoolName,
     string password,

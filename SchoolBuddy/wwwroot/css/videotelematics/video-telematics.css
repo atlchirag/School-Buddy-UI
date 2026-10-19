@@ -55,6 +55,14 @@
     color: var(--sb-text);
 }
 
+/* Date/time fields are picked from the calendar only (see vt-common.js) */
+.vt-page input[type="date"],
+.vt-page input[type="time"],
+.vt-page input[type="datetime-local"] {
+    cursor: pointer;
+    caret-color: transparent;
+}
+
 .vt-page [hidden],
 .vt-dd-panel[hidden],
 .vt-drawer [hidden] {

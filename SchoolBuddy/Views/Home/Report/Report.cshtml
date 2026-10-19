@@ -3,7 +3,7 @@ ViewData["Title"] = "Reports";
 }
 
 @section Styles {
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
 <link rel="stylesheet" href="~/css/reports/report-center.css" asp-append-version="true" />
 }
 <style>
@@ -362,6 +362,6 @@ ViewData["Title"] = "Reports";
             uid: '@Context.Session.GetString("uid")'
         };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <script src="~/js/reports/report-center.js?v=@DateTime.Now.Ticks" asp-append-version="true"></script>
 }

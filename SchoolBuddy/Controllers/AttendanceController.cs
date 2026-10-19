@@ -51,6 +51,7 @@ public class AttendanceController : BaseController
         }
         catch (Exception exception)
         {
+            General.LogException(exception);
             return StatusCode(StatusCodes.Status500InternalServerError, Failure("An error occurred while loading attendance."));
         }
     }
@@ -200,6 +201,7 @@ public class AttendanceController : BaseController
         }
         catch (Exception ex)
         {
+            General.LogException(ex);
             General.WriteToLogFile(
                 $"{ex.Message} - GetClassWiseAttendance",
                 "D:\\Dotnet_Applications\\schoolbuddy\\log",

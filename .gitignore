@@ -7,6 +7,7 @@
 
 # SVN
 .svn/
+appsettings.json
 
 # Temporary files
 .temp/
@@ -20,4 +21,4 @@ obj/
 Debug/
 Release/
 
-appsettings.json
+/appsettings.json

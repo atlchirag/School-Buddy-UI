@@ -959,6 +959,26 @@
         }
     }
 
+    // =====================================================
+    // Date / time inputs: pick from calendar only, no typing
+    // =====================================================
+
+    var pickerSelector = '#vtRoot input[type="date"], #vtRoot input[type="time"], #vtRoot input[type="datetime-local"]';
+    var allowedKeys = ['Tab', 'Escape', 'Enter', ' '];
+
+    function openPicker(input) {
+        if (input.disabled || typeof input.showPicker !== 'function') return;
+        try { input.showPicker(); } catch (e) { /* needs a user gesture */ }
+    }
+
+    $(document)
+        .on('keydown', pickerSelector, function (e) {
+            if (allowedKeys.indexOf(e.key) === -1) e.preventDefault();
+            if (e.key === 'Enter' || e.key === ' ') openPicker(this);
+        })
+        .on('paste drop', pickerSelector, function (e) { e.preventDefault(); })
+        .on('click', pickerSelector, function () { openPicker(this); });
+
     window.VT = {
         root: root,
         get: get,

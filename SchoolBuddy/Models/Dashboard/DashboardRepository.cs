@@ -19,11 +19,14 @@ namespace SchoolBuddy.Models.Dashboard
     {
         private readonly Iapitemplate _apitemplate;
         private readonly IConfiguration _configuration;
-        public DashboardRepository(Iapitemplate apitemplate, IConfiguration configuration)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public DashboardRepository(Iapitemplate apitemplate, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _apitemplate = apitemplate;
             _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
         }
+
 
         public async Task<string> countIdleBusApiCall(string user_id)
         {
@@ -40,6 +43,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTodayNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -61,6 +65,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTodayNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -82,6 +87,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTodayNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -102,6 +108,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTotalBusApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -123,6 +130,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTotalLiveRouteApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -142,6 +150,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - counttotalNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -161,6 +170,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - counttotalrouteApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -181,6 +191,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -207,6 +218,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -228,6 +240,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -249,6 +262,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -271,6 +285,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -294,6 +309,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -316,6 +332,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -336,6 +353,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -357,6 +375,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -367,7 +386,7 @@ namespace SchoolBuddy.Models.Dashboard
         {
             try
             {
-                HttpClient client = new HttpClient();
+                HttpClient client = _httpClientFactory.CreateClient();
                 //HttpResponseMessage res = await client.GetAsync($"http://test.abctraq.in/trackofy/user/caladdress.php?latitude={lat}&longitude={lng}");
                 HttpResponseMessage res = await client.GetAsync($"https://trackofy.com/user/caladdress.php?latitude={lat}&longitude={lng}");
 
@@ -379,6 +398,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -400,6 +420,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - CountTotalStudentAPICall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -420,6 +441,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - countTodayNotificationApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "0";
@@ -430,8 +452,8 @@ namespace SchoolBuddy.Models.Dashboard
         {
             string baseUrl = _configuration["trackofy_api_token"];
 
-            HttpClient client = new HttpClient();
-            string uuid = GetDeviceUuid();
+            HttpClient client = _httpClientFactory.CreateClient();
+            string uuid = DeviceUuid.Value;
 
             var json = JsonConvert.SerializeObject(new LoginPayload
             {
@@ -456,6 +478,9 @@ namespace SchoolBuddy.Models.Dashboard
             return await response.Content.ReadAsStringAsync();
         }
 
+
+        // The machine id never changes while the app runs; read it once instead of starting a process per login.
+        private static readonly Lazy<string> DeviceUuid = new Lazy<string>(GetDeviceUuid);
 
         public static string GetDeviceUuid()
         {
@@ -519,6 +544,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 // Fallback or logging can be placed here
                 return $"Error retrieving UUID: {ex.Message}";
             }
@@ -553,6 +579,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
 
                 return new driverdashboard
                 {
@@ -590,6 +617,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 // Log ex.Message if logging is available
                 return new List<VehicleInService>();
             }
@@ -625,6 +653,7 @@ namespace SchoolBuddy.Models.Dashboard
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 // Log ex.Message if logging is available
                 return new List<RouteLiveStatusModel>();
             }
@@ -636,14 +665,7 @@ namespace SchoolBuddy.Models.Dashboard
             {
                 string url = _configuration.GetSection("trackofy_api_tabular_dashboard").Value;
 
-                HttpClientHandler handler = new HttpClientHandler
-                {
-                    AllowAutoRedirect = false,
-                    ServerCertificateCustomValidationCallback =
-                        (message, cert, chain, errors) => true
-                };
-
-                using HttpClient client = new HttpClient(handler);
+                using HttpClient client = _httpClientFactory.CreateClient(HttpClientNames.Trackofy);
 
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
@@ -674,8 +696,9 @@ namespace SchoolBuddy.Models.Dashboard
 
                 return new List<VehicleHealthModel>();
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return new List<VehicleHealthModel>();
             }
         }
@@ -686,14 +709,7 @@ namespace SchoolBuddy.Models.Dashboard
             {
                 string url = _configuration.GetSection("trackofy_api_user").Value;
 
-                HttpClientHandler handler = new HttpClientHandler
-                {
-                    AllowAutoRedirect = false,
-                    ServerCertificateCustomValidationCallback =
-                        (message, cert, chain, errors) => true
-                };
-
-                using HttpClient client = new HttpClient(handler);
+                using HttpClient client = _httpClientFactory.CreateClient(HttpClientNames.Trackofy);
 
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
@@ -730,8 +746,9 @@ namespace SchoolBuddy.Models.Dashboard
 
                 return apiResponse?.Data?.Items ?? new List<NotificationItem>();
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return new List<NotificationItem>();
             }
         }
@@ -745,14 +762,7 @@ namespace SchoolBuddy.Models.Dashboard
 
                 string url = _configuration.GetSection("trackofy_api_user").Value;
 
-                HttpClientHandler handler = new HttpClientHandler
-                {
-                    AllowAutoRedirect = false,
-                    ServerCertificateCustomValidationCallback =
-                        (message, cert, chain, errors) => true
-                };
-
-                using HttpClient client = new HttpClient(handler);
+                using HttpClient client = _httpClientFactory.CreateClient(HttpClientNames.Trackofy);
 
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
@@ -789,8 +799,9 @@ namespace SchoolBuddy.Models.Dashboard
 
                 return apiResponse?.Data?.Items ?? new List<NotificationItem>();
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return new List<NotificationItem>();
             }
         }
@@ -802,14 +813,7 @@ namespace SchoolBuddy.Models.Dashboard
             {
                 string url = _configuration.GetSection("trackofy_api_user").Value;
 
-                HttpClientHandler handler = new HttpClientHandler
-                {
-                    AllowAutoRedirect = false,
-                    ServerCertificateCustomValidationCallback =
-                        (message, cert, chain, errors) => true
-                };
-
-                using HttpClient client = new HttpClient(handler);
+                using HttpClient client = _httpClientFactory.CreateClient(HttpClientNames.Trackofy);
 
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", token);
@@ -843,8 +847,9 @@ namespace SchoolBuddy.Models.Dashboard
 
                 return apiResponse?.Data?.Items ?? new List<NotificationItem>();
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return new List<NotificationItem>();
             }
         }

@@ -249,8 +249,11 @@
 
     setInterval(function () {
         if (document.visibilityState === 'visible') {
-            loadKpis();
-            loadAlerts();
+            // Background refresh: no global loader.
+            SBLoader.silent(function () {
+                loadKpis();
+                loadAlerts();
+            });
         }
     }, REFRESH_MS);
 

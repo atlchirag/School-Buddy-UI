@@ -183,6 +183,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 ViewBag.ErrorMessage =
                     "Something went wrong while loading the profile.";
 

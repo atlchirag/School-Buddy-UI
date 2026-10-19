@@ -1,6 +1,8 @@
 ﻿@{
     ViewData["Title"] = "addholidays";
 }
+@* FullCalendar is only used on this page, so its stylesheet is loaded here instead of in the layout. *@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.css" />
 
 <div style="display:flex; gap:3vmin" class="mt-3 ms-3">
     <a asp-controller="Home" asp-action="EventHoliday" style="border: 2px solid; background-color: #0f2d4e; border-color: #0f2d4e; padding-top: 5px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px; border-radius: 4px;">

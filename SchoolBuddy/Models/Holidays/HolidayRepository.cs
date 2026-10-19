@@ -41,6 +41,7 @@ namespace SchoolBuddy.Models.Holidays
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 // Log the exception for debugging
                // Console.WriteLine($"Exception: {ex.Message}");
                 return "An error occurred while adding the holiday.";
@@ -63,6 +64,7 @@ namespace SchoolBuddy.Models.Holidays
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return $"fail-101";
             }
         }
@@ -92,6 +94,7 @@ namespace SchoolBuddy.Models.Holidays
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("❌ Exception: " + ex.Message);
                 return false;
             }
@@ -114,6 +117,7 @@ namespace SchoolBuddy.Models.Holidays
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine("❌ Exception in DeleteHoliday: " + ex.Message);
                 return false;
             }

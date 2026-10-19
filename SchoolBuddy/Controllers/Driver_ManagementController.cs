@@ -25,6 +25,7 @@ namespace SchoolBuddy.Controllers
                 return View("/Views/Home/Driver_Management/index.cshtml", driver);
             }
             catch (Exception ex) {
+                General.LogException(ex);
                 return View("/Views/Home/Driver_Management/index.cshtml");
             }
         }
@@ -65,6 +66,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
 
 
                 return BadRequest(new
@@ -97,6 +99,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 // Optional: Log ex.Message
                 return Json(new
                 {
@@ -130,6 +133,7 @@ namespace SchoolBuddy.Controllers
             }
             catch(Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     success = false,
@@ -173,6 +177,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     success = false,
@@ -208,6 +213,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     success = false,
@@ -244,6 +250,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     success = false,
@@ -277,6 +284,7 @@ namespace SchoolBuddy.Controllers
             }
             catch(Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     success = false,
@@ -298,6 +306,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return View("/Views/Home/Driver_Management/performance.cshtml");
             }
         }
@@ -323,6 +332,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     status = false,
@@ -346,6 +356,7 @@ namespace SchoolBuddy.Controllers
             }
             catch(Exception ex)
             {
+                General.LogException(ex);
                 return Json(new
                 {
                     status = false,
@@ -369,6 +380,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new SaveDriverPerformanceResponse
                 {
                     status = false,
@@ -392,6 +404,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return Json(new SaveDriverPerformanceResponse
                 {
                     status = false,

@@ -135,6 +135,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return UpstreamError(ex, "live video URL");
             }
         }
@@ -191,6 +192,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return UpstreamError(ex, "address lookup");
             }
         }
@@ -373,6 +375,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return UpstreamError(ex, payload.TryGetValue("method", out object? method) ? method?.ToString() ?? file : file);
             }
         }
@@ -382,10 +385,12 @@ namespace SchoolBuddy.Controllers
         {
             try
             {
+                //json parsing
                 return Passthrough(await _videoTelematics.CallCmsAsync(HttpContext.Session, action, query, cancellationToken));
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return UpstreamError(ex, action);
             }
         }
@@ -397,8 +402,9 @@ namespace SchoolBuddy.Controllers
             {
                 using (JsonDocument.Parse(response.Body)) { }
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
+                General.LogException(ex);
                 _logger.LogWarning("Video Telematics: non-JSON response (HTTP {Status}).", response.StatusCode);
                 return StatusCode(StatusCodes.Status502BadGateway,
                     new { status = 0, result = -1, msg = "Unexpected response from Trackofy.", message = "Unexpected response from Trackofy." });

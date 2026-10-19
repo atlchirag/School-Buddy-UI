@@ -20,6 +20,7 @@ namespace SchoolBuddy.Models.Leave
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - GetLeaveRequestsApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "something went wrong";
@@ -42,6 +43,7 @@ namespace SchoolBuddy.Models.Leave
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 General.WriteToLogFile($"{ex.Message} - UpdateLeaveStatusApiCall", "D:\\Dotnet_Applications\\schoolbuddy\\log", "log.txt");
 
                 return "something went wrong";

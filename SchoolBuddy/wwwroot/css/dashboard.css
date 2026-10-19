@@ -1,0 +1,1749 @@
+/* Dashboard page styles (moved out of Views/Home/Dashboard/Dashboard.cshtml). */
+
+        .attendance-overview-card {
+    margin-top: 6px;
+}
+      /* Fleet Status and Student Tracking stack */
+.dashboard-equal-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    /* Gap before Attendance Overview */
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-equal-stack > .sb-card {
+    margin-bottom: 0;
+}
+
+/* Attendance graph centered */
+.attendance-chart-row {
+    width: 100%;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+.attendance-chart-column {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.attendance-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 8px;
+}
+
+.attendance-legend > div {
+    margin-bottom: 0 !important;
+}
+
+/* Equal Live Tracking and Alerts heights on desktop */
+@media (min-width: 1200px) {
+    .live-tracking-card,
+.live-tracking-card > .sb-card-body,
+.live-tracking-map,
+.live-tracking-map > .card-body,
+.live-tracking-map > .card-body > .row,
+.live-tracking-map #normal_map,
+.live-tracking-map #livetracking,
+.live-tracking-map iframe,
+#liveTrackingIframe {
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.live-tracking-map > .card-body {
+    padding: 0 !important;
+}
+
+.live-tracking-map > .card-body > .row {
+    margin: 0 !important;
+}
+
+.live-tracking-map #normal_map,
+.live-tracking-map #livetracking {
+    padding: 0 !important;
+}
+    .live-tracking-card,
+    .alerts-exceptions-card {
+        height: 420px;
+        min-height: 420px;
+    }
+
+    .live-tracking-card {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .live-tracking-card > .sb-card-body {
+        display: flex;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .live-tracking-map {
+        display: flex;
+        flex: 1;
+        width: 100%;
+        height: auto;
+        min-height: 0;
+    }
+
+    .live-tracking-map > .card-body,
+    .live-tracking-map > .card-body > .row,
+    .live-tracking-map #normal_map,
+    .live-tracking-map #livetracking {
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+    }
+
+    .live-tracking-map iframe,
+    #liveTrackingIframe {
+        display: block;
+        width: 100%;
+        height: 100% !important;
+        min-height: 0 !important;
+        border: 0;
+    }
+
+    .alerts-exceptions-card {
+        overflow: hidden;
+    }
+}
+
+        @media (max-width: 1199.98px) {
+            .live-tracking-map {
+                height: auto;
+                min-height: 0;
+                aspect-ratio: 16 / 9;
+            }
+
+            .live-tracking-map > .card-body,
+            .live-tracking-map > .card-body > .row,
+            .live-tracking-map #normal_map,
+            .live-tracking-map #livetracking {
+                height: 100%;
+            }
+
+            .live-tracking-map iframe {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
+        .download-toolbar{
+    display:flex;
+    gap:14px;
+    align-items:center;
+}
+
+.download-btn{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#fff;
+    border:2px solid;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.3s;
+    cursor:pointer;
+    font-size:22px;
+}
+
+.download-btn:hover{
+    transform:scale(1.08);
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+
+.add-btn{
+    color:#1c247b;
+    border-color:#1c247b;
+}
+
+.copy-btn{
+    color:#00b7ff;
+    border-color:#00b7ff;
+}
+
+.excel-btn{
+    color:#28a745;
+    border-color:#28a745;
+}
+
+.csv-btn{
+    color:#f4b400;
+    border-color:#f4b400;
+}
+
+.pdf-btn{
+    color:#ff3b30;
+    border-color:#ff3b30;
+}
+
+.print-btn{
+    color:#2962ff;
+    border-color:#2962ff;
+}
+
+        .rfid-hidden-excel-btn {
+    display: none !important;
+}
+        .sb-table .empty-row td {
+    height: 180px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 0.9rem;
+    color: #495057;
+}   
+    @media (min-width: 1200px) {
+    .attendance-overview-card,
+    .route-performance-card,
+    .recent-boarding-card {
+        height: 260px;
+        min-height: 260px;
+    }
+
+    .attendance-overview-card {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .attendance-overview-card > .sb-card-body {
+        flex: 1;
+        min-height: 0;
+    }
+}
+
+    /* Live Vehicle Tracking: scoped bootstrap-select styling */
+    .vehicle-select-shell {
+        width: 40%;
+    }
+
+    .vehicle-select-shell .bootstrap-select {
+        width: 100% !important;
+    }
+
+    .vehicle-select-shell #selected_vehicle + .dropdown-toggle {
+        min-height: 34px !important;
+        height: 34px !important;
+        padding: 5px 32px 5px 11px;
+        color: #273142;
+        font-size: 12.5px;
+        font-weight: 600;
+        line-height: 1.25;
+        text-align: left;
+        background: #ffffff;
+        border: 1px solid #dbe2ea;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.07);
+        transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .vehicle-select-shell #selected_vehicle + .dropdown-toggle:hover,
+    .vehicle-select-shell #selected_vehicle + .dropdown-toggle:focus,
+    .vehicle-select-shell .bootstrap-select.show > #selected_vehicle + .dropdown-toggle {
+        color: #0f2d4e;
+        background: #ffffff;
+        border-color: #0f2d4e;
+        box-shadow: 0 0 0 3px rgba(25, 25, 112, 0.1),
+                    0 3px 10px rgba(15, 23, 42, 0.09);
+        outline: 0 !important;
+    }
+
+    .vehicle-select-shell #selected_vehicle + .dropdown-toggle::after {
+        position: absolute;
+        top: 50%;
+        right: 11px;
+        margin: 0;
+        transform: translateY(-50%);
+    }
+
+    .vehicle-select-shell #selected_vehicle ~ .dropdown-menu {
+        min-width: 240px;
+        max-height: none !important;
+        margin-top: 6px !important;
+        padding: 7px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 11px;
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14),
+                    0 4px 10px rgba(15, 23, 42, 0.07);
+        overflow: visible !important;
+    }
+
+    .vehicle-select-shell .bootstrap-select.dropup #selected_vehicle ~ .dropdown-menu {
+        margin-top: 0 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .vehicle-select-shell .bs-searchbox {
+        position: relative;
+        padding: 2px 2px 8px;
+        background: #ffffff;
+    }
+
+    .vehicle-select-shell .bs-searchbox::before {
+        content: "\f52a";
+        position: absolute;
+        top: 50%;
+        left: 13px;
+        z-index: 1;
+        color: #7b8794;
+        font-family: "bootstrap-icons";
+        font-size: 13px;
+        line-height: 1;
+        pointer-events: none;
+        transform: translateY(calc(-50% - 3px));
+    }
+
+    .vehicle-select-shell .bs-searchbox .form-control {
+        height: 34px;
+        padding: 6px 10px 6px 32px;
+        color: #273142;
+        font-size: 12.5px;
+        background: #f4f6f8;
+        border: 1px solid #e1e6ec;
+        border-radius: 8px;
+        box-shadow: none;
+        transition: border-color 0.18s ease, box-shadow 0.18s ease,
+                    background-color 0.18s ease;
+    }
+
+    .vehicle-select-shell .bs-searchbox .form-control:focus {
+        background: #ffffff;
+        border-color: #0f2d4e;
+        box-shadow: 0 0 0 3px rgba(25, 25, 112, 0.1);
+        outline: 0;
+    }
+
+    .vehicle-select-shell .bootstrap-select > .dropdown-menu > .inner {
+        max-height: 220px !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        scrollbar-color: rgba(25, 25, 112, 0.35) transparent;
+        scrollbar-width: thin;
+    }
+
+    .vehicle-select-shell .bootstrap-select > .dropdown-menu > .inner::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .vehicle-select-shell .bootstrap-select > .dropdown-menu > .inner::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .vehicle-select-shell .bootstrap-select > .dropdown-menu > .inner::-webkit-scrollbar-thumb {
+        background: rgba(25, 25, 112, 0.3);
+        border-radius: 999px;
+    }
+
+    .vehicle-select-shell .bootstrap-select > .dropdown-menu > .inner::-webkit-scrollbar-thumb:hover {
+        background: rgba(25, 25, 112, 0.5);
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-menu.inner {
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-item {
+        position: relative;
+        display: flex;
+        align-items: center;
+        min-height: 36px;
+        margin: 1px 0;
+        padding: 8px 11px;
+        overflow: hidden;
+        color: #344054;
+        font-size: 12.5px;
+        font-weight: 600;
+        line-height: 1.35;
+        border-radius: 7px;
+        transition: color 0.16s ease, background-color 0.16s ease,
+                    transform 0.16s ease;
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-menu li:not(:first-child) .dropdown-item .text::before {
+        content: "\f87f";
+        display: inline-block;
+        width: 17px;
+        margin-right: 7px;
+        color: #64748b;
+        font-family: "bootstrap-icons";
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1;
+        text-align: center;
+        vertical-align: -1px;
+        transition: color 0.16s ease;
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-item:hover,
+    .vehicle-select-shell .bootstrap-select .dropdown-item:focus {
+        color: #0f2d4e;
+        background: #edf5ff;
+        outline: 0;
+        transform: translateX(2px);
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-item:hover .text::before,
+    .vehicle-select-shell .bootstrap-select .dropdown-item:focus .text::before {
+        color: #0f2d4e;
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-menu li.selected > .dropdown-item,
+    .vehicle-select-shell .bootstrap-select .dropdown-item.active,
+    .vehicle-select-shell .bootstrap-select .dropdown-item:active {
+        color: #0f2d4e !important;
+        font-weight: 700;
+        background: #f1f6ff !important;
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-menu li.selected > .dropdown-item::before,
+    .vehicle-select-shell .bootstrap-select .dropdown-item.active::before {
+        content: "";
+        position: absolute;
+        top: 6px;
+        bottom: 6px;
+        left: 0;
+        width: 3px;
+        background: #0f2d4e;
+        border-radius: 0 3px 3px 0;
+    }
+
+    .vehicle-select-shell .bootstrap-select .dropdown-menu li.selected > .dropdown-item .text::before,
+    .vehicle-select-shell .bootstrap-select .dropdown-item.active .text::before {
+        color: #0f2d4e;
+    }
+    .sb-table td,
+.sb-table th{
+    white-space:normal !important;
+}
+
+.sb-table{
+    margin-bottom:0;
+}
+
+    .sb-table tbody tr{
+    height:38px;
+}
+
+.dashboard-error-icon {
+    align-items: center;
+    background: #fff4e5;
+    border: 1px solid #ffd89a;
+    border-radius: 50%;
+    color: #b45309;
+    display: inline-flex;
+    flex: 0 0 44px;
+    height: 44px;
+    justify-content: center;
+    margin-right: 12px;
+    width: 44px;
+}
+
+.dashboard-error-modal .modal-subtitle {
+    color: #64748b;
+    font-size: 0.82rem;
+    margin-top: 3px;
+}
+
+.dashboard-error-detail {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    color: #475569;
+    display: none;
+    font-size: 0.78rem;
+    margin-top: 14px;
+    padding: 10px 12px;
+    word-break: break-word;
+}
+
+.dashboard-error-modal .btn-primary {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+    /* Pagination */
+/* Pagination */
+.dataTables_wrapper .dataTables_paginate {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    display: inline-block !important;
+    min-width: 30px;
+    height: 30px;
+    line-height: 18px;
+    margin: 0 2px;
+    padding: 6px 10px !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 5px !important;
+    background: #ffffff !important;
+    color: #0f2d4e !important;
+    cursor: pointer;
+    text-decoration: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f1f3f5 !important;
+    color: #0f2d4e !important;
+    border-color: #0f2d4e !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: #0f2d4e !important;
+    color: #ffffff !important;
+    border-color: #0f2d4e !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Info */
+.dataTables_wrapper .dataTables_info {
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+/* Search & Length */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+/* Normal buttons */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+/* Hover */
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #f8f9fa !important;
+    color: #000 !important;
+    border-color: #dee2e6 !important;
+}
+
+/* Active button */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:focus {
+    background: #0f2d4e !important;
+    border: 1px solid #0f2d4e !important;
+
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+
+/* Force white text */
+.dataTables_wrapper .dataTables_paginate .paginate_button.current * {
+    color: #fff !important;
+}
+
+/* Scroll only the table area inside dashboard modals */
+.dashboard-table-scroll {
+    position: relative;
+    width: 100%;
+    max-height: 58vh;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+}
+
+/* Sticky table header */
+.dashboard-table-scroll table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #0f2d4e !important;
+    color: #ffffff !important;
+    white-space: nowrap;
+    text-align: center;
+    vertical-align: middle;
+
+}
+
+.dashboard-table-scroll table thead th * {
+    color: #ffffff !important;
+}
+
+.dashboard-table-scroll table tbody td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.dashboard-table-scroll table {
+    margin-bottom: 0 !important;
+}
+
+   /* =========================================================
+   NOTIFICATION FILTER
+   ========================================================= */
+
+.notification-filter-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    width: 100%;
+    flex-wrap: nowrap;
+    padding: 6px 0 18px;
+}
+
+/* Each filter field */
+.notification-filter-item {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* Labels */
+.notification-filter-item label {
+    display: block;
+    margin: 0 0 5px 7px;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Common input/select style */
+.notification-line-control {
+    width: 100%;
+    height: 44px;
+    padding: 6px 34px 6px 9px;
+    color: #111827;
+    font-size: 0.88rem;
+    font-weight: 500;
+    background-color: #ffffff;
+    border: 0;
+    border-bottom: 1px solid #64748b;
+    border-radius: 0;
+    box-shadow: none !important;
+    outline: none;
+}
+
+/* Select field */
+select.notification-line-control {
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+/* Focus style */
+.notification-line-control:focus {
+    color: #111827;
+    background-color: #ffffff;
+    border-color: #0f2d4e;
+    border-bottom-width: 2px;
+    box-shadow: none !important;
+    outline: none;
+}
+
+/* Placeholder */
+.notification-line-control::placeholder {
+    color: #475569;
+    opacity: 1;
+}
+
+/* Date/time wrapper */
+.notification-picker-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Space for icon */
+.notification-picker-wrapper .notification-line-control {
+    padding-right: 34px;
+}
+
+/* Calendar and clock icons */
+.notification-picker-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748b;
+    font-size: 0.82rem;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 3;
+}
+
+/* Filter buttons area */
+.notification-filter-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 0 0 auto;
+    padding-bottom: 0;
+}
+
+/* Common circular button */
+.notification-circle-btn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
+    font-size: 1.2rem;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+/* Button hover */
+.notification-circle-btn:hover {
+    transform: translateY(-2px);
+    background-color: #f8fafc;
+    box-shadow: 0 7px 16px rgba(15, 23, 42, 0.2);
+}
+
+/* Button active */
+.notification-circle-btn:active {
+    transform: translateY(0);
+}
+
+/* Reset button */
+.notification-reset-btn {
+    color: #ff304f;
+}
+
+/* Search button */
+.notification-search-btn {
+    color: #0073aa;
+}
+
+/* Filter error */
+#notificationFilterError {
+    margin-top: 4px;
+    padding-left: 7px;
+    font-size: 0.78rem;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+/* Large tablet */
+@media (max-width: 1199.98px) {
+
+    .notification-filter-row {
+        flex-wrap: wrap;
+    }
+
+    .notification-filter-item {
+        flex: 1 1 calc(33.333% - 14px);
+        min-width: 190px;
+    }
+
+    .notification-filter-actions {
+        flex: 1 1 100%;
+    }
+}
+
+/* Tablet */
+@media (max-width: 767.98px) {
+
+    .notification-filter-item {
+        flex: 1 1 calc(50% - 14px);
+        min-width: 180px;
+    }
+
+    .notification-filter-actions {
+        justify-content: flex-end;
+    }
+}
+
+/* Mobile */
+@media (max-width: 575.98px) {
+
+    .notification-filter-row {
+        gap: 12px;
+    }
+
+    .notification-filter-item {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+
+    .notification-filter-actions {
+        flex: 1 1 100%;
+        justify-content: flex-end;
+    }
+
+    .notification-circle-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 1.05rem;
+    }
+}
+.alert-table-container {
+    flex-grow: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+}
+
+.alert-table-container .sb-table {
+    height: auto !important;
+}
+    /* Clickable alert modal rows */
+    #alertNotificationTable tbody tr.notification-click-row {
+        cursor: pointer;
+    }
+
+        #alertNotificationTable tbody tr.notification-click-row:hover td {
+            background-color: #eff6ff !important;
+        }
+
+
+    #alertNotificationTable tbody tr.notification-click-row {
+        cursor: pointer;
+    }
+
+        #alertNotificationTable tbody tr.notification-click-row:hover td {
+            background-color: #eff6ff !important;
+        }
+
+
+        /* =========================================================
+   SWEETALERT NOTIFICATION DETAILS
+   ========================================================= */
+
+.notification-detail-popup {
+    width: 620px !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3) !important;
+}
+
+.notification-detail-html {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.notification-detail-card {
+    width: 100%;
+    text-align: left;
+    background: #ffffff;
+}
+
+.notification-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 22px;
+    background: linear-gradient(
+        135deg,
+        #0f2d4e,
+        #1e3a8a
+    );
+}
+
+.notification-detail-heading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.notification-detail-icon {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.notification-detail-heading h3 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.notification-detail-heading span {
+    display: block;
+    margin-top: 3px;
+    color: rgba(255, 255, 255, 0.74);
+    font-size: 0.72rem;
+}
+
+.notification-location-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex-shrink: 0;
+    padding: 9px 13px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 9px;
+    color: #0f2d4e;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.notification-location-btn:hover {
+    color: #0f2d4e;
+    background: #eff6ff;
+    transform: translateY(-1px);
+}
+
+.notification-detail-content {
+    padding: 22px;
+}
+
+.notification-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.notification-detail-field {
+    min-width: 0;
+}
+
+.notification-detail-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.notification-detail-label i {
+    color: #0f2d4e;
+    font-size: 0.8rem;
+}
+
+.notification-detail-value {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: #0f172a;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+    overflow-wrap: anywhere;
+}
+
+.notification-alert-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    color: #b91c1c;
+    font-size: 0.76rem;
+    font-weight: 700;
+    border: 1px solid #fecaca;
+    border-radius: 999px;
+    background: #fef2f2;
+}
+
+.notification-message-field {
+    margin-bottom: 16px;
+}
+
+.notification-message-box {
+    max-height: 150px;
+    overflow-y: auto;
+    padding: 13px 14px;
+    color: #334155;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    background: #f8fafc;
+    overflow-wrap: anywhere;
+}
+
+.notification-location-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.notification-coordinate-card {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 13px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.notification-coordinate-icon {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: help;
+}
+
+.latitude-icon {
+    color: #047857;
+    background: #ecfdf5;
+}
+
+.longitude-icon {
+    color: #1d4ed8;
+    background: #eff6ff;
+}
+
+.notification-coordinate-card span {
+    display: block;
+    color: #64748b;
+    font-size: 0.67rem;
+    font-weight: 600;
+}
+
+.notification-coordinate-card strong {
+    display: block;
+    margin-top: 2px;
+    color: #0f172a;
+    font-size: 0.8rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.notification-sent-card {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 13px;
+    border: 1px solid #dbeafe;
+    border-radius: 10px;
+    background: #eff6ff;
+}
+
+.notification-sent-icon {
+    width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 10px;
+    color: #0f2d4e;
+    background: #dbeafe;
+}
+
+.notification-sent-card span {
+    display: block;
+    color: #64748b;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.notification-sent-card strong {
+    display: block;
+    margin-top: 2px;
+    color: #0f172a;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.notification-detail-actions {
+    display: flex !important;
+    justify-content: flex-end !important;
+    width: 100%;
+    margin: 0 !important;
+    padding: 14px 22px 18px !important;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+}
+
+.notification-detail-close-btn {
+    min-width: 105px;
+    margin: 0 !important;
+    padding: 9px 18px !important;
+    border-radius: 8px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    background: #0f2d4e !important;
+    box-shadow: none !important;
+}
+
+.notification-detail-close-btn:hover {
+    background: #111c5c !important;
+}
+
+.notification-detail-top-close {
+    color: #ffffff !important;
+    font-size: 1.6rem !important;
+    opacity: 0.85 !important;
+}
+
+.notification-detail-top-close:hover {
+    color: #ffffff !important;
+    opacity: 1 !important;
+}
+
+@media (max-width: 575.98px) {
+
+    .notification-detail-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 18px;
+    }
+
+    .notification-location-btn {
+        width: 100%;
+    }
+
+    .notification-detail-content {
+        padding: 17px;
+    }
+
+    .notification-detail-grid,
+    .notification-location-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .notification-detail-actions {
+        padding: 13px 17px 17px !important;
+    }
+
+    .notification-detail-close-btn {
+        width: 100%;
+    }
+}
+
+
+    #tablebuses .route-list {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+        #tablebuses .route-list li {
+            margin-bottom: 4px;
+            line-height: 1.3;
+            white-space: normal;
+        }
+
+            #tablebuses .route-list li:last-child {
+                margin-bottom: 0;
+            }
+
+    #tablebuses td {
+        vertical-align: middle;
+    }
+
+    /* The reference modal keeps its six-column table within the viewport. */
+#rfidtable_wrapper .dataTables_scrollBody {
+    overflow-x: hidden !important;
+}
+/* Route Performance DataTable */
+/* =========================================================
+   ROUTE PERFORMANCE DATATABLE
+   ========================================================= */
+
+#routePerformanceModal .modal-content {
+    overflow: hidden;
+}
+
+#routePerformanceModal .modal-body {
+    overflow: hidden !important;
+    padding: 16px;
+}
+
+#routePerformanceTableContainer {
+    width: 100%;
+    overflow: hidden;
+}
+
+#routePerformanceModalTable_wrapper {
+    width: 100% !important;
+}
+
+#routePerformanceModalTable_wrapper .dataTables_scroll {
+    width: 100% !important;
+}
+
+#routePerformanceModalTable_wrapper .dataTables_scrollHead,
+#routePerformanceModalTable_wrapper .dataTables_scrollBody {
+    width: 100% !important;
+}
+
+#routePerformanceModalTable_wrapper .dataTables_scrollHeadInner {
+    width: 100% !important;
+}
+
+#routePerformanceModalTable_wrapper .dataTables_scrollHeadInner table,
+#routePerformanceModalTable_wrapper .dataTables_scrollBody table {
+    width: 100% !important;
+    margin: 0 !important;
+    table-layout: auto !important;
+}
+
+/* Actual vertically scrollable area */
+#routePerformanceModalTable_wrapper .dataTables_scrollBody {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 52vh !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    border-bottom: 1px solid #dee2e6;
+}
+/* Fixed header */
+#routePerformanceModalTable_wrapper .dataTables_scrollHead {
+    overflow: hidden !important;
+}
+
+#routePerformanceModalTable_wrapper
+.dataTables_scrollHead
+table.dataTable
+thead th {
+    background-color: #0f2d4e !important;
+    color: #ffffff !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    padding: 10px 12px !important;
+}
+
+/* Table rows */
+#routePerformanceModalTable_wrapper
+.dataTables_scrollBody
+table.dataTable
+tbody td {
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap;
+    padding: 9px 12px !important;
+}
+
+/* Keep controls outside the scroll body */
+#routePerformanceModalTable_wrapper .dataTables_length,
+#routePerformanceModalTable_wrapper .dataTables_filter {
+    margin-bottom: 10px;
+}
+
+#routePerformanceModalTable_wrapper .dataTables_info,
+#routePerformanceModalTable_wrapper .dataTables_paginate {
+    margin-top: 10px;
+}
+
+@media (max-width: 767.98px) {
+    #routePerformanceModal .modal-dialog {
+        max-width: calc(100% - 16px);
+        margin: 8px;
+    }
+
+    #routePerformanceModalTable_wrapper .dataTables_scrollBody {
+    height: auto !important;
+    max-height: 80vh !important;
+}
+}
+#routePerformanceModalTable {
+    font-size: 13px !important;
+}
+
+#routePerformanceModalTable thead th {
+    font-size: 13px !important;
+    font-weight: 600;
+}
+
+#routePerformanceModalTable tbody td {
+    font-size: 13px !important;
+}
+/* =========================================================
+   VEHICLE HEALTH DATATABLE
+   Only table body scrolls
+   ========================================================= */
+
+#vehicleHealthModal .modal-content {
+    overflow: hidden;
+}
+
+#vehicleHealthModal .modal-body {
+    overflow: hidden !important;
+    padding: 16px;
+}
+
+#vehicleHealthTableContainer {
+    width: 100%;
+    overflow: hidden;
+}
+
+#vehicleHealthTable_wrapper {
+    width: 100% !important;
+}
+
+/* DataTables scroll wrapper */
+#vehicleHealthTable_wrapper .dataTables_scroll {
+    width: 100% !important;
+}
+
+/* Header and body width */
+#vehicleHealthTable_wrapper .dataTables_scrollHead,
+#vehicleHealthTable_wrapper .dataTables_scrollBody {
+    width: 100% !important;
+}
+
+/* Header inner width */
+#vehicleHealthTable_wrapper .dataTables_scrollHeadInner {
+    width: 100% !important;
+}
+
+#vehicleHealthTable_wrapper .dataTables_scrollHeadInner table,
+#vehicleHealthTable_wrapper .dataTables_scrollBody table {
+    width: 100% !important;
+    margin: 0 !important;
+    table-layout: auto !important;
+}
+
+/* Only this body area scrolls */
+#vehicleHealthTable_wrapper .dataTables_scrollBody {
+    height: 52vh !important;
+    max-height: 52vh !important;
+    overflow-y: scroll !important;
+    overflow-x: auto !important;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Header remains fixed */
+#vehicleHealthTable_wrapper .dataTables_scrollHead {
+    overflow: hidden !important;
+}
+
+#vehicleHealthTable_wrapper
+.dataTables_scrollHead
+table.dataTable
+thead th {
+    padding: 10px 12px !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    background-color: #0f2d4e !important;
+}
+
+/* Body cells */
+#vehicleHealthTable_wrapper
+.dataTables_scrollBody
+table.dataTable
+tbody td {
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+
+/* DataTables top controls */
+#vehicleHealthTable_wrapper .dataTables_length,
+#vehicleHealthTable_wrapper .dataTables_filter {
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+/* DataTables bottom controls */
+#vehicleHealthTable_wrapper .dataTables_info,
+#vehicleHealthTable_wrapper .dataTables_paginate {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+@media (max-width: 767.98px) {
+    #vehicleHealthModal .modal-dialog {
+        max-width: calc(100% - 16px);
+        margin: 8px;
+    }
+
+    #vehicleHealthTable_wrapper .dataTables_scrollBody {
+        height: 55vh !important;
+        max-height: 55vh !important;
+    }
+}
+    /* =========================================================
+   DRIVER MONITORING DATATABLE
+   Only table body scrolls
+   ========================================================= */
+
+#driverMonitoringModal .modal-content {
+    overflow: hidden;
+}
+
+#driverMonitoringModal .modal-body {
+    overflow: hidden !important;
+    padding: 16px;
+}
+
+#driverMonitoringTableContainer {
+    width: 100%;
+    overflow: hidden;
+}
+
+#driverMonitoringTable_wrapper {
+    width: 100% !important;
+}
+
+#driverMonitoringTable_wrapper .dataTables_scroll {
+    width: 100% !important;
+}
+
+#driverMonitoringTable_wrapper .dataTables_scrollHead,
+#driverMonitoringTable_wrapper .dataTables_scrollBody {
+    width: 100% !important;
+}
+
+#driverMonitoringTable_wrapper .dataTables_scrollHeadInner {
+    width: 100% !important;
+}
+
+#driverMonitoringTable_wrapper .dataTables_scrollHeadInner table,
+#driverMonitoringTable_wrapper .dataTables_scrollBody table {
+    width: 100% !important;
+    margin: 0 !important;
+    table-layout: auto !important;
+}
+
+/* Only the table rows scroll */
+#driverMonitoringTable_wrapper .dataTables_scrollBody {
+    width: 100% !important;
+    max-height: 52vh !important;
+    height: auto !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Fixed table header */
+#driverMonitoringTable_wrapper .dataTables_scrollHead {
+    overflow: hidden !important;
+}
+
+#driverMonitoringTable_wrapper
+.dataTables_scrollHead
+table.dataTable
+thead th {
+    padding: 10px 12px !important;
+    color: #ffffff !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    background-color: #0f2d4e !important;
+}
+
+/* Table body */
+#driverMonitoringTable_wrapper
+.dataTables_scrollBody
+table.dataTable
+tbody td {
+    padding: 9px 12px !important;
+    font-size: 13px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    white-space: nowrap;
+}
+
+/* Search and page length */
+#driverMonitoringTable_wrapper .dataTables_length,
+#driverMonitoringTable_wrapper .dataTables_filter {
+    margin-bottom: 10px;
+    font-size: 13px;
+}
+
+/* Info and pagination */
+#driverMonitoringTable_wrapper .dataTables_info,
+#driverMonitoringTable_wrapper .dataTables_paginate {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+@media (max-width: 767.98px) {
+    #driverMonitoringModal .modal-dialog {
+        max-width: calc(100% - 16px);
+        margin: 8px;
+    }
+
+    #driverMonitoringTable_wrapper .dataTables_scrollBody {
+        height: 55vh !important;
+        max-height: 55vh !important;
+    }
+}
+
+#driverMonitoringTable_wrapper
+.dataTables_empty {
+    height: 70px !important;
+    padding: 20px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    color: #6c757d !important;
+}
+
+#driverMonitoringTable_wrapper
+.dataTables_scrollBody:has(.dataTables_empty) {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 90px !important;
+    overflow-y: hidden !important;
+}
+#routePerformanceModalTable_wrapper .dataTables_empty {
+    height: 70px !important;
+    padding: 20px !important;
+    color: #6c757d !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+#routePerformanceModalTable_wrapper
+.dataTables_scrollBody:has(.dataTables_empty) {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 90px !important;
+    overflow-y: hidden !important;
+}
+
+
+/* =========================================================
+   DRIVER MONITORING DASHBOARD CARD
+   Keep table rows directly below the header
+   ========================================================= */
+
+#driver_monitering {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    table-layout: fixed;
+}
+
+#driver_monitering tbody {
+    height: auto !important;
+}
+
+#driver_monitering tbody tr {
+    height: auto !important;
+}
+
+#driver_monitering tbody td {
+    height: auto !important;
+    padding: 10px 8px !important;
+    vertical-align: middle !important;
+}
+
+/* Stop shared container CSS from vertically centering the table */
+#driver_monitering {
+    align-self: flex-start !important;
+}
+
+.driver-monitoring-card .sb-table-container {
+    display: block !important;
+    flex: 0 0 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+}
+
+
+#vehicleInServiceModal .modal-dialog {
+    max-width: 90%;
+}
+
+#vehicleInServiceModal .modal-content {
+    height: auto;
+}
+
+#vehicleInServiceModal .modal-body {
+    overflow: hidden !important;
+}
+
+/* =========================================================
+   DASHBOARD TABLE MODALS
+   Match Recent Boarding: the modal chrome and table header
+   stay fixed; only DataTables' row viewport can scroll.
+   ========================================================= */
+.dashboard-table-modal .modal-content {
+    max-height: calc(100vh - 3.5rem);
+    overflow: hidden !important;
+}
+
+.dashboard-table-modal .modal-header,
+.dashboard-table-modal .modal-footer {
+    flex: 0 0 auto;
+}
+
+.dashboard-table-modal .modal-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden !important;
+}
+
+.dashboard-table-modal .modal-body > .card,
+.dashboard-table-modal .modal-body > .w-100,
+.dashboard-table-modal .modal-body > [id$="TableContainer"] {
+    width: 100%;
+    min-height: 0;
+    margin-bottom: 0;
+    overflow: hidden;
+}
+
+.dashboard-table-modal .modal-body > .card {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    border: 0;
+}
+
+.dashboard-table-modal .dashboard-table-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible !important;
+}
+
+.dashboard-table-modal .dataTables_wrapper,
+.dashboard-table-modal .dt-container,
+.dashboard-table-modal .dataTables_scroll,
+.dashboard-table-modal .dataTables_scrollHead,
+.dashboard-table-modal .dataTables_scrollHeadInner,
+.dashboard-table-modal .dataTables_scrollBody,
+.dashboard-table-modal .dt-scroll,
+.dashboard-table-modal .dt-scroll-head,
+.dashboard-table-modal .dt-scroll-headInner,
+.dashboard-table-modal .dt-scroll-body {
+    width: 100% !important;
+    min-height: 0;
+}
+
+.dashboard-table-modal .dataTables_scrollHead,
+.dashboard-table-modal .dt-scroll-head {
+    overflow: hidden !important;
+}
+
+.dashboard-table-modal .dataTables_scrollBody,
+.dashboard-table-modal .dt-scroll-body {
+    height: auto !important;
+    max-height: 55vh !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.dashboard-table-modal .dataTables_scrollHead table,
+.dashboard-table-modal .dataTables_scrollBody > table,
+.dashboard-table-modal .dt-scroll-head table,
+.dashboard-table-modal .dt-scroll-body > table {
+    width: 100% !important;
+    margin: 0 !important;
+}
+
+/* The filter form consumes part of the alert modal's available height. */
+#alertNotificationModal .dataTables_scrollBody,
+#alertNotificationModal .dt-scroll-body {
+    max-height: 36vh !important;
+}
+
+@media (max-width: 767.98px) {
+    .dashboard-table-modal .modal-content {
+        max-height: calc(100vh - 1rem);
+    }
+
+    .dashboard-table-modal .dataTables_scrollBody,
+    .dashboard-table-modal .dt-scroll-body {
+        max-height: 48vh !important;
+    }
+
+    #routePerformanceModal .dataTables_scrollBody,
+    #vehicleHealthModal .dataTables_scrollBody,
+    #driverMonitoringModal .dataTables_scrollBody,
+    #routePerformanceModal .dt-scroll-body,
+    #vehicleHealthModal .dt-scroll-body,
+    #driverMonitoringModal .dt-scroll-body {
+        height: auto !important;
+        max-height: 48vh !important;
+    }
+
+    #alertNotificationModal .dataTables_scrollBody,
+    #alertNotificationModal .dt-scroll-body {
+        max-height: 30vh !important;
+    }
+}
+
+#quickReportsModal .quick-report-format-btn {
+    align-items: center;
+    border-radius: 50%;
+    display: inline-flex;
+    height: 38px;
+    justify-content: center;
+    padding: 0;
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+    width: 38px;
+}
+
+#quickReportsModal .quick-report-download-btn {
+    background-color: #0f2d4e;
+    border-color: #0f2d4e;
+}
+
+#quickReportsModal .quick-report-action-btn {
+    transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+#quickReportsModal .quick-report-format-btn:hover,
+#quickReportsModal .quick-report-action-btn:hover,
+#quickReportsModal .quick-report-download-btn:hover {
+    background-color: #0f2d4e;
+    border-color: #0f2d4e;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+#quickReportsModal .btn-check:checked + .quick-report-format-btn {
+    background-color: #0f2d4e;
+    border-color: #0f2d4e;
+    color: #ffffff;
+}

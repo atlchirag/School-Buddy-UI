@@ -57,7 +57,7 @@ namespace SchoolBuddy.Controllers
             string? uid = HttpContext.Session.GetString("uid");
             if (!String.IsNullOrEmpty(uid))
             {
-                var model = _commmand.GetCommands(uid).Result;
+                var model = await _commmand.GetCommands(uid);
                 if (model != "-1" && model != "0")
                 {
                     Commands = JsonConvert.DeserializeObject<List<show_command>>(model);
@@ -93,6 +93,7 @@ namespace SchoolBuddy.Controllers
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
 
             }

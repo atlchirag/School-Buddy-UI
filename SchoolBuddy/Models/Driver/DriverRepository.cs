@@ -81,8 +81,9 @@ namespace SchoolBuddy.Models.Driver
 
                 return drierlist;
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return drierlist;
             }
         }
@@ -222,6 +223,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine(ex.Message);
                 return "";
             }
@@ -280,8 +282,9 @@ namespace SchoolBuddy.Models.Driver
 
                 return new List<Vehicle>();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return new List<Vehicle>();
             }
         }
@@ -335,8 +338,9 @@ namespace SchoolBuddy.Models.Driver
 
                 return new CommonResponse();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return new CommonResponse();
             }
         }
@@ -391,6 +395,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -493,6 +498,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return new DriverApiResponse
                 {
                     status = false,
@@ -531,6 +537,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return new DriverApiResponse
                 {
                     status = false,
@@ -597,6 +604,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return new DriverPerformanceResponse
                 {
                     Status = false,
@@ -643,6 +651,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch(Exception ex)
             {
+                General.LogException(ex);
                 return new DeletePerformanceResponse
                 {
                     Status = false,
@@ -669,6 +678,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return new DriverCriteriaResponse
                 {
                     status = false,
@@ -703,6 +713,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return new SaveDriverPerformanceResponse
                 {
                     status = false,
@@ -736,6 +747,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return new SaveDriverPerformanceResponse
                 {
                     status = false,
@@ -774,6 +786,7 @@ namespace SchoolBuddy.Models.Driver
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
 
                 return new driverdashboard
                 {

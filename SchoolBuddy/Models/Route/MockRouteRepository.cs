@@ -29,8 +29,9 @@ namespace SchoolBuddy.Models.Route
                 string urlend = $"halts/route-multiday-telemetry?schoolId={schoolId}&routeId={routeId}&startDate={startDate}&endDate={endDate}&pass={pass}&user={user}";
                 return await _apitemplate.GetApiTemplate(urlend);
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return "[]";
             }
         }
@@ -47,8 +48,9 @@ namespace SchoolBuddy.Models.Route
                 string urlend = "Stop/getAllStops";
                 return await _apitemplate.PostApiTemplate(json, urlend);
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return "[]";
             }
         }
@@ -77,6 +79,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -95,6 +98,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -115,6 +119,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -131,6 +136,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -143,8 +149,9 @@ namespace SchoolBuddy.Models.Route
                 string urlend = $@"Route/GetStudentWise";
                 return await _apitemplate.PostApiTemplate(json, urlend);
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -165,6 +172,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -186,6 +194,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -230,6 +239,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -262,6 +272,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -280,6 +291,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -301,6 +313,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -321,6 +334,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         
@@ -343,6 +357,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -368,6 +383,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -391,6 +407,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -419,6 +436,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -434,6 +452,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return $" Exception in EditStop: {ex.Message}";
             }
         }
@@ -456,6 +475,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -482,6 +502,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }
@@ -506,6 +527,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.WriteLine($"Exception in DownloadAssignedStudentsExcel: {ex.Message}");
                 return null;
             }
@@ -537,6 +559,7 @@ namespace SchoolBuddy.Models.Route
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 Console.Error.WriteLine($"UpdateStudentWise API call failed: {ex}");
                 return "Unable to reach the UpdateStudentWise API.";
             }
@@ -565,8 +588,9 @@ namespace SchoolBuddy.Models.Route
                     return "something went wrong";
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return "";
             }
         }

@@ -110,6 +110,7 @@ namespace SchoolBuddy.Models.ProfileEdit
             }
             catch (HttpRequestException exception)
             {
+                General.LogException(exception);
                 _logger.LogWarning(
                     exception,
                     "Unable to connect to Trackofy during profile image upload.");
@@ -119,6 +120,7 @@ namespace SchoolBuddy.Models.ProfileEdit
             }
             catch (TaskCanceledException exception)
             {
+                General.LogException(exception);
                 _logger.LogWarning(
                     exception,
                     "Trackofy profile image upload timed out.");
@@ -128,6 +130,7 @@ namespace SchoolBuddy.Models.ProfileEdit
             }
             catch (Exception exception)
             {
+                General.LogException(exception);
                 _logger.LogError(
                     exception,
                     "Unexpected Trackofy profile image upload failure.");
@@ -176,6 +179,7 @@ namespace SchoolBuddy.Models.ProfileEdit
             }
             catch (HttpRequestException exception)
             {
+                General.LogException(exception);
                 _logger.LogWarning(
                     exception,
                     "Unable to connect to Trackofy during a profile request.");
@@ -185,6 +189,7 @@ namespace SchoolBuddy.Models.ProfileEdit
             }
             catch (TaskCanceledException exception)
             {
+                General.LogException(exception);
                 _logger.LogWarning(
                     exception,
                     "Trackofy profile request timed out.");
@@ -194,6 +199,7 @@ namespace SchoolBuddy.Models.ProfileEdit
             }
             catch (Exception exception)
             {
+                General.LogException(exception);
                 _logger.LogError(
                     exception,
                     "Unexpected Trackofy profile request failure.");
@@ -334,8 +340,9 @@ namespace SchoolBuddy.Models.ProfileEdit
                         PropertyNameCaseInsensitive = true
                     });
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
+                General.LogException(ex);
                 return null;
             }
         }

@@ -15,10 +15,10 @@ namespace SchoolBuddy.Models.Tracking
     {
         private readonly IConfiguration _config;
         private readonly Iapitemplate _apitemplate;
-        private readonly HttpClient _httpclient;
-        public Tracking(IConfiguration configuration,Iapitemplate apitemplate,HttpClient httpClient)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public Tracking(IConfiguration configuration,Iapitemplate apitemplate,IHttpClientFactory httpClientFactory)
         {
-            _config = configuration; _apitemplate = apitemplate; _httpclient = httpClient;
+            _config = configuration; _apitemplate = apitemplate; _httpClientFactory = httpClientFactory;
         }
         //    public async Task<List<DeviceIdAndVehiclenew>>GetVehiclesAsync(
         //string schoolName,
@@ -153,17 +153,8 @@ namespace SchoolBuddy.Models.Tracking
         {
             var vehicleList = new List<DeviceIdAndVehiclenew>();
 
-            using var handler = new HttpClientHandler
-            {
-                AllowAutoRedirect = false,
-
-                // Use only when the API certificate requires it.
-                // Avoid this in production if possible.
-                ServerCertificateCustomValidationCallback =
-                    (message, certificate, chain, errors) => true
-            };
-
-            using var client = new HttpClient(handler);
+            // Trackofy client: no auto-redirect, certificate check skipped (see Program.cs).
+            using var client = _httpClientFactory.CreateClient(HttpClientNames.Trackofy);
 
             try
             {
@@ -296,6 +287,7 @@ namespace SchoolBuddy.Models.Tracking
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 // Add your logger here.
                 // _logger.LogError(
                 //     ex,
@@ -305,7 +297,7 @@ namespace SchoolBuddy.Models.Tracking
                 return vehicleList;
             }
         }
-        public List<DeviceIdAndVehicle> GetVehicles(string school_name, string password, string database)
+        public async Task<List<DeviceIdAndVehicle>> GetVehicles(string school_name, string password, string database)
         {
             List<DeviceIdAndVehicle> deviceIdAndVehicles = new List<DeviceIdAndVehicle>();
             try
@@ -313,11 +305,6 @@ namespace SchoolBuddy.Models.Tracking
                 List<TrackingProperties> vehicles = new List<TrackingProperties>();
                 TrackingProperties trackingProperties = new();
                
-                HttpClientHandler handler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = IgnoreSSLValidation
-                };
-
                 string url = null;
 
                 if (database.Equals("newtrack", StringComparison.OrdinalIgnoreCase))
@@ -335,11 +322,11 @@ namespace SchoolBuddy.Models.Tracking
 
                 string getvehiclesurl = String.Format(url,school_name,password);
 
-                HttpClient client = new HttpClient(handler);
-                HttpResponseMessage res = client.GetAsync(getvehiclesurl).Result;
+                HttpClient client = CreateTrackingClient();
+                HttpResponseMessage res = await client.GetAsync(getvehiclesurl);
                 if(res.IsSuccessStatusCode)
                 {
-                    string resp = res.Content.ReadAsStringAsync().Result;
+                    string resp = await res.Content.ReadAsStringAsync();
 
                     vehicles = JsonConvert.DeserializeObject<List<TrackingProperties>>(resp);
                     if(vehicles!=null)
@@ -357,16 +344,17 @@ namespace SchoolBuddy.Models.Tracking
                 }
                 return deviceIdAndVehicles;
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return deviceIdAndVehicles;
             }
         }
 
-        private static bool IgnoreSSLValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-        {
-            return true; // Always accept the certificate
-        }
+        // Same as the old per-call handler: certificate check skipped, redirects followed.
+        private HttpClient CreateTrackingClient() => _httpClientFactory.CreateClient(TrackingClientName);
+
+        public const string TrackingClientName = "Tracking";
 
         public async Task<string> GetImei(string id, string database)
         {
@@ -384,6 +372,7 @@ namespace SchoolBuddy.Models.Tracking
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return $"fail-101";
             }
         }
@@ -419,16 +408,11 @@ namespace SchoolBuddy.Models.Tracking
         //}
 
 
-        public string GetLiveTrackingURL(string imei, string database)
+        public async Task<string> GetLiveTrackingURL(string imei, string database)
         {
             string result = null;
             try
             {
-                HttpClientHandler handler = new HttpClientHandler
-                {
-                    ServerCertificateCustomValidationCallback = IgnoreSSLValidation
-                };
-
                 string url = null;
 
                 // Choose the correct URL based on database value
@@ -448,19 +432,20 @@ namespace SchoolBuddy.Models.Tracking
 
                 string liveTrackingUrl = string.Format(url, imei);
 
-                using (HttpClient client = new HttpClient(handler))
+                using (HttpClient client = CreateTrackingClient())
                 {
-                    HttpResponseMessage response = client.GetAsync(liveTrackingUrl).Result;
+                    HttpResponseMessage response = await client.GetAsync(liveTrackingUrl);
                     if (response.IsSuccessStatusCode)
                     {
-                        result = response.Content.ReadAsStringAsync().Result;
+                        result = await response.Content.ReadAsStringAsync();
                         return result;
                     }
                     return result;
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return result;
             }
 

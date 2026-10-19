@@ -7,16 +7,17 @@ namespace SchoolBuddy.Models.ApiTemplate
     public class api: Iapitemplate
     {
         private readonly IConfiguration _url;
-        public api(IConfiguration configuration)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public api(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _url = configuration;
+            _httpClientFactory = httpClientFactory;
         }
         public async Task<string> PostApiTemplate(string obj,string urlend)
         {
             string url = _url["api_endpoint"];
-            Console.WriteLine(obj);
             var JSON = new StringContent(obj, Encoding.UTF8, "application/json");
-            HttpClient httpClient = new HttpClient();
+            HttpClient httpClient = _httpClientFactory.CreateClient(HttpClientNames.SchoolBuddyApi);
             var response = await httpClient.PostAsync($"{url}{urlend}", JSON);
             if (response.IsSuccessStatusCode)
             {
@@ -36,7 +37,7 @@ namespace SchoolBuddy.Models.ApiTemplate
             {
                 string url = _url["api_endpoint"] ?? "";
 
-                HttpClient httpClient = new HttpClient();
+                HttpClient httpClient = _httpClientFactory.CreateClient(HttpClientNames.SchoolBuddyApi);
                 var response = await httpClient.GetAsync($"{url}{urlend}");
 
                 if (response.IsSuccessStatusCode)
@@ -49,8 +50,9 @@ namespace SchoolBuddy.Models.ApiTemplate
                     return "[]";
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 return "[]";
             }
         }

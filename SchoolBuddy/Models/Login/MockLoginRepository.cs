@@ -32,6 +32,7 @@ namespace SchoolBuddy.Models.Login
             }
             catch (Exception ex)
             {
+                General.LogException(ex);
                 return $"fail-101";
             }
 

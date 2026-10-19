@@ -136,8 +136,9 @@ namespace SchoolBuddy.Controllers
             {
                 httpContext.Session.Clear();
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 // Ignore if session state is inaccessible
             }
 
@@ -151,23 +152,30 @@ namespace SchoolBuddy.Controllers
                     Secure = httpContext.Request.IsHttps
                 };
 
-                // Delete all cookies present in the incoming request
+                // Delete all cookies present in the incoming request, except the anti-forgery cookie:
+                // the login form rendered in this same request carries a token that is validated against it.
                 foreach (var cookieKey in httpContext.Request.Cookies.Keys)
                 {
+                    if (cookieKey.StartsWith(".AspNetCore.Antiforgery", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
                     httpContext.Response.Cookies.Delete(cookieKey);
                     httpContext.Response.Cookies.Delete(cookieKey, expiredOptions);
                 }
 
                 // Explicitly delete ASP.NET Core session and authentication cookies
-                var standardCookies = new[] { ".AspNetCore.Session", ".AspNetCore.Cookies", ".AspNetCore.Antiforgery" };
+                var standardCookies = new[] { ".AspNetCore.Session", ".AspNetCore.Cookies" };
                 foreach (var cookieName in standardCookies)
                 {
                     httpContext.Response.Cookies.Delete(cookieName);
                     httpContext.Response.Cookies.Delete(cookieName, expiredOptions);
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                General.LogException(ex);
                 // Ignore cookie deletion errors
             }
         }
