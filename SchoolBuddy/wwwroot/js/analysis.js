@@ -115,7 +115,7 @@ function changebg1() {
             success:
                 function (response) {
                     var routes = JSON.parse(response);
-                    console.log(routes);
+                    // console.log(routes);
                     //console.log(id);
 
                     var defaultOption = $('<option value="" selected disabled>Select Route</option>');
@@ -126,7 +126,7 @@ function changebg1() {
                         //console.log(student.student_name);
                     })
 
-                    console.log('find');
+                    // console.log('find');
                 },
 
             error: function (xhr, status, error) {
@@ -239,7 +239,7 @@ function changebg6() {
             success:
                 function (response) {
                     var routes = JSON.parse(response);
-                    console.log(routes);
+                    // console.log(routes);
                     //console.log(id);
 
                     var defaultOption = $('<option value="" selected disabled>Select Route</option>');
@@ -250,7 +250,7 @@ function changebg6() {
                         //console.log(student.student_name);
                     })
 
-                    console.log('find');
+                    // console.log('find');
                 },
 
             error: function (xhr, status, error) {
@@ -295,7 +295,7 @@ function changebg7() {
             success:
                 function (response) {
                     var routes = JSON.parse(response);
-                    console.log(routes);
+                    // console.log(routes);
                     //console.log(id);
 
                     var defaultOption = $('<option value="" selected disabled>Select Route</option>');
@@ -306,7 +306,7 @@ function changebg7() {
                         //console.log(student.student_name);
                     })
 
-                    console.log('find');
+                    // console.log('find');
                 },
 
             error: function (xhr, status, error) {
@@ -446,7 +446,7 @@ function geteta() {
         type: 'POST',
         data: { rid: rid },
         success: function (response) {
-            console.log('ETA response:', response);
+            // console.log('ETA response:', response);
 
             if (!response || response === '0' || response === 'Data Not Found' || response === 'Invalid Route') {
                 alert('ETA not found for selected route.');
@@ -459,7 +459,7 @@ function geteta() {
                 data = typeof response === 'string' ? JSON.parse(response) : response;
             } catch (e) {
                 console.error('Failed to parse ETA JSON:', e);
-                console.log('Raw ETA response:', response);
+                // console.log('Raw ETA response:', response);
                 alert('Failed to load ETA data.');
                 return;
             }
@@ -498,7 +498,7 @@ function geteta() {
         },
         error: function (xhr, status, error) {
             console.error('ETA API error:', error);
-            console.log('ETA API response:', xhr.responseText);
+            // console.log('ETA API response:', xhr.responseText);
             alert('Unable to fetch ETA.');
         }
     });
@@ -524,9 +524,9 @@ function ignition() {
     start = convertToSqlDateTime(start);
     end = convertToSqlDateTime(end);
 
-    console.log("Selected Service ID:", service_id);
-    console.log("Start:", start);
-    console.log("End:", end);
+    // console.log("Selected Service ID:", service_id);
+    // console.log("Start:", start);
+    // console.log("End:", end);
 
     var startDate = new Date(start.replace(" ", "T"));
     var endDate = new Date(end.replace(" ", "T"));
@@ -568,7 +568,7 @@ function ignition() {
                 data = typeof response === 'string' ? JSON.parse(response) : response;
             } catch (e) {
                 console.error('Failed to parse ignition JSON:', e);
-                console.log('Raw response:', response);
+                // console.log('Raw response:', response);
                 alert('Failed to load ignition data.');
                 return;
             }
@@ -591,7 +591,7 @@ function ignition() {
         },
         error: function (xhr, status, error) {
             console.error('Ignition API error:', error);
-            console.log(xhr.responseText);
+            // console.log(xhr.responseText);
             alert('Unable to fetch ignition data.');
         }
     });
@@ -640,9 +640,9 @@ function inactive() {
     start = convertToSqlDateTime(start);
     end = convertToSqlDateTime(end);
 
-    console.log("Selected Service ID:", service_id);
-    console.log("Start:", start);
-    console.log("End:", end);
+    // console.log("Selected Service ID:", service_id);
+    // console.log("Start:", start);
+    // console.log("End:", end);
 
     var startDate = new Date(start.replace(" ", "T"));
     var endDate = new Date(end.replace(" ", "T"));
@@ -684,7 +684,7 @@ function inactive() {
                 data = typeof response === 'string' ? JSON.parse(response) : response;
             } catch (e) {
                 console.error('Failed to parse inactive JSON:', e);
-                console.log('Raw response:', response);
+                // console.log('Raw response:', response);
                 alert('Failed to load inactive status data.');
                 return;
             }
@@ -704,7 +704,7 @@ function inactive() {
         },
         error: function (xhr, status, error) {
             console.error('Inactive API error:', error);
-            console.log(xhr.responseText);
+            // console.log(xhr.responseText);
             alert('Unable to fetch inactive status data.');
         }
     });

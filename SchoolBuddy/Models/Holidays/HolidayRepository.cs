@@ -34,7 +34,7 @@ namespace SchoolBuddy.Models.Holidays
                 // Log the response for debugging
                 if (!response.StartsWith("Success"))
                 {
-                    Console.WriteLine($"API Response Error: {response}");
+                    // Console.WriteLine($"API Response Error: {response}");
                 }
 
                 return response;
@@ -88,14 +88,14 @@ namespace SchoolBuddy.Models.Holidays
                 string urlend = "Holiday/UpdateHoliday";
                 string result = await _apitemplate.PostApiTemplate(json, urlend);
 
-                Console.WriteLine($"📥 API Response: {result}");
+                // Console.WriteLine($"📥 API Response: {result}");
 
                 return result == "true"; // ✅ Convert response to boolean
             }
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("❌ Exception: " + ex.Message);
+                // Console.WriteLine("❌ Exception: " + ex.Message);
                 return false;
             }
         }
@@ -106,19 +106,19 @@ namespace SchoolBuddy.Models.Holidays
             {
                 var json = JsonConvert.SerializeObject(new { id = id, schoolid = schoolid });
 
-                Console.WriteLine($"📤 Sending Data to API for Delete: {json}");
+                // Console.WriteLine($"📤 Sending Data to API for Delete: {json}");
 
                 string urlend = "Holiday/DeleteHoliday";
                 string result = await _apitemplate.PostApiTemplate(json, urlend);
 
-                Console.WriteLine($"📥 API Response: {result}");
+                // Console.WriteLine($"📥 API Response: {result}");
 
                 return result == "true";
             }
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("❌ Exception in DeleteHoliday: " + ex.Message);
+                // Console.WriteLine("❌ Exception in DeleteHoliday: " + ex.Message);
                 return false;
             }
         }

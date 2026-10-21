@@ -129,7 +129,7 @@
                     status: status
                 };
 
-                console.log("📤 Sending Data to API:", holidayData);
+                // console.log("📤 Sending Data to API:", holidayData);
 
                 $.ajax({
                         url: '/schoolbuddy/Home/AddHoliday', // Fetch events from backend
@@ -137,13 +137,13 @@
                     contentType: "application/json",
                     data: JSON.stringify(holidayData),
                     success: function (response) {
-                        console.log("📥 Response:", response);
+                        // console.log("📥 Response:", response);
                         alert(response.message);
                         $("#event").modal("hide");
                         $("#calendar").fullCalendar("refetchEvents");
                     },
                     error: function (xhr) {
-                        console.log("❌ Error:", xhr.responseText);
+                        // console.log("❌ Error:", xhr.responseText);
                         alert("Error adding holiday.");
                     }
                 });

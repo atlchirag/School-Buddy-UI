@@ -175,9 +175,9 @@ white-space: nowrap;
     var errorListRaw = @Html.Raw(JsonConvert.SerializeObject(TempData["ErrorList"] ?? new List<string>()));
 
         // Log values for debug
-        console.log("✅ successMessage:", successMessage);
-        console.log("✅ errorMessage:", errorMessage);
-        console.log("✅ errorListRaw (type):", typeof errorListRaw, errorListRaw);
+        // console.log("✅ successMessage:", successMessage);
+        // console.log("✅ errorMessage:", errorMessage);
+        // console.log("✅ errorListRaw (type):", typeof errorListRaw, errorListRaw);
 
         // Priority: show error popup if there is an ErrorMessage and no error list modal
         if (errorMessage && (!errorListRaw || errorListRaw.length === 0)) {

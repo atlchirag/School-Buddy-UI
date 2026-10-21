@@ -199,15 +199,15 @@ function changebg5() {
             success:
                 function (response) {
                     var routes = JSON.parse(response);
-                    console.log(routes);
+                    // console.log(routes);
                     //console.log(id);
                     routes.forEach(function (route) {
                         var option = $(`<option value = "${route.id}">${route.route_name}</option>`);
                         $('#ddl_route_search').append(option);
-                        console.log(route.route_name);
+                        // console.log(route.route_name);
                     })
 
-                    console.log('find');
+                    // console.log('find');
                 },
 
             error: function (xhr, status, error) {

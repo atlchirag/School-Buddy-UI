@@ -320,7 +320,7 @@ table.dataTable thead td * {
 
     var categoryId = data.category_id;
 
-    console.log(categoryId);
+    // console.log(categoryId);
 
     Swal.fire({
     title: "Delete Category?",
@@ -383,7 +383,7 @@ table.dataTable thead td * {
 
     isEditMode = true;
 
-    console.log("Edit:", editRowData);
+    // console.log("Edit:", editRowData);
 
     $("#driverPerformanceModal").modal("show");
     getDriverCriteria();
@@ -394,7 +394,7 @@ table.dataTable thead td * {
 
     var data = table.row($(this).closest('tr')).data();
 
-    console.log("Delete:", data);
+    // console.log("Delete:", data);
 
     });
 
@@ -462,7 +462,7 @@ table.dataTable thead td * {
 
     });
 
-    console.log(tableData);
+    // console.log(tableData);
 
      table = $("#driverTable").DataTable({
 
@@ -743,7 +743,7 @@ table.dataTable thead td * {
     type: "GET",
 
     beforeSend: function () {
-    console.log("AJAX started");
+    // console.log("AJAX started");
     $("body").css("cursor", "wait");
     },
 
@@ -767,7 +767,7 @@ table.dataTable thead td * {
     },
 
     complete: function () {
-    console.log("AJAX completed");
+    // console.log("AJAX completed");
     $("body").css("cursor", "default");
     }
     });
@@ -1009,7 +1009,7 @@ table.dataTable thead td * {
     criterion_selection: criterion_selection
     };
 
-    console.log(payload);
+    // console.log(payload);
     let postUrl = isEditMode
     ? "/Driver_Management/UpdateDriverPerformance"
     : "/Driver_Management/SaveDriverPerformance";

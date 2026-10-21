@@ -224,7 +224,7 @@ namespace SchoolBuddy.Models.Driver
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine(ex.Message);
+                // Console.WriteLine(ex.Message);
                 return "";
             }
         }

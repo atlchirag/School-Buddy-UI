@@ -907,7 +907,7 @@
 
                         success: function(response) {
 
-                            console.log(response);
+                            // console.log(response);
 
                             showCommonModal(
                                 response.message,
@@ -929,7 +929,7 @@
 
                         error: function(xhr) {
 
-                            console.log(xhr.responseJSON);
+                            // console.log(xhr.responseJSON);
 
                             var message = "Server error occurred";
 
@@ -1078,7 +1078,7 @@
                     url: '/schoolbuddy/Route/assignedStudents',
                     data: { id: routeid },
                     success: function(response) {
-                        console.log("Response:", response);
+                        // console.log("Response:", response);
 
                         if (!Array.isArray(response)) {
                             table.row.add([
@@ -1407,7 +1407,7 @@
 
             function addVias(routeid, serviceid) {
 
-                console.log(routeid, serviceid);
+                // console.log(routeid, serviceid);
 
                 $('#vias_modal').val(routeid);
 
@@ -1444,7 +1444,7 @@
 
             function deleteroute(id) {
 
-                console.log(" ");
+                // console.log(" ");
                 Swal.fire({
                     title: "Are you sure?",
                     text: "With route, all stops and students assigned to those stops will be also deleted, You won't be able to revert this!",
@@ -1460,7 +1460,7 @@
                             url: '/schoolbuddy/Route/deleteroute',
                             data: { rid: id },
                             success: function response() {
-                                console.log(' ');
+                                // console.log(' ');
                                 location.reload();
                             }
                         });

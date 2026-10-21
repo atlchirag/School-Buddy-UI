@@ -528,7 +528,7 @@ namespace SchoolBuddy.Models.Route
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Exception in DownloadAssignedStudentsExcel: {ex.Message}");
+                // Console.WriteLine($"Exception in DownloadAssignedStudentsExcel: {ex.Message}");
                 return null;
             }
         }

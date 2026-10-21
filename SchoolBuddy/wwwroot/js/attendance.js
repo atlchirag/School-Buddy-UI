@@ -1191,10 +1191,10 @@ function loadClassWiseAttendance() {
 
         success: function (response) {
 
-            console.log(
-                "Class Wise Attendance Response:",
-                response
-            );
+            // console.log(
+                // "Class Wise Attendance Response:",
+                // response
+            // );
 
             if (!response) {
                 showAttendanceMessage(

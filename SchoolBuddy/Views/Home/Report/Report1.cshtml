@@ -785,7 +785,7 @@
             });
         }
         function tb_alert_func(){
-        console.log('cdc');
+        // console.log('cdc');
         //$('#ddl_student_search').empty();
         var table = $("#tbl_stop_voilation").DataTable();
         table.clear().draw();
@@ -817,7 +817,7 @@
         Swal.fire('No data found');
         return;
         }
-        console.log(data);
+        // console.log(data);
         } catch (e) {
         console.error('Failed to parse JSON:', e);
         Swal.fire('Failed to load data.');

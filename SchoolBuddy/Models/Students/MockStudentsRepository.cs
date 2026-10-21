@@ -300,7 +300,7 @@ namespace SchoolBuddy.Models.Students
                     }
                     else
                     {
-                        Console.WriteLine($"Error Response: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+                        // Console.WriteLine($"Error Response: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
                         return "Something went wrong";
                     }
                 }
@@ -308,7 +308,7 @@ namespace SchoolBuddy.Models.Students
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Exception: {ex.Message}");  
+                // Console.WriteLine($"Exception: {ex.Message}");  
                 return "";
             }
         }
@@ -363,7 +363,7 @@ namespace SchoolBuddy.Models.Students
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Exception in DownloadStudentsExcel: {ex.Message}");
+                // Console.WriteLine($"Exception in DownloadStudentsExcel: {ex.Message}");
                 return null;
             }
         }

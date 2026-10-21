@@ -292,7 +292,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("Error in addRoute: " + ex.Message);
+                // Console.WriteLine("Error in addRoute: " + ex.Message);
                 return AddRouteResponse(false, "An unexpected error occurred while creating trip.");
             }
         }
@@ -867,7 +867,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("Error in DownloadAssignedStudentsExcel: " + ex.Message);
+                // Console.WriteLine("Error in DownloadAssignedStudentsExcel: " + ex.Message);
                 TempData["ErrorMessage"] = "An error occurred while downloading assigned students excel.";
                 return RedirectToAction("Trip", "Route");
             }

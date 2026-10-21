@@ -392,11 +392,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function showNotificationDetailSwal(
         notification
     ) {
-       console.log("Notification object:", notification);
-    console.log("Latitude:", notification.latitude, 
-                "Type:", typeof notification.latitude);
-    console.log("Longitude:", notification.longitude, 
-                "Type:", typeof notification.longitude);
+       // console.log("Notification object:", notification);
+    // console.log("Latitude:", notification.latitude, 
+                // "Type:", typeof notification.latitude);
+    // console.log("Longitude:", notification.longitude, 
+                // "Type:", typeof notification.longitude);
 
 
         const hasLocation =

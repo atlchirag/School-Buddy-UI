@@ -426,13 +426,13 @@
 
 
 
-                                            console.log(totalBuses);
+                                            // console.log(totalBuses);
 
-                                            console.log(totalStopBuses);
+                                            // console.log(totalStopBuses);
 
 
-                                            console.log(totalIdleBuses);
-                                            console.log(totalLiveRoute);
+                                            // console.log(totalIdleBuses);
+                                            // console.log(totalLiveRoute);
 
                                             // Calculating the 'No Data' value
                                             var nodata = totalBuses - (totalStopBuses + totalIdleBuses + totalLiveRoute);
@@ -443,18 +443,18 @@
                                             var totalIdleBuses_p = (totalIdleBuses / totalBuses) * 100;
                                             var totalLiveRoute_p = (totalLiveRoute / totalBuses) * 100;
 
-                                            console.log(nodata_p);
+                                            // console.log(nodata_p);
 
-                                            console.log(totalLiveRoute_p);
+                                            // console.log(totalLiveRoute_p);
 
 
-                                            console.log(totalIdleBuses_p);
-                                            console.log(totalLiveRoute_p);
+                                            // console.log(totalIdleBuses_p);
+                                            // console.log(totalLiveRoute_p);
 
 
                                             var yValues = [totalLiveRoute, totalIdleBuses, totalStopBuses, nodata];
 
-                                            console.log(totalLiveRoute);
+                                            // console.log(totalLiveRoute);
 
 
 
@@ -1227,13 +1227,13 @@
 
 
 
-        console.log(totalBuses);
+        // console.log(totalBuses);
 
-        console.log(totalStopBuses);
+        // console.log(totalStopBuses);
 
 
-        console.log(totalIdleBuses);
-        console.log(totalLiveRoute);
+        // console.log(totalIdleBuses);
+        // console.log(totalLiveRoute);
 
         // Calculating the 'No Data' value
         var nodata = totalBuses - (totalStopBuses + totalIdleBuses + totalLiveRoute);
@@ -1244,18 +1244,18 @@
         var totalIdleBuses_p = (totalIdleBuses/totalBuses)*100;
         var totalLiveRoute_p = (totalLiveRoute / totalBuses) * 100;
 
-        console.log(nodata_p);
+        // console.log(nodata_p);
 
-        console.log(totalLiveRoute_p);
+        // console.log(totalLiveRoute_p);
 
 
-        console.log(totalIdleBuses_p);
-        console.log(totalLiveRoute_p);
+        // console.log(totalIdleBuses_p);
+        // console.log(totalLiveRoute_p);
 
 
         var yValues = [totalLiveRoute, totalIdleBuses, totalStopBuses, nodata];
 
-        console.log(totalLiveRoute);
+        // console.log(totalLiveRoute);
         var xValues = ["Running", "Idle", "Stopped", "No Data"];
 
         var barColors = [
@@ -1377,8 +1377,8 @@
         const db = '@Context.Session.GetString("database")';
     </script>
     <script>
-        console.log(uid);
-console.log(db);
+        // console.log(uid);
+// console.log(db);
         function showDashboardError(options) {
 
         const config = options || {};
@@ -1465,14 +1465,14 @@ console.log(db);
         function getstudentsummary(){
         var table = $("#tablestudents").DataTable();
         table.clear().draw();
-        console.log('ddddsd');
+        // console.log('ddddsd');
         $.ajax({
         //url: '/Home/TotalStudentSummary',
         url: '/schoolbuddy/Home/TotalStudentSummary',
 
         type:'GET',
         success: function (response) {
-        console.log('data');
+        // console.log('data');
         let data = parseDashboardResponse(response, "Students");
         if (!data) {
         return;
@@ -1515,7 +1515,7 @@ console.log(db);
         if (!data) {
         return;
         }
-        console.log(data);
+        // console.log(data);
         var sno = 0;
         // Prepare data array for bulk addition
         let rows = data.map(item => [
@@ -1661,7 +1661,7 @@ console.log(db);
         if (!data) {
         return;
         }
-        console.log(data);
+        // console.log(data);
         var sno = 0;
         // Prepare data array for bulk addition
         let rows = data.map(item => [
@@ -1741,7 +1741,7 @@ console.log(db);
         if (!data) {
         return;
         }
-        console.log(data);
+        // console.log(data);
 
         var sno = 0;
 
@@ -1807,8 +1807,8 @@ console.log(db);
         type: 'GET',
         data: { latitude: latitude, longitude: longitude },
         });
-        console.log(response);
-        console.log(typeof(response));
+        // console.log(response);
+        // console.log(typeof(response));
         var aa = response.split('"');
 
                 
@@ -1936,12 +1936,12 @@ console.log(db);
         }),
 
         success: function (response) {
-        console.log(response);
+        // console.log(response);
 
-        console.log(response.stopViolationCount);
-        console.log(response.routeViolationCount);
-        console.log(response.violations);
-        console.log(response.routeViolations);
+        // console.log(response.stopViolationCount);
+        // console.log(response.routeViolationCount);
+        // console.log(response.violations);
+        // console.log(response.routeViolations);
 
         $("#stopViolationCount").text(response.stopViolationCount);
         $("#routeViolationCount").text(response.routeViolationCount);
@@ -1957,7 +1957,7 @@ console.log(db);
 
         error: function (xhr) {
 
-        console.log(xhr.responseText);
+        // console.log(xhr.responseText);
 
         $("#stopViolationCount").text("0");
         $("#routeViolationCount").text("0");

@@ -928,7 +928,7 @@ namespace SchoolBuddy.Controllers
                 string userId = HttpContext.Session.GetString("uid");
                 var response = await _students.addStudentsInBulk(excelfile, userId);
 
-                Console.WriteLine("Bulk Upload API Response: " + response); // ✅ Debugging response
+                // Console.WriteLine("Bulk Upload API Response: " + response); // ✅ Debugging response
 
                 if (!string.IsNullOrEmpty(response))
                 {
@@ -964,7 +964,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("Error in AddStudentsInBulk: " + ex.Message);
+                // Console.WriteLine("Error in AddStudentsInBulk: " + ex.Message);
                 TempData["ErrorMessage"] = "An unexpected error occurred during bulk upload.";
             }
 
@@ -1017,7 +1017,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Error fetching teacher details: {ex.Message}");
+                // Console.WriteLine($"Error fetching teacher details: {ex.Message}");
                 return View("Views/Home/Master/TeacherDetails/teacherDetails.cshtml", new List<TeacherModel>());
             }
         }
@@ -1183,7 +1183,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Error: {ex.Message}");
+                // Console.WriteLine($"Error: {ex.Message}");
                 TempData["ErrorMessage"] = "An error occurred while adding the teacher.";
                 return RedirectToAction("addTeacherDetails", "Home");
             }
@@ -1213,7 +1213,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Error fetching teacher details: {ex.Message}");
+                // Console.WriteLine($"Error fetching teacher details: {ex.Message}");
                 return RedirectToAction("teacherDetails", "Home");
             }
         }
@@ -1244,7 +1244,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Error: {ex.Message}");
+                // Console.WriteLine($"Error: {ex.Message}");
                 TempData["ErrorMessage"] = "An error occurred while updating the teacher.";
                 return View("addTeacherDetails", model);
             }
@@ -1273,7 +1273,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine($"Error: {ex.Message}");
+                // Console.WriteLine($"Error: {ex.Message}");
                 TempData["ErrorMessage"] = "An error occurred while deleting the teacher.";
                 return RedirectToAction("teacherDetails", "Home");
             }
@@ -1437,7 +1437,7 @@ namespace SchoolBuddy.Controllers
                 catch (Exception ex)
                 {
                     General.LogException(ex);
-                    Console.WriteLine("Error in AddStudent: " + ex.Message);
+                    // Console.WriteLine("Error in AddStudent: " + ex.Message);
                     TempData["ErrorMessage"] = "An error occurred while processing your request.";
                     return RedirectToAction("Students", "Home");
                 }
@@ -1460,7 +1460,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("Error fetching class dropdown: " + ex.Message);
+                // Console.WriteLine("Error fetching class dropdown: " + ex.Message);
                 ViewBag.class_dropdown = new List<class_dropdown>();
             }
 
@@ -1563,7 +1563,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("Error in deleteStudent: " + ex.Message);
+                // Console.WriteLine("Error in deleteStudent: " + ex.Message);
                 TempData["ErrorMessage"] = "An unexpected error occurred while deleting the student.";
                 return RedirectToAction("Students", "Home");
             }
@@ -1577,7 +1577,7 @@ namespace SchoolBuddy.Controllers
         {
             try
             {
-                Console.WriteLine($"🔥 Received Data: {JsonConvert.SerializeObject(holidayData)}");
+                // Console.WriteLine($"🔥 Received Data: {JsonConvert.SerializeObject(holidayData)}");
 
                 if (holidayData == null || string.IsNullOrEmpty(holidayData.start) ||
                     string.IsNullOrEmpty(holidayData.end) || string.IsNullOrEmpty(holidayData.eventname) ||
@@ -1611,7 +1611,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("❌ Exception: " + ex.Message);
+                // Console.WriteLine("❌ Exception: " + ex.Message);
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
         }
@@ -1621,7 +1621,7 @@ namespace SchoolBuddy.Controllers
         {
             try
             {
-                Console.WriteLine($"🔥 Received Data: {JsonConvert.SerializeObject(holidayData)}");
+                // Console.WriteLine($"🔥 Received Data: {JsonConvert.SerializeObject(holidayData)}");
 
                 if (holidayData == null || string.IsNullOrEmpty(holidayData.start) ||
                     string.IsNullOrEmpty(holidayData.end) || string.IsNullOrEmpty(holidayData.eventname) ||
@@ -1637,7 +1637,7 @@ namespace SchoolBuddy.Controllers
                 var response = await _holiday.UpdateHoliday(holidayData.id, holidayData.start, holidayData.end, schoolid, holidayData.eventname, holidayData.status);
 
                 // ✅ Debugging Log (Check करें API Response)
-                Console.WriteLine($"📥 API Response: {response}");
+                // Console.WriteLine($"📥 API Response: {response}");
 
                 // ✅ क्योंकि response एक boolean है, उसे JSON की तरह parse करने की जरूरत नहीं
                 if (response)
@@ -1653,7 +1653,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("❌ Exception: " + ex.Message);
+                // Console.WriteLine("❌ Exception: " + ex.Message);
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
         }
@@ -1870,7 +1870,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                Console.WriteLine("Error in DownloadStudentsExcel: " + ex.Message);
+                // Console.WriteLine("Error in DownloadStudentsExcel: " + ex.Message);
                 TempData["ErrorMessage"] = "An error occurred while downloading student excel.";
                 return RedirectToAction("Students", "Home");
             }

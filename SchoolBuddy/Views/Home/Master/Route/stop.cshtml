@@ -609,7 +609,7 @@
                         table.rows.add(rows).draw();
                 },
                 error:function(){
-                    console.log('opps!!!');
+                    // console.log('opps!!!');
                 }
             })
 
@@ -620,15 +620,15 @@
             function addStop(){
                 const url = new URL(window.location.href);
                 const id = url.searchParams.get('id');
-                console.log(id);
+                // console.log(id);
             $('#stop_modal').val(id);
             $('#addstopmodal').modal('show')
             }
             function deletestop(stopid){
             const url = new URL(window.location.href);
             const routeid = url.searchParams.get('id');
-            console.log(stopid, routeid);
-            console.log("");
+            // console.log(stopid, routeid);
+            // console.log("");
             Swal.fire({
                 title: "Are you sure?",
                 text: "You won't be able to revert this!",

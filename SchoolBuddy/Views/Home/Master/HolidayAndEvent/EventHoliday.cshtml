@@ -193,7 +193,7 @@
                     status: status
                 };
 
-                console.log("📤 Sending Data to API:", holidayData);
+                // console.log("📤 Sending Data to API:", holidayData);
 
                 $.ajax({
                     url: id ? "/schoolbuddy/Home/UpdateHoliday" : "/schoolbuddy/Home/AddHoliday",
@@ -201,7 +201,7 @@
                     contentType: "application/json",
                     data: JSON.stringify(holidayData),
                     success: function (response) {
-                        console.log("📥 Response:", response);
+                        // console.log("📥 Response:", response);
                         $("#holidayModal").modal("hide");
                         // Reload only after the SweetAlert box is closed.
                         sbAlert(response.message).then(function () {
@@ -209,7 +209,7 @@
                         });
                     },
                     error: function (xhr) {
-                        console.log("❌ Error:", xhr.responseText);
+                        // console.log("❌ Error:", xhr.responseText);
                         alert("Error saving holiday.");
                     }
                 });
@@ -234,7 +234,7 @@
                         schoolid: schoolid
                     };
 
-                    console.log("📤 Sending Delete Request:", deleteData);
+                    // console.log("📤 Sending Delete Request:", deleteData);
 
                     $.ajax({
                         url: "/schoolbuddy/Home/DeleteHoliday",
@@ -248,7 +248,7 @@
                             });
                         },
                         error: function (xhr) {
-                            console.log("❌ Delete Error:", xhr.responseText);
+                            // console.log("❌ Delete Error:", xhr.responseText);
                             alert("Error deleting holiday.");
                         }
                     });

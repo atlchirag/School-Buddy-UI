@@ -223,7 +223,7 @@
         function checkhistoty(commandid) {
             var table = $("#comhistory").DataTable();
                 table.clear().draw();
-            console.log("id:"+commandid);
+            // console.log("id:"+commandid);
             $.ajax({
                 url: '/schoolbuddy/Command/CommandHistory',
                 data: { commandid: commandid },
@@ -347,7 +347,7 @@
                 data:{rid:route_id,msg:mssg,reason:reason},
                 success: function(res){
                     if(res=="true"){
-                        console.log(res);
+                        // console.log(res);
                         location.reload();
                     }
                     $('#AddCommand').modal('hide');
