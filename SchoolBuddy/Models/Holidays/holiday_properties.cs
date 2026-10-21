@@ -6,7 +6,7 @@
         public string start { get; set; }
         public string end { get; set; }
         public string eventname { get; set; }
-        public string schoolid { get; set; }  // ✅ Ensure this exists
+        public string schoolid { get; set; }  // Ensure this exists
         public string status { get; set; }
     }
 
@@ -33,7 +33,7 @@
         public string to_date { get; set; }
         public string description { get; set; }
         public string sys_user_id { get; set; }  // Ensure schoolid is available
-        public string status { get; set; }  // ✅ ADD THIS LINE
+        public string status { get; set; }  // ADD THIS LINE
     }
 
 

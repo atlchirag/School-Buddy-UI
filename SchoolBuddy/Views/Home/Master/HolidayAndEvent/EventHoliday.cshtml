@@ -159,7 +159,7 @@
                 $("#eventname").val($(this).data("event"));
                 $("#modalSchoolId").val(schoolid);
 
-                // ✅ Auto-select the correct status
+                // Auto-select the correct status
                 var status = $(this).data("status");
                 if (status === "0") {
                     $("#holidayRadio").prop("checked", true);
@@ -177,7 +177,7 @@
                 var startDate = $("#start").val();
                 var endDate = $("#end").val();
                 var status = $("input[name='opt']:checked").val();
-                var schoolid = $("#modalSchoolId").val(); // ✅ Ensure schoolid is passed
+                var schoolid = $("#modalSchoolId").val(); // Ensure schoolid is passed
 
                 if (!eventName || !startDate || !endDate || !status) {
                     alert("Please fill all fields, including status.");
@@ -189,11 +189,11 @@
                     start: startDate,
                     end: endDate,
                     eventname: eventName,
-                    schoolid: schoolid, // ✅ Fetch schoolid dynamically
+                    schoolid: schoolid, // Fetch schoolid dynamically
                     status: status
                 };
 
-                // console.log("📤 Sending Data to API:", holidayData);
+                // console.log("Sending Data to API:", holidayData);
 
                 $.ajax({
                     url: id ? "/schoolbuddy/Home/UpdateHoliday" : "/schoolbuddy/Home/AddHoliday",
@@ -201,7 +201,7 @@
                     contentType: "application/json",
                     data: JSON.stringify(holidayData),
                     success: function (response) {
-                        // console.log("📥 Response:", response);
+                        // console.log("Response:", response);
                         $("#holidayModal").modal("hide");
                         // Reload only after the SweetAlert box is closed.
                         sbAlert(response.message).then(function () {
@@ -209,16 +209,16 @@
                         });
                     },
                     error: function (xhr) {
-                        // console.log("❌ Error:", xhr.responseText);
+                        // console.log("Error:", xhr.responseText);
                         alert("Error saving holiday.");
                     }
                 });
             });
 
-            // 🗑️ Delete Holiday Function
+            // Delete Holiday Function
             $(document).on("click", ".delete-holiday", function () {
                 var holidayId = $(this).data("id");
-                var schoolid = $("#schoolid").val(); // ✅ Ensure schoolid is included
+                var schoolid = $("#schoolid").val(); // Ensure schoolid is included
 
                 sbConfirm("Are you sure you want to delete this holiday?", {
                     title: "Delete Holiday",
@@ -228,13 +228,13 @@
                         return;
                     }
 
-                    // ✅ Only passing required fields (id & schoolid)
+                    // Only passing required fields (id & schoolid)
                     var deleteData = {
                         id: holidayId,
                         schoolid: schoolid
                     };
 
-                    // console.log("📤 Sending Delete Request:", deleteData);
+                    // console.log("Sending Delete Request:", deleteData);
 
                     $.ajax({
                         url: "/schoolbuddy/Home/DeleteHoliday",
@@ -248,7 +248,7 @@
                             });
                         },
                         error: function (xhr) {
-                            // console.log("❌ Delete Error:", xhr.responseText);
+                            // console.log("Delete Error:", xhr.responseText);
                             alert("Error deleting holiday.");
                         }
                     });

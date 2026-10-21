@@ -279,7 +279,7 @@ namespace SchoolBuddy.Models.Students
             {
                 // Fetch the dynamic URL from configuration
                 string? url = _configure["api_endpoint"];
-                //Console.WriteLine($"API URL: {url}api/Students/AddStudentsInBulk"); // ✅ Debugging
+                //Console.WriteLine($"API URL: {url}api/Students/AddStudentsInBulk"); // Debugging
 
                 using (var content = new MultipartFormDataContent())
                 {

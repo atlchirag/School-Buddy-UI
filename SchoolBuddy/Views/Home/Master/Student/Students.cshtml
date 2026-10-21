@@ -136,7 +136,7 @@ white-space: nowrap;
                     <div class="modal-dialog modal-dialog-centered modal-lg">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="missingAdNoLabel">⚠️ Missing Admission Numbers</h5>
+                                <h5 class="modal-title" id="missingAdNoLabel">Missing Admission Numbers</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
@@ -144,7 +144,7 @@ white-space: nowrap;
                                 <textarea id="admissionNoList" class="form-control" rows="10" readonly></textarea>
                             </div>
                             <div class="modal-footer">
-                                <button class="btn btn-secondary" onclick="copyAdmissionNos()">📋 Copy</button>
+                                <button class="btn btn-secondary" onclick="copyAdmissionNos()">Copy</button>
                                 <button class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                             </div>
                         </div>
@@ -175,9 +175,9 @@ white-space: nowrap;
     var errorListRaw = @Html.Raw(JsonConvert.SerializeObject(TempData["ErrorList"] ?? new List<string>()));
 
         // Log values for debug
-        // console.log("✅ successMessage:", successMessage);
-        // console.log("✅ errorMessage:", errorMessage);
-        // console.log("✅ errorListRaw (type):", typeof errorListRaw, errorListRaw);
+        // console.log("successMessage:", successMessage);
+        // console.log("errorMessage:", errorMessage);
+        // console.log("errorListRaw (type):", typeof errorListRaw, errorListRaw);
 
         // Priority: show error popup if there is an ErrorMessage and no error list modal
         if (errorMessage && (!errorListRaw || errorListRaw.length === 0)) {
@@ -206,7 +206,7 @@ white-space: nowrap;
 
         }
 
-        // ✅ Case 2: Show missing admission modal if errors exist
+        // Case 2: Show missing admission modal if errors exist
         if (Array.isArray(errorListRaw) && errorListRaw.length > 0) {
             let admissionNos = errorListRaw.map(msg => {
                 const match = msg.match(/Admission No ['"]?(\d+)['"]?/);

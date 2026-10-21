@@ -814,21 +814,21 @@ namespace SchoolBuddy.Controllers
         [HttpGet]
         public async Task<IActionResult> downloadRFIDTemp()
         {
-            // ✅ EPPlus license setting
+            // EPPlus license setting
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
             using (var package = new ExcelPackage())
             {
                 var sheet = package.Workbook.Worksheets.Add("RFID Template");
 
-                // ✅ Add headers only
+                // Add headers only
                 sheet.Cells[1, 1].Value = "Admission No";
                 sheet.Cells[1, 2].Value = "RFID";
                             
-                // ✅ Auto-fit columns
+                // Auto-fit columns
                 sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
 
-                // ✅ Stream to client
+                // Stream to client
                 var stream = new MemoryStream();
                 await package.SaveAsAsync(stream);
                 stream.Position = 0;
@@ -928,7 +928,7 @@ namespace SchoolBuddy.Controllers
                 string userId = HttpContext.Session.GetString("uid");
                 var response = await _students.addStudentsInBulk(excelfile, userId);
 
-                // Console.WriteLine("Bulk Upload API Response: " + response); // ✅ Debugging response
+                // Console.WriteLine("Bulk Upload API Response: " + response); // Debugging response
 
                 if (!string.IsNullOrEmpty(response))
                 {
@@ -1050,19 +1050,19 @@ namespace SchoolBuddy.Controllers
             {
                 string sn = HttpContext.Session.GetString("schoolname");
 
-                // ✅ EPPlus license setting (required for version 5+)
+                // EPPlus license setting (required for version 5+)
                 ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
                 using (var package = new ExcelPackage(new FileInfo(filepath)))
                 {
-                    // ✅ Create a new worksheet named "ClassMaster"
+                    // Create a new worksheet named "ClassMaster"
                     var sheet = package.Workbook.Worksheets.Add("Class Table");
 
-                    // ✅ Add headers
+                    // Add headers
                     sheet.Cells[1, 1].Value = "id";
                     sheet.Cells[1, 2].Value = "class_name";
 
-                    // ✅ Hardcoded class data
+                    // Hardcoded class data
                     var classes = new List<(int Id, string ClassName)>
             {
                 (1, "K.G./BAL vatika 1"),
@@ -1085,17 +1085,17 @@ namespace SchoolBuddy.Controllers
                 (18, "PRE NURSERY")
             };
 
-                    // ✅ Add rows to the worksheet
+                    // Add rows to the worksheet
                     for (int i = 0; i < classes.Count; i++)
                     {
                         sheet.Cells[i + 2, 1].Value = classes[i].Id;
                         sheet.Cells[i + 2, 2].Value = classes[i].ClassName;
                     }
 
-                    // ✅ Auto-fit the columns
+                    // Auto-fit the columns
                     sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
 
-                    // ✅ Save to memory stream
+                    // Save to memory stream
                     var stream = new MemoryStream();
                     await package.SaveAsAsync(stream);
                     stream.Position = 0;
@@ -1385,14 +1385,14 @@ namespace SchoolBuddy.Controllers
 
                     if (!string.IsNullOrEmpty(apiResponse))
                     {
-                        // ✅ Fix: Agar API "true" return kare, to success message manually set karein
+                        // Fix: Agar API "true" return kare, to success message manually set karein
                         if (apiResponse.Trim().ToLower() == "true")
                         {
                             TempData["SuccessMessage"] = editOrAdd == "edit" ? "Student updated successfully!" : "Student added successfully!";
                             return RedirectToAction("Students", "Home");
                         }
 
-                        // ✅ Proper JSON deserialize karein
+                        // Proper JSON deserialize karein
                         /*var result = JsonConvert.DeserializeObject<Dictionary<string, string>>(apiResponse);)*/
                         Dictionary<string, string> result = null;
                         if (apiResponse.Trim().StartsWith("{"))
@@ -1409,11 +1409,11 @@ namespace SchoolBuddy.Controllers
                         {
                             if (result["status"] == "success")
                             {
-                                TempData["SuccessMessage"] = result["message"]; // ✅ Store only string
+                                TempData["SuccessMessage"] = result["message"]; // Store only string
                             }
                             else
                             {
-                                TempData["ErrorMessage"] = result["message"]; // ✅ Store only string
+                                TempData["ErrorMessage"] = result["message"]; // Store only string
                                 return RedirectToAction("Students", "Home");
                             }
                         }
@@ -1424,11 +1424,11 @@ namespace SchoolBuddy.Controllers
                         return RedirectToAction("Students", "Home");
                     }
 
-                    // ✅ Fetch Updated Student List
+                    // Fetch Updated Student List
                     string studentsJson = await _students.GetAllStudentAPICall(userId);
                     var studentList = JsonConvert.DeserializeObject<List<Students>>(studentsJson) ?? new List<Students>();
 
-                    // ✅ Store student list in TempData as serialized JSON string
+                    // Store student list in TempData as serialized JSON string
                     //TempData["StudentList"] = JsonConvert.SerializeObject(studentList);
 
                     //return RedirectToAction("Students", "Home");
@@ -1447,7 +1447,7 @@ namespace SchoolBuddy.Controllers
                 TempData["ErrorMessage"] = "Something Went Wrong";
             }
 
-            // ✅ Fallback for invalid model or exceptions
+            // Fallback for invalid model or exceptions
             TempData["action"] = "SAVE";
             ViewData["type"] = "Add Student";
 
@@ -1577,7 +1577,7 @@ namespace SchoolBuddy.Controllers
         {
             try
             {
-                // Console.WriteLine($"🔥 Received Data: {JsonConvert.SerializeObject(holidayData)}");
+                // Console.WriteLine($"Received Data: {JsonConvert.SerializeObject(holidayData)}");
 
                 if (holidayData == null || string.IsNullOrEmpty(holidayData.start) ||
                     string.IsNullOrEmpty(holidayData.end) || string.IsNullOrEmpty(holidayData.eventname) ||
@@ -1586,19 +1586,19 @@ namespace SchoolBuddy.Controllers
                     return BadRequest(new { message = "Invalid input data. Please check the form values." });
                 }
 
-                // ✅ User ID Get from Session
+                // User ID Get from Session
                 string uid = HttpContext.Session.GetString("uid");
                 if (string.IsNullOrEmpty(uid))
                 {
                     return Unauthorized(new { message = "User not logged in" });
                 }
 
-                // ✅ Call Holiday Repository to Add Holiday
+                // Call Holiday Repository to Add Holiday
                 var response = await _holiday.AddHoliday(holidayData.start, holidayData.end, uid, holidayData.eventname, holidayData.status);
 
                 var responseData = JsonConvert.DeserializeObject<Dictionary<string, string>>(response);
 
-                // ✅ Check if response contains the expected success message
+                // Check if response contains the expected success message
                 if (responseData != null && responseData.ContainsKey("message") && responseData["message"] == "Holiday added successfully!")
                 {
                     return Ok(new { message = "Holiday added successfully!" });
@@ -1611,7 +1611,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                // Console.WriteLine("❌ Exception: " + ex.Message);
+                // Console.WriteLine("Exception: " + ex.Message);
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
         }
@@ -1621,7 +1621,7 @@ namespace SchoolBuddy.Controllers
         {
             try
             {
-                // Console.WriteLine($"🔥 Received Data: {JsonConvert.SerializeObject(holidayData)}");
+                // Console.WriteLine($"Received Data: {JsonConvert.SerializeObject(holidayData)}");
 
                 if (holidayData == null || string.IsNullOrEmpty(holidayData.start) ||
                     string.IsNullOrEmpty(holidayData.end) || string.IsNullOrEmpty(holidayData.eventname) ||
@@ -1630,16 +1630,16 @@ namespace SchoolBuddy.Controllers
                     return BadRequest(new { message = "Invalid input data." });
                 }
 
-                // ✅ Session se uid lene ki jagah schoolid directly use karein
+                // Session se uid lene ki jagah schoolid directly use karein
                 string schoolid = holidayData.schoolid;
 
-                // ✅ Data ko Repository me bhej rahe hain
+                // Data ko Repository me bhej rahe hain
                 var response = await _holiday.UpdateHoliday(holidayData.id, holidayData.start, holidayData.end, schoolid, holidayData.eventname, holidayData.status);
 
-                // ✅ Debugging Log (Check करें API Response)
-                // Console.WriteLine($"📥 API Response: {response}");
+                // Debugging Log (Check करें API Response)
+                // Console.WriteLine($"API Response: {response}");
 
-                // ✅ क्योंकि response एक boolean है, उसे JSON की तरह parse करने की जरूरत नहीं
+                // क्योंकि response एक boolean है, उसे JSON की तरह parse करने की जरूरत नहीं
                 if (response)
                 {
                     return Ok(new { message = "Holiday updated successfully!" });
@@ -1653,7 +1653,7 @@ namespace SchoolBuddy.Controllers
             catch (Exception ex)
             {
                 General.LogException(ex);
-                // Console.WriteLine("❌ Exception: " + ex.Message);
+                // Console.WriteLine("Exception: " + ex.Message);
                 return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
             }
         }
@@ -1971,14 +1971,14 @@ namespace SchoolBuddy.Controllers
         [HttpGet]
         public async Task<IActionResult> downloadStaffdetailsTemp()
         {
-            // ✅ EPPlus license setting
+            // EPPlus license setting
             ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
 
             using (var package = new ExcelPackage())
             {
                 var sheet = package.Workbook.Worksheets.Add("Staff Detail Template");
 
-                // ✅ Add headers only
+                // Add headers only
                 sheet.Cells[1, 1].Value = "Employee Code";
                 sheet.Cells[1, 2].Value = "Name";
                 sheet.Cells[1, 3].Value = "Mobile Number";
@@ -1987,10 +1987,10 @@ namespace SchoolBuddy.Controllers
                 sheet.Cells[1, 6].Value = "Out Time";
                 sheet.Cells[1, 7].Value = "Address";
 
-                // ✅ Auto-fit columns
+                // Auto-fit columns
                 sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
 
-                // ✅ Stream to client
+                // Stream to client
                 var stream = new MemoryStream();
                 await package.SaveAsAsync(stream);
                 stream.Position = 0;

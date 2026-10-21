@@ -90,8 +90,8 @@ builder.Services.AddSingleton<IAnaysis, AnaysisRepository>();
 builder.Services.AddSingleton<Iapitemplate,api>();
 builder.Services.AddSingleton<ITracking, Tracking>();
 builder.Services.AddSingleton<IDriverRepository, DriverRepository>();
-builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
-builder.Services.AddScoped<IVideoTelematics, VideoTelematicsRepository>();
+builder.Services.AddSingleton<IAttendanceRepository, AttendanceRepository>();//singleton
+builder.Services.AddSingleton<IVideoTelematics, VideoTelematicsRepository>(); //singleton
 
 
 var app = builder.Build();

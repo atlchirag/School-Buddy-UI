@@ -145,7 +145,7 @@ namespace SchoolBuddy.Models.Route
         {
             try
             {
-                var json = JsonConvert.SerializeObject(new { sys_user_id = sys_user_id });  // ✔️ Correct JSON
+                var json = JsonConvert.SerializeObject(new { sys_user_id = sys_user_id });  // Correct JSON
                 string urlend = $@"Route/GetStudentWise";
                 return await _apitemplate.PostApiTemplate(json, urlend);
             }
