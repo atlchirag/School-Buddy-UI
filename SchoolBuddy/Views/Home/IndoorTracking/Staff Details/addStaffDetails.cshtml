@@ -50,13 +50,12 @@
                             <label>Employee Code</label>
                             <span class="required_">*</span>
 
-                            <input asp-for="emp_code"
+                            <input maxlength="50" asp-for="emp_code"
                                    value=""
                                    id="emp_code"
                                    type="text"
                                    placeholder="Please Enter Employee Code"
                                    class="form-control inputbackgroundcolor"
-                                   maxlength="50"
                                    required />
 
                             <span asp-validation-for="emp_code"
@@ -73,12 +72,11 @@
                             <label>Name</label>
                             <span class="required_">*</span>
 
-                            <input id="staff_name"
+                            <input minlength="2" maxlength="100" id="staff_name"
                                    asp-for="name"
                                    type="text"
                                    placeholder="Please Enter Name"
                                    class="form-control inputbackgroundcolor"
-                                   maxlength="100"
                                    required />
 
                             <span asp-validation-for="name"
@@ -94,13 +92,12 @@
                             <label>Mobile Number</label>
                             <span class="required_">*</span>
 
-                            <input asp-for="mobile_no"
+                            <input minlength="10" maxlength="10" asp-for="mobile_no"
                                    id="mobile_no"
                                    class="form-control"
                                    type="tel"
                                    inputmode="numeric"
                                    pattern="[6-9][0-9]{9}"
-                                   maxlength="10"
                                    placeholder="Enter Mobile Number"
                                    title="Enter a valid 10 digit mobile number starting with 6, 7, 8, or 9"
                                    required />
@@ -114,12 +111,11 @@
                             <label>RFID</label>
                             <span class="required_">*</span>
 
-                            <input asp-for="rf_id"
+                            <input maxlength="50" asp-for="rf_id"
                                    id="rf_id"
                                    type="text"
                                    placeholder="Please Enter RFID"
                                    class="form-control inputbackgroundcolor"
-                                   maxlength="50"
                                    required />
 
                             <span asp-validation-for="rf_id"
@@ -176,12 +172,11 @@
                             <label>Address</label>
                             <span class="text-danger">*</span>
 
-                            <input asp-for="address"
+                            <input minlength="5" maxlength="250" asp-for="address"
                                    id="address"
                                    type="text"
                                    placeholder="Please Enter Address"
                                    class="form-control inputbackgroundcolor"
-                                   maxlength="250"
                                    required />
 
                             <span asp-validation-for="address"

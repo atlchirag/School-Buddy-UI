@@ -90,26 +90,26 @@
                     <div class="row mb-2">
                         <div class="col-lg-12">
                             <label class="form-control" style="border:none;">Student Name<span class="required_">*</span></label>
-                            <input name="StudentName" class="form-control inputbackgroundcolor" placeholder="Enter Student Name" type="text"  required/>
+                            <input minlength="2" maxlength="100" name="StudentName" class="form-control inputbackgroundcolor" placeholder="Enter Student Name" type="text"  required/>
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-lg-12">
                             <label class="form-control" style="border:none;">Admission Number<span class="required_">*</span></label>
-                            <input name="AdmissionNumber" id="positions" class="form-control inputbackgroundcolor" onchange="stoplatlongchangemanually()" placeholder="Enter Admission Number" type="text"  required/>
+                            <input maxlength="50" name="AdmissionNumber" id="positions" class="form-control inputbackgroundcolor" onchange="stoplatlongchangemanually()" placeholder="Enter Admission Number" type="text"  required/>
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-lg-12">
                             <label class="form-control" style="border:none;">Stop Id<span class="required_">*</span></label>
-                            <input name="StopId" class="form-control inputbackgroundcolor" placeholder="Enter Stop Id" type="text" required/>
+                            <input maxlength="20" name="StopId" class="form-control inputbackgroundcolor" placeholder="Enter Stop Id" type="text" required/>
                         </div>
                     </div>
                     <div class="row mb-2">
                         <div class="col-lg-12">
                             <label class="form-control" style="border:none;">RF Id<span ></span></label>
-                            <input name="RFId" class="form-control inputbackgroundcolor" placeholder="Enter RF-Id (Optional)" type="text" />
+                            <input minlength="8" maxlength="8" name="RFId" class="form-control inputbackgroundcolor" placeholder="Enter RF-Id (Optional)" type="text" />
                         </div>
                     </div>
                     <div class="mb-2" style="display:flex;justify-content:center;gap:20px">
@@ -345,7 +345,7 @@
                                     <div class="row mb-2">
                                         <div class="col-lg-12">
                                             <label class="form-control" style="border:none;">Stop Name</label>
-                                            <input name="stopname" id="edit_stopname" class="form-control inputbackgroundcolor" type="text" />
+                                            <input minlength="2" maxlength="100" name="stopname" id="edit_stopname" class="form-control inputbackgroundcolor" type="text" />
                                         </div>
                                     </div>
 
@@ -473,7 +473,7 @@
                     <div class="row mb-2">
                         <div class="col-lg-12">
                             <label class="form-control" style="border:none;">Stop Name<span class="required_">*</span></label>
-                            <input name="stopname" id="stopname" class="form-control inputbackgroundcolor" placeholder="Enter Stop Name" type="text" required/>
+                            <input minlength="2" maxlength="100" name="stopname" id="stopname" class="form-control inputbackgroundcolor" placeholder="Enter Stop Name" type="text" required/>
                         </div>
                     </div>
 

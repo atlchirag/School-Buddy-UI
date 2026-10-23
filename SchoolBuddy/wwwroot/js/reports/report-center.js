@@ -61,7 +61,7 @@
 
     R.reportDefinitions = {
         'fleet-summary': { id: 'fleet-summary', title: 'Fleet Summary', category: 'Fleet Reports', source: 'trackofy', icon: 'bi-truck', description: 'Overview of vehicle distance, engine hours, battery, status, alerts and utilization.', endpoint: urls.generate, method: 'POST', contentType: 'json', endpointType: 'fleet-summary', requiresVehicles: true, columns: trackofyColumns['fleet-summary'], requiredColumns: ['Vehicle No'], defaultColumns: ['Vehicle No', 'Distance', 'Total Engine Hours', 'Max Speed', 'Current Speed', 'Battery Percent', 'Last Contact', 'Ignition', 'Total Alerts', 'Location Lat/Long', 'Utilization %'], emptyState: 'No fleet-summary records found for the selected vehicles.' },
-        'distance-chart': { id: 'distance-chart', title: 'Distance Chart', category: 'Distance Reports', source: 'trackofy', icon: 'bi-bar-chart', description: 'Compare vehicle distance across a selected date range.', endpoint: urls.generate, method: 'POST', contentType: 'json', endpointType: 'distance-chart', requiresVehicles: true, requiresDateRange: true, requiresDistanceRange: true, columns: trackofyColumns['distance-chart'], requiredColumns: ['Units', 'Dates'], defaultColumns: trackofyColumns['distance-chart'], emptyState: 'No distance data found for the selected criteria.', specialRenderer: 'dynamic-dates' },
+        'distance-chart': { id: 'distance-chart', title: 'Distance Chart', category: 'Distance Reports', source: 'trackofy', icon: 'bi-bar-chart', description: 'Compare vehicle distance across a selected date range.', endpoint: urls.generate, method: 'POST', contentType: 'json', endpointType: 'distance-chart', endDateDaysAgo: 1, requiresVehicles: true, requiresDateRange: true, requiresDistanceRange: true, columns: trackofyColumns['distance-chart'], requiredColumns: ['Units', 'Dates'], defaultColumns: trackofyColumns['distance-chart'], emptyState: 'No distance data found for the selected criteria.', specialRenderer: 'dynamic-dates' },
         'cumulative-distance': { id: 'cumulative-distance', title: 'Cumulative Distance', category: 'Distance Reports', source: 'trackofy', icon: 'bi-signpost-split', description: 'Total distance travelled by each vehicle for the selected period.', endpoint: urls.generate, method: 'POST', contentType: 'json', endpointType: 'cumulative-distance', requiresVehicles: true, requiresDateRange: true, columns: trackofyColumns['cumulative-distance'], requiredColumns: ['Unit'], defaultColumns: trackofyColumns['cumulative-distance'], emptyState: 'No cumulative-distance records found.' },
         'vehicle-summary': { id: 'vehicle-summary', title: 'Vehicle Summary', category: 'Fleet Reports', source: 'trackofy', icon: 'bi-card-list', description: 'Detailed vehicle movement, idle, halt, speed, alert and playback summary.', endpoint: urls.generate, method: 'POST', contentType: 'json', endpointType: 'vehicle-summary', requiresVehicles: true, requiresDateRange: true, columns: trackofyColumns['vehicle-summary'], requiredColumns: ['Vehicle'], defaultColumns: ['Vehicle', 'Driver', 'Total Distance', 'Total Running Time', 'Total Idle Time', 'Avg Speed', 'Max Speed', 'Alerts', 'Playback'], emptyState: 'No vehicle-summary records found.' },
         'temperature-report': { id: 'temperature-report', title: 'Temperature Report', category: 'Fleet Reports', source: 'trackofy', icon: 'bi-thermometer-half', description: 'Review minimum, average and maximum vehicle temperatures by date.', endpoint: urls.temperature, method: 'POST', contentType: 'json', endpointType: 'temperature-report', temperatureReport: true, requiresVehicles: true, fields: [field('temperatureStartDate', 'Start Date', 'date', { required: true, defaultValue: today }), field('temperatureStartTime', 'Start Time', 'time', { required: true, defaultValue: '00:00' }), field('temperatureEndDate', 'End Date', 'date', { required: true, defaultValue: today }), field('temperatureEndTime', 'End Time', 'time', { required: true, defaultValue: '23:59' }), field('temperaturePageSize', 'Page Size', 'select', { required: true, defaultValue: '10', options: [{ value: '10', text: '10' }, { value: '50', text: '50' }, { value: '100', text: '100' }, { value: '200', text: '200' }] })], columns: ['Date', 'Min Temperature(°C)', 'Min Temp Lat/Long', 'Min Temp Status', 'Avg Temperature(°C)', 'Max Temperature(°C)', 'Max Temp Lat/Long', 'Max Temp Status'], defaultColumns: [], emptyState: 'No temperature data found for the selected filters.', apiPagination: true },
@@ -380,8 +380,9 @@
         var d = R.state.report, html = ''; if (d.resultType === 'unavailable') { html += '<div class="alert alert-info">' + R.escapeHtml(d.emptyState) + '</div>'; }
         (d.fields || []).forEach(function (f) { html += R.renderField(f); }); if (d.source === 'trackofy') { if (!d.temperatureReport && !d.idleSummaryReport) html += R.renderTrackofyFields(d); if (d.legacyDriverPerformance) { html += R.renderColumnField(d); } else { html += R.renderVehicleField(); if (!d.temperatureReport && !d.idleSummaryReport) html += R.renderColumnField(d); } } $('#reportFilterForm').html(html); R.initDatePickers(); if (d.id === 'student-notification') R.initStudentDropdown(); (d.fields || []).forEach(function (f) { if (f.dataSource) R.loadOptions(f); }); R.renderVehicleOptions(); if (d.temperatureReport) $('#reportVehiclesAll').closest('label').hide(); R.updateColumnsSelectAll();
     };
-    R.initDatePickers = function () { if (!window.flatpickr) return; $('#reportFilterForm .report-date-picker').each(function () { if (this._flatpickr) this._flatpickr.destroy(); flatpickr(this, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd M Y', allowInput: true, maxDate: today }); }); $('#reportFilterForm .report-datetime-picker').each(function () { if (this._flatpickr) this._flatpickr.destroy(); flatpickr(this, { enableTime: true, time_24hr: true, dateFormat: 'Y-m-d H:i', altInput: true, altFormat: 'd M Y H:i', allowInput: true, maxDate: new Date() }); }); };
-    R.renderTrackofyFields = function (d) { var html = '', now = new Date(), pad = function (value) { return String(value).padStart(2, '0'); }, formatDateTime = function (value) { return value.getFullYear() + '-' + pad(value.getMonth() + 1) + '-' + pad(value.getDate()) + ' ' + pad(value.getHours()) + ':' + pad(value.getMinutes()); }, endDateTime = formatDateTime(now), startDate = new Date(now); startDate.setDate(startDate.getDate() - 1); var startDateTime = formatDateTime(startDate); if (d.requiresDateRange) html += '<div class="row"><div class="col-6 report-field">' + R.renderField(field('start', 'Start date and time', 'datetime-local', { required: true, defaultValue: startDateTime })) + '</div><div class="col-6 report-field">' + R.renderField(field('end', 'End date and time', 'datetime-local', { required: true, defaultValue: endDateTime })) + '</div></div>'; if (d.requiresDistanceRange) html += '<div class="row"><div class="col-6 report-field">' + R.renderField(field('minDistance', 'Minimum distance', 'number', { required: true, defaultValue: '0', min: 0, step: 'any' })) + '</div><div class="col-6 report-field">' + R.renderField(field('maxDistance', 'Maximum distance', 'number', { required: true, defaultValue: '10', min: 0, step: 'any' })) + '</div></div>'; return html; };
+    R.initDatePickers = function () { if (!window.flatpickr) return; $('#reportFilterForm .report-date-picker').each(function () { if (this._flatpickr) this._flatpickr.destroy(); flatpickr(this, { dateFormat: 'Y-m-d', altInput: true, altFormat: 'd M Y', allowInput: true, maxDate: today }); }); $('#reportFilterForm .report-datetime-picker').each(function () { if (this._flatpickr) this._flatpickr.destroy(); flatpickr(this, { enableTime: true, time_24hr: true, dateFormat: 'Y-m-d H:i', altInput: true, altFormat: 'd M Y H:i', allowInput: true, maxDate: R.maxReportEndDate(R.state.report) }); }); };
+    R.maxReportEndDate = function (d) { var max = new Date(); if (d && d.endDateDaysAgo) max.setDate(max.getDate() - d.endDateDaysAgo); return max; };
+    R.renderTrackofyFields = function (d) { var html = '', now = R.maxReportEndDate(d), pad = function (value) { return String(value).padStart(2, '0'); }, formatDateTime = function (value) { return value.getFullYear() + '-' + pad(value.getMonth() + 1) + '-' + pad(value.getDate()) + ' ' + pad(value.getHours()) + ':' + pad(value.getMinutes()); }, endDateTime = formatDateTime(now), startDate = new Date(now); startDate.setDate(startDate.getDate() - 1); var startDateTime = formatDateTime(startDate); if (d.requiresDateRange) html += '<div class="row"><div class="col-6 report-field">' + R.renderField(field('start', 'Start date and time', 'datetime-local', { required: true, defaultValue: startDateTime })) + '</div><div class="col-6 report-field">' + R.renderField(field('end', 'End date and time', 'datetime-local', { required: true, defaultValue: endDateTime })) + '</div></div>'; if (d.requiresDistanceRange) html += '<div class="row"><div class="col-6 report-field">' + R.renderField(field('minDistance', 'Minimum distance', 'number', { required: true, defaultValue: '0', min: 0, step: 'any' })) + '</div><div class="col-6 report-field">' + R.renderField(field('maxDistance', 'Maximum distance', 'number', { required: true, defaultValue: '10', min: 0, step: 'any' })) + '</div></div>'; return html; };
     R.renderField = function (f) { var id = 'reportField_' + f.name, req = f.required ? '<span class="text-danger">*</span>' : ''; var value = f.defaultValue || '', attrs = ' data-report-field="' + R.escapeHtml(f.name) + '" ' + (f.required ? 'required' : '') + ' ' + (f.placeholder ? 'placeholder="' + R.escapeHtml(f.placeholder) + '"' : '') + (f.min != null ? ' min="' + R.escapeHtml(f.min) + '"' : '') + (f.max != null ? ' max="' + R.escapeHtml(f.max) + '"' : '') + (f.step != null ? ' step="' + R.escapeHtml(f.step) + '"' : ''); var isDate = f.type === 'date', isDateTime = f.type === 'datetime-local', inputType = (isDate || isDateTime) ? 'text' : f.type, pickerClass = isDate ? ' report-date-picker' : (isDateTime ? ' report-datetime-picker' : ''); var control; if (f.type === 'select' || f.type === 'searchable-select') control = '<select id="' + id + '" name="' + R.escapeHtml(f.name) + '" class="form-select' + (f.type === 'searchable-select' ? ' report-searchable-select' : '') + '"' + attrs + '>' + (f.options || []).map(function (o) { var x = typeof o === 'object' ? o : { value: o, text: o }; return '<option value="' + R.escapeHtml(x.value) + '" ' + (String(x.value) === String(value) ? 'selected' : '') + '>' + R.escapeHtml(x.text) + '</option>'; }).join('') + '</select>'; else if (f.type === 'textarea') control = '<textarea id="' + id + '" name="' + R.escapeHtml(f.name) + '" class="form-control"' + attrs + '>' + R.escapeHtml(value) + '</textarea>'; else if (f.type === 'hidden') control = '<input id="' + id + '" name="' + R.escapeHtml(f.name) + '" type="hidden" value="' + R.escapeHtml(value) + '"' + attrs + '>'; else if (f.type === 'checkbox' || f.type === 'radio') control = '<div><input id="' + id + '" name="' + R.escapeHtml(f.name) + '" type="' + R.escapeHtml(f.type) + '" value="' + R.escapeHtml(value || 'true') + '"' + attrs + '></div>'; else control = '<input id="' + id + '" name="' + R.escapeHtml(f.name) + '" type="' + inputType + '" class="form-control' + pickerClass + '" value="' + R.escapeHtml(value) + '"' + attrs + '>'; return '<div class="report-field"><label for="' + id + '">' + R.escapeHtml(f.label) + ' ' + req + '</label>' + control + '<div class="report-field-error" data-error="' + R.escapeHtml(f.name) + '"></div></div>'; };
     R.renderVehicleField = function () { return '<div class="report-field"><label>Vehicles <span class="text-danger">*</span></label><div class="report-multiselect"><button type="button" class="report-multiselect-trigger" aria-expanded="false"><span id="reportVehicleLabel">Select vehicles</span><i class="bi bi-chevron-down"></i></button><div class="report-multiselect-menu d-none"><div class="report-multiselect-search"><i class="bi bi-search"></i><input id="reportVehicleSearch" type="search" placeholder="Search vehicles" aria-label="Search vehicles"></div><div class="report-multiselect-actions"><label class="small mb-0"><input id="reportVehiclesAll" type="checkbox"> Select all</label><button id="reportVehicleClear" type="button" class="btn btn-link btn-sm p-0">Clear</button></div><div id="reportVehicleOptions" class="report-multiselect-options"><span class="small text-muted">Loading vehicles...</span></div></div></div><div class="report-field-error" data-error="vehicles"></div></div>'; };
     R.renderColumnField = function (d) { return '<div class="report-field"><label>Columns <span class="text-danger">*</span></label><label class="float-end small"><input id="reportColumnsAll" type="checkbox"> Select all</label><div id="reportColumns" class="report-columns">' + d.columns.map(function (c) { return '<label class="report-column-option"><input class="report-column-check" type="checkbox" value="' + R.escapeHtml(c) + '" ' + (R.state.selectedColumns.has(c) ? 'checked ' : '') + ((d.requiredColumns || []).indexOf(c) > -1 ? 'disabled' : '') + '> ' + R.escapeHtml(c) + '</label>'; }).join('') + '</div><div class="report-field-error" data-error="columns"></div></div>'; };
@@ -396,7 +397,7 @@
     R.values = function () { var d = R.state.report, o = {}; (d.fields || []).forEach(function (f) { o[f.name] = $('[data-report-field="' + f.name + '"]').val() || ''; }); return o; };
     R.parseReportDate = function (value) { if (!value) return NaN; var normalized = String(value).trim().replace(' ', 'T'); var parsed = Date.parse(normalized); return Number.isNaN(parsed) ? Date.parse(String(value).trim()) : parsed; }; R.isFutureReportDate = function (value) { var parsed = R.parseReportDate(value); return !Number.isNaN(parsed) && parsed > Date.now(); };
     R.validateForm = function () { var d = R.state.report, ok = true; if (d.resultType === 'unavailable') return false; var v = R.values(); (d.fields || []).forEach(function (f) { if (f.required && ((Array.isArray(v[f.name]) && !v[f.name].length) || (!Array.isArray(v[f.name]) && !String(v[f.name]).trim()))) { R.showError(f.name, f.validationMessage || f.label + ' is required.'); ok = false; } }); if (d.temperatureReport) { var ts = v.temperatureStartDate + ' ' + v.temperatureStartTime, te = v.temperatureEndDate + ' ' + v.temperatureEndTime; if (R.parseReportDate(ts) > R.parseReportDate(te)) { R.showError('temperatureEndDate', 'End date/time cannot be earlier than start.'); ok = false; } } if (d.source === 'trackofy') { if (!d.legacyDriverPerformance && !$('.report-vehicle-check:checked').length) { R.showError('vehicles', 'Select a vehicle.'); ok = false; } if (!d.temperatureReport && !$('.report-column-check:checked').length) { R.showError('columns', 'Select at least one column.'); ok = false; } if (d.requiresDateRange) { var s = $('#reportField_start').val(), e = $('#reportField_end').val(), startTime = R.parseReportDate(s), endTime = R.parseReportDate(e); if (!s || !e) { R.showError('start', 'Start and end date/time are required.'); ok = false; } else if (Number.isNaN(startTime) || Number.isNaN(endTime)) { R.showError('end', 'Enter valid start and end date/time values.'); ok = false; } else if (startTime > endTime) { R.showError('end', 'End date/time cannot be earlier than start.'); ok = false; } } if (d.requiresDistanceRange) { var min = Number($('#reportField_minDistance').val()), max = Number($('#reportField_maxDistance').val()); if (!Number.isFinite(min) || !Number.isFinite(max) || min < 0 || max < min) { R.showError('maxDistance', 'Enter valid distances; maximum cannot be lower than minimum.'); ok = false; } } } if (v.from && v.to) { var fromTime = R.parseReportDate(v.from), toTime = R.parseReportDate(v.to); if (Number.isNaN(fromTime) || Number.isNaN(toTime)) { R.showError('to', 'Enter valid date values.'); ok = false; } else if (fromTime > toTime) { R.showError('to', 'Date To cannot be earlier than Date From.'); ok = false; } } return ok; };
-    R.validateReportDates = R.validateForm; R.validateForm = function () { var valid = R.validateReportDates(), d = R.state.report, hasFuture = false, check = function (name, value) { if (String(value || '').trim() && R.isFutureReportDate(value)) { R.showError(name, 'Future date/time cannot be selected.'); hasFuture = true; } }; (d.fields || []).forEach(function (f) { if (f.type === 'date' || f.type === 'datetime-local') check(f.name, R.values()[f.name]); }); if (d.requiresDateRange) { check('start', $('#reportField_start').val()); check('end', $('#reportField_end').val()); } return valid && !hasFuture; };
+    R.validateReportDates = R.validateForm; R.validateForm = function () { var valid = R.validateReportDates(), d = R.state.report, hasFuture = false, check = function (name, value) { if (String(value || '').trim() && R.isFutureReportDate(value)) { R.showError(name, 'Future date/time cannot be selected.'); hasFuture = true; } }; (d.fields || []).forEach(function (f) { if (f.type === 'date' || f.type === 'datetime-local') check(f.name, R.values()[f.name]); }); if (d.requiresDateRange) { check('start', $('#reportField_start').val()); check('end', $('#reportField_end').val()); if (!hasFuture && d.endDateDaysAgo && R.parseReportDate($('#reportField_end').val()) > R.maxReportEndDate(d).getTime()) { R.showError('end', 'End date/time must be at least ' + d.endDateDaysAgo + ' day before the current date.'); hasFuture = true; } } return valid && !hasFuture; };
     R.buildPayload = function (page) { var d = R.state.report, v = R.values(), start = d.alertStartDate || ((d.requiresDateRange && $('#reportField_start').length) ? $('#reportField_start').val().replace('T', ' ') : null), end = d.alertEndDate || ((d.requiresDateRange && $('#reportField_end').length) ? $('#reportField_end').val().replace('T', ' ') : null), selectedVehicleList = function () { return $('.report-vehicle-check:checked').map(function () { return String(this.value).trim(); }).get().filter(Boolean).join(','); }, selectedColumnList = function () { return d.columns.filter(function (c) { return $('.report-column-check[value="' + c.replace(/"/g, '\\"') + '"]').is(':checked'); }).join(', '); }; if (d.legacyDriverPerformance) return { columns: selectedColumnList(), start_date: start, end_date: end, timezoneDiff: '330', page: String(page || 1), per_page: '1000' }; if (d.alertSummary) return { reportType: d.endpointType, alertId: d.alertId, startDate: start, endDate: end, page: String(page || 1), perPage: String(R.state.perPage || 10), vehicleList: d.alertVehicleList || '' }; if (d.id === 'student-notification') return { selectedValues: v.selectedValues ? [v.selectedValues] : [], from: v.from, to: v.to }; if (d.source === 'trackofy') return { reportType: d.endpointType, alertId: d.alertId || null, columns: d.payloadColumns || selectedColumnList(), vehicleList: selectedVehicleList(), startDate: start, endDate: end, minDistance: d.requiresDistanceRange ? $('#reportField_minDistance').val() : '0', maxDistance: d.requiresDistanceRange ? $('#reportField_maxDistance').val() : '0', page: String(page || 1), perPage: String(R.state.perPage || 10), timezoneDiff: String(-new Date().getTimezoneOffset()) }; return v; };
     R.buildTemperaturePayload = function (page) { var v = R.values(), selectedColumns = $('.report-column-check:checked').map(function () { return String(this.value).trim(); }).get(); return { columns: selectedColumns.join(', '), vehicleList: $('.report-vehicle-check:checked').map(function () { return String(this.value).trim(); }).get()[0] || '', startDate: v.temperatureStartDate + ' ' + v.temperatureStartTime, endDate: v.temperatureEndDate + ' ' + v.temperatureEndTime, page: Number(page || 1), perPage: Number(R.state.perPage || 10) }; };
     // UI helpers: popup, no-data notification and empty-result check
@@ -761,7 +762,92 @@
             message: message
         };
     };
-    R.handleSuccess = function (raw, page, fromDrawer) { var n = R.normalize(raw); if (!n.success) { R.showResult(n); return; } R.state.page = Number(n.meta.page || page); R.state.perPage = Number(n.meta.per_page || R.state.perPage); R.state.meta = n.meta; R.state.currentRows = n.rows; R.showResult(n); if (fromDrawer) R.state.drawer.hide(); };
+    R.handleSuccess = function (raw, page, fromDrawer) { var parsedRaw = R.parseJson(raw) || {}; if (parsedRaw.queued) { R.showQueuedReport(parsedRaw.message); if (fromDrawer) R.state.drawer.hide(); return; } var n = R.normalize(raw); if (!n.success) { R.showResult(n); return; } R.state.page = Number(n.meta.page || page); R.state.perPage = Number(n.meta.per_page || R.state.perPage); R.state.meta = n.meta; R.state.currentRows = n.rows; R.showResult(n); if (fromDrawer) R.state.drawer.hide(); };
+    // The API queued the report for the Download section instead of returning rows.
+    R.showQueuedReport = function (message) {
+        R.destroyDataTable(); R.destroyChart();
+        $('#reportResultLoading').addClass('d-none').hide();
+        $('#reportResultError,#reportResultEmpty').addClass('d-none').hide().empty();
+        $('#reportApiPager,#temperatureReportKpis,#idleSummaryKpis,#idleSummaryNotice,#reportTableWrap').addClass('d-none').hide();
+        $('#reportResultSummary').text('');
+        var text = message || 'Your report is being generated and will be available in the Download section.';
+        if (!window.Swal) { R.showPopup('success', 'Report submitted', text); return; }
+        Swal.fire({ icon: 'success', title: 'Report submitted', text: text, showCancelButton: true, confirmButtonText: 'View Downloads', cancelButtonText: 'Close', confirmButtonColor: '#0f2d4e' })
+            .then(function (res) { if (res.isConfirmed) { if (R.state.modal) R.state.modal.hide(); R.openDownloads(); } });
+    };
+
+    /*
+     * Downloads section: report files Trackofy generates in the background
+     * (same data as trackofy.com/profile/downloads).
+     */
+    R.downloadsTable = null;
+    R.openDownloads = function () {
+        bootstrap.Modal.getOrCreateInstance(document.getElementById('reportDownloadsModal')).show();
+        R.loadDownloads();
+    };
+    R.isDownloadReady = function (status) { var s = String(status || '').toLowerCase(); return s === 'completed' || s === 'done' || s === 'ready'; };
+    R.downloadStatusBadge = function (status) {
+        var s = String(status || '').trim(), lower = s.toLowerCase();
+        if (!s) return '<span class="report-na">----</span>';
+        var cls = R.isDownloadReady(s) ? 'is-done' : (lower === 'failed' || lower === 'error' ? 'is-failed' : 'is-pending');
+        return '<span class="report-download-status ' + cls + '">' + R.escapeHtml(s) + '</span>';
+    };
+    R.loadDownloads = function () {
+        var $loading = $('#reportDownloadsLoading'), $error = $('#reportDownloadsError'), $refresh = $('#refreshReportDownloads');
+        $loading.removeClass('d-none'); $error.addClass('d-none').empty(); $refresh.prop('disabled', true);
+        $.ajax({
+            url: urls.downloads,
+            type: 'POST',
+            dataType: 'json',
+            loader: false,
+            headers: { RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() }
+        }).done(function (response) {
+            if (!response || !response.success) { $error.removeClass('d-none').text((response && response.message) || 'Unable to load downloads.'); R.renderDownloads([]); return; }
+            R.renderDownloads(response.data || []);
+        }).fail(function (xhr) {
+            var message = (xhr.responseJSON && xhr.responseJSON.message) || (xhr.status === 401 ? 'Session expired. Please log in again.' : 'Unable to load downloads.');
+            $error.removeClass('d-none').text(message);
+            R.renderDownloads([]);
+        }).always(function () {
+            $loading.addClass('d-none'); $refresh.prop('disabled', false);
+        });
+    };
+    R.renderDownloads = function (rows) {
+        $('#reportDownloadsCount').text(rows.length + ' report' + (rows.length === 1 ? '' : 's'));
+        if (R.downloadsTable) { R.downloadsTable.clear().rows.add(rows).draw(); return; }
+        var dash = function (value) { return value === null || value === undefined || String(value).trim() === '' ? '<span class="report-na">----</span>' : R.escapeHtml(value); };
+        var withIcon = function (icon) { return function (value, type) { return type === 'display' ? (value ? '<i class="bi ' + icon + ' me-1 text-muted"></i>' : '') + dash(value) : (value || ''); }; };
+        R.downloadsTable = $('#reportDownloadsTable').DataTable({
+            data: rows,
+            autoWidth: false,
+            order: [[2, 'desc']],
+            pageLength: 10,
+            lengthMenu: [[10, 25, 50, 100], [10, 25, 50, 100]],
+            dom: '<"report-datatables-toolbar"<"report-datatables-controls"<"report-datatables-length"l><"report-datatables-search"f>>>rtip',
+            language: { emptyTable: 'No downloads found. Generated report files will appear here.', zeroRecords: 'No downloads match your search.', search: '', searchPlaceholder: 'Search downloads...' },
+            columns: [
+                { title: '#', data: null, orderable: false, searchable: false, defaultContent: '' },
+                { title: 'Report Name', data: 'report_name', render: withIcon('bi-file-earmark-text') },
+                { title: 'Requested On', data: 'request_date', render: withIcon('bi-calendar3') },
+                { title: 'Duration', data: 'gps_duration', render: withIcon('bi-clock') },
+                { title: 'Status', data: 'status', render: function (value, type) { return type === 'display' ? R.downloadStatusBadge(value) : (value || ''); } },
+                {
+                    title: 'Download', data: 'download_url', orderable: false, searchable: false, render: function (value, type) {
+                        if (type !== 'display') return '';
+                        return value ? '<a class="btn btn-sm btn-outline-primary" href="' + R.escapeHtml(value) + '" target="_blank" rel="noopener noreferrer" title="Download file"><i class="bi bi-download"></i></a>' : '<span class="report-na">----</span>';
+                    }
+                }
+            ]
+        });
+        // Number rows by their position in the current sort, search and page.
+        R.downloadsTable.on('draw.reportDownloads', function () {
+            var start = R.downloadsTable.page.info().start;
+            R.downloadsTable.column(0, { search: 'applied', order: 'applied', page: 'current' }).nodes().each(function (cell, i) { cell.innerHTML = start + i + 1; });
+        }).draw(false);
+    };
+    $(document).off('click.reportDownloads')
+        .on('click.reportDownloads', '#openReportDownloads', function () { R.openDownloads(); })
+        .on('click.reportDownloads', '#refreshReportDownloads', function () { R.loadDownloads(); });
     R.showResult = function (result) {
 
         var report = R.state.report;
@@ -1359,10 +1445,13 @@
     R.temperatureLocation = function (value, row) { var rendered = R.renderLocation(value, row); return rendered || '--'; };
     R.temperatureStatus = function (value) { var text = String(value || '').trim(), key = text.toLowerCase(), cls = key === 'running' ? 'text-bg-success' : key === 'idle' ? 'text-bg-warning' : key === 'stopped' ? 'text-bg-danger' : key === 'offline' ? 'text-bg-secondary' : 'text-bg-primary'; return text ? '<span class="badge ' + cls + ' temperature-report-status">' + R.escapeHtml(text) + '</span>' : '--'; };
     R.getCommonTableOptions = function () {
+        /*
+         * No scrollX / scrollY here: in DataTables 2 any scrollY other than ''
+         * (even false) splits the table into a header table and a body table,
+         * which showed a second, empty header row. One table inside
+         * .report-table-hscroll scrolls both ways with a sticky header instead.
+         */
         return {
-            scrollX: false,
-            scrollY: false,
-            scrollCollapse: false,
             autoWidth: true,
             responsive: false,
             fixedHeader: false,
@@ -1474,6 +1563,16 @@
     R.bindReportTableAdjustments = function (table) {
         if (!table || typeof table.off !== 'function' || typeof table.on !== 'function') {
             return;
+        }
+
+        /*
+         * Header and body live in one table (scrollX is off), so they stay
+         * aligned; scroll that table horizontally instead of squeezing wide
+         * reports into 100% width, which made columns overlap.
+         */
+        var $resultTable = $('#reportResultTable');
+        if (!$resultTable.parent().hasClass('report-table-hscroll')) {
+            $resultTable.wrap('<div class="report-table-hscroll"></div>');
         }
 
         table
@@ -1797,9 +1896,15 @@
                 }
             );
 
+        /*
+         * R.renderChart is optional; calling it when undefined threw here,
+         * aborting the AJAX success chain so the loader never cleared.
+         * Per-row charts are available via the Chart column button.
+         */
         if (
             report.specialRenderer ===
-            'dynamic-dates'
+            'dynamic-dates' &&
+            typeof R.renderChart === 'function'
         ) {
             R.renderChart(rows);
         }

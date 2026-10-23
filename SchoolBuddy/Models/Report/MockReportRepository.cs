@@ -258,5 +258,10 @@ namespace SchoolBuddy.Models.Report
         {
             throw new NotSupportedException("Idle Summary Report is available through ReportRepository.");
         }
+
+        public virtual Task<string> GetDownloadReportsAsync(string token)
+        {
+            throw new NotSupportedException("Report downloads are available through ReportRepository.");
+        }
     }
 }

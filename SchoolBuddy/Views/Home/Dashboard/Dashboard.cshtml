@@ -1,57 +1,13 @@
-@using Newtonsoft.Json
 @model Dashboard
-@using System.Linq
 
-@{
-    var driverMonitoringList =
-        ViewBag.DriverPerformance as IEnumerable<DriverPerformanceModel>
-        ?? Enumerable.Empty<DriverPerformanceModel>();
-
-         var routePerformance = ViewBag.RoutePerformance as List<RouteLiveStatusModel>;
-    var alert = ViewBag.Alerts as List<NotificationItem>;
-    var vehicleService = ViewBag.vehicleserve as List<VehicleInService> ?? new List<VehicleInService>();
-
-    
-                                 int totalBus = Convert.ToInt32(ViewData["total_bus"] ?? 0);
-
-   
-var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
-        ?? new List<VehicleInService>())
-        .GroupBy(x => x.veh_reg)
-        .Select(g => new
-        {
-            VehReg = g.Key,
-
-            SysServiceId = g
-                .Select(x => x.sys_service_id)
-                .FirstOrDefault(),
-
-            MaximumSpeedToday = g
-                .Select(x => x.MaximumSpeedToday)
-                .FirstOrDefault(),
-
-            LastRunningTime = g
-                .OrderByDescending(x =>
-                {
-                    DateTime.TryParse(x.LastRunningTime, out var dt);
-                    return dt;
-                })
-                .Select(x => x.LastRunningTime)
-                .FirstOrDefault(),
-
-            Routes = g
-                .Where(x => !string.IsNullOrWhiteSpace(x.route_name))
-                .Select(x => x.route_name)
-                .Distinct()
-                .ToList()
-        })
-        .ToList();
-
-    int uniqueVehicleCount = groupedVehicles.Count;
-     double runningPercentage = totalBus > 0
-        ? (uniqueVehicleCount * 100.0) / totalBus
-        : 0;
-}
+@*
+    Lazy loaded: this page is returned straight away with every value at 0.
+    The values come as JSON from HomeController.DashboardData(section) in three sections
+    (top, middle, bottom), shown top to bottom by ~/js/dashboard/dashboard-lazy-load.js.
+    data-dashboard-section marks which section fills an element.
+      - data-dashboard-field="name"  -> text filled from the response "fields"
+      - table bodies / lists by id   -> rows built by the script from the response lists
+*@
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -88,7 +44,7 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                     <div class="sb-stat-card h-100">
                     <div>
                         <span class="text-muted text-xs d-block fw-semibold">Total Students</span>
-                        <h4 class="fw-bold my-1 text-dark">@(Model?.totalstudentcount ?? "0")</h4>
+                        <h4 class="fw-bold my-1 text-dark" data-dashboard-field="totalStudents" data-dashboard-section="top">0</h4>
 
                         <span class="text-xs text-primary fw-medium"
                               style="cursor:pointer;"
@@ -103,8 +59,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                     <div class="sb-stat-card h-100">
                         <div>
                             <span class="text-muted text-xs d-block fw-semibold">Active Transport Students</span>
-                            <h4 class="fw-bold my-1 text-dark">@(Model?.assignedstudent ?? "0")</h4>
-                                <input type="hidden" id="totalAssigned" value="@(Model?.assignedstudent ?? "0")" />
+                            <h4 class="fw-bold my-1 text-dark" data-dashboard-field="assignedStudents" data-dashboard-section="top">0</h4>
+                                <input type="hidden" id="totalAssigned" value="0" />
                            <span class="text-xs text-primary fw-medium" style="cursor: pointer;" onclick="getstudentsummary()">Assigned students <i class="bi bi-arrow-right"></i></span>
                         </div>
                         <div class="sb-stat-icon green"><i class="bi bi-person-check-fill"></i></div>
@@ -114,7 +70,7 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                     <div class="sb-stat-card h-100">
                         <div>
                             <span class="text-muted text-xs d-block fw-semibold">Total vehicles</span>
-                            <h4 class="fw-bold my-1 text-dark">@(Model?.totalbuscount ?? "0")</h4>
+                            <h4 class="fw-bold my-1 text-dark" data-dashboard-field="totalBuses" data-dashboard-section="top">0</h4>
                             <span class="text-xs text-primary fw-medium" style="cursor: pointer;" onclick="gettodaybusessummary()">View all vehicles <i class="bi bi-arrow-right"></i></span>
                         </div>
                         <div class="sb-stat-icon purple"><i class="bi bi-truck"></i></div>
@@ -132,12 +88,10 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                     Vehicles in Service
                 </span>
 
-                <h4 class="fw-bold my-1 text-dark">
-                    @uniqueVehicleCount
-                </h4>
+                <h4 class="fw-bold my-1 text-dark" data-dashboard-field="vehiclesInService" data-dashboard-section="top">0</h4>
 
                 <span class="text-xs text-warning fw-semibold">
-                    @runningPercentage.ToString("0.##")% of total vehicles
+                    <span data-dashboard-field="vehiclesInServicePercent" data-dashboard-section="top">0</span>% of total vehicles
                 </span>
             </div>
 
@@ -151,7 +105,7 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                     <div class="sb-stat-card h-100">
                         <div>
                             <span class="text-muted text-xs d-block fw-semibold">Active Trips(Live)</span>
-                        <h4 class="fw-bold my-1 text-dark">@(Model?.totalliveroutecount ?? "0")</h4>
+                        <h4 class="fw-bold my-1 text-dark" data-dashboard-field="liveRoutes" data-dashboard-section="top">0</h4>
 
                             <span class="text-xs text-primary fw-medium" style="cursor: pointer;" onclick="getliveroutessummary()" >View all trips <i class="bi bi-arrow-right"></i></span>
                         </div>
@@ -187,25 +141,9 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
            asp-action="EventHoliday"
            class="text-decoration-none d-block">
 
-            @if (!string.IsNullOrWhiteSpace(Convert.ToString(ViewBag.UpcomingHolidayName)))
-            {
-                <span class="fw-semibold d-block"
-                      style="font-size:0.72rem;">
-                    @ViewBag.UpcomingHolidayName
-                </span>
-
-                <span class="text-muted"
-                      style="font-size:0.68rem;">
-                    @ViewBag.UpcomingHolidayDate
-                </span>
-            }
-            else
-            {
-                <span class="text-muted"
-                      style="font-size:0.72rem;">
-                    No Upcoming Holiday
-                </span>
-            }
+            <span id="upcomingHolidaySlot" class="d-block" data-dashboard-slot data-dashboard-section="top">
+                <span class="text-muted" style="font-size:0.72rem;">No Upcoming Holiday</span>
+            </span>
 
         </a>
 
@@ -243,12 +181,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                 Running
             </span>
 
-            <strong id="runningCount"
-                    class="text-dark">
-
-                0
-
-            </strong>
+            <strong id="runningCount" data-dashboard-field="fleetRunning" data-dashboard-section="top"
+                    class="text-dark">0</strong>
         </div>
 
         <div class="sb-list-item">
@@ -257,12 +191,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                 Parked
             </span>
 
-            <strong id="parkedCount"
-                    class="text-dark">
-
-                0
-
-            </strong>
+            <strong id="parkedCount" data-dashboard-field="fleetParked" data-dashboard-section="top"
+                    class="text-dark">0</strong>
         </div>
 
         <div class="sb-list-item">
@@ -271,12 +201,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                 Offline
             </span>
 
-            <strong id="offlineCount"
-                    class="text-dark">
-
-                0
-
-            </strong>
+            <strong id="offlineCount" data-dashboard-field="fleetOffline" data-dashboard-section="top"
+                    class="text-dark">0</strong>
         </div>
 
         <div class="sb-list-item">
@@ -285,12 +211,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                 Stopped
             </span>
 
-            <strong id="stoppedCount"
-                    class="text-dark">
-
-                0
-
-            </strong>
+            <strong id="stoppedCount" data-dashboard-field="fleetStopped" data-dashboard-section="top"
+                    class="text-dark">0</strong>
         </div>
 
         <div class="sb-list-item">
@@ -299,12 +221,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                 Overspeeding
             </span>
 
-            <strong id="overspeedCount"
-                    class="text-dark">
-
-                0
-
-            </strong>
+            <strong id="overspeedCount" data-dashboard-field="fleetOverspeed" data-dashboard-section="middle"
+                    class="text-dark">0</strong>
         </div>
 
         <div class="sb-list-item">
@@ -313,12 +231,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                 SOS Alerts
             </span>
 
-            <strong id="sosCount"
-                    class="text-danger">
-
-                0
-
-            </strong>
+            <strong id="sosCount" data-dashboard-field="fleetSos" data-dashboard-section="middle"
+                    class="text-danger">0</strong>
         </div>
 
     </div>
@@ -502,14 +416,7 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
         id="selected_vehicle"
         data-live-search="true">
 
-    <option value="">Select Vehicle</option>
-
-    @foreach (var item in ViewBag.VehicleList)
-    {
-        <option value="@item.Id">
-            @item.Name
-        </option>
-    }
+    <option value="">Loading vehicles...</option>
 
 </select>
 </div>
@@ -566,9 +473,9 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
 
             <!-- TOP 5 DATA -->
             <tbody id="recentBoardingBody">
-               <tr>
-                                    <td colspan=6 class="text-center">No Data Avilable</td>
-               </tr>
+                <tr>
+                    <td colspan="6" class="text-center">No Data Available</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -597,22 +504,22 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                             <div class="alerts-summary-grid mb-2">
                                 <div class="alerts-summary-box orange d-flex flex-column align-items-center justify-content-center" style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 6px;">
                                         <div class="icon-circle mb-1"><i class="bi bi-battery-half" style="font-size: 1.1rem;"></i></div>
-                                    <strong class="text-md mb-0">@ViewBag.batterylow</strong>
+                                    <strong class="text-md mb-0" data-dashboard-field="alertBatteryLow" data-dashboard-section="middle">0</strong>
                                     <span style="font-size: 0.65rem; text-align: center; line-height: 1;">Battery Low</span>
                                 </div>
                                 <div class="alerts-summary-box red d-flex flex-column align-items-center justify-content-center" style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 6px;">
                                         <div class="icon-circle mb-1"><i class="bi bi-battery" style="font-size: 1.1rem;"></i></div>
-                                        <strong class="text-md mb-0">@ViewBag.batterydisconnection</strong>
+                                        <strong class="text-md mb-0" data-dashboard-field="alertBatteryOffline" data-dashboard-section="middle">0</strong>
                                         <span style="font-size: 0.65rem; text-align: center; line-height: 1;">Battery Offline</span>
                                 </div>
                                 <div class="alerts-summary-box grey d-flex flex-column align-items-center justify-content-center" style="background-color: #f8f9fa; color: #383d41; padding: 10px; border-radius: 6px;">
                                     <div class="icon-circle mb-1"><i class="bi bi-shield-exclamation" style="font-size: 1.1rem;"></i></div>
-                                    <strong class="text-md mb-0">@ViewBag.tamperalert</strong>
+                                    <strong class="text-md mb-0" data-dashboard-field="alertTamper" data-dashboard-section="middle">0</strong>
                                     <span style="font-size: 0.65rem; text-align: center; line-height: 1;">Tamper Alert</span>
                                 </div>
                                 <div class="alerts-summary-box purple d-flex flex-column align-items-center justify-content-center" style="background-color: #f3e8ff; color: #553c9a; padding: 10px; border-radius: 6px;">
                                     <div class="icon-circle mb-1"><i class="bi bi-bus-front-fill" style="font-size: 1.1rem;"></i></div>
-                                        <strong class="text-md mb-0">@ViewBag.harshcount</strong>
+                                        <strong class="text-md mb-0" data-dashboard-field="alertHarsh" data-dashboard-section="middle">0</strong>
                                     <span style="font-size: 0.65rem; text-align: center; line-height: 1;">Harsh Driving</span>
                                 </div>
 
@@ -629,70 +536,8 @@ var groupedVehicles = (ViewBag.vehicleserve as List<VehicleInService>
                                             <th style="padding: 4px 2px;">Status</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-@if (alert != null && alert.Any())
-{
-     foreach (var item in alert.Take(4))
-    {
-        <tr class="pb-3">
-           <td>
-    <span class="fw-semibold text-dark">
-                                                                @item.msg_status
-    </span>
-</td>
-
-                                                        <td style="white-space: normal; word-break: break-word; max-width: 150px;">
-    @{
-        string message = item.Message ?? "";
-        string displayMessage = "";
-
-        var words = message.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        // Find the word immediately after "vehicle"
-        int vehicleIndex = Array.FindIndex(words,
-            w => w.Equals("vehicle", StringComparison.OrdinalIgnoreCase));
-
-        if (vehicleIndex >= 0 && vehicleIndex + 1 < words.Length)
-        {
-            displayMessage = words[vehicleIndex + 1];
-        }
-    }
-
-    @displayMessage
-</td>
-
-<td>
-    @item.sent_on.ToString("dd-MMM-yyyy hh:mm tt")
-</td>
-
-<td>
-    @if (item.is_read  == 1)
-{
-    <span class=" border-0 border-success text-success px-2 py-1">
-Seen    </span>
-}
-else
-{
-    <span class="  border-0 border-danger text-danger px-2 py-1">
-        Unseen
-    </span>
-}
-    
-</td>
-        </tr>
-    }
-}
-else
-{
-
-                                                <tr class="empty-row">
-                                                    <td colspan="4">
-                                                        No alerts found for Today.
-                                                    </td>
-                                                </tr>
-
-}
-</tbody>
+                                    <tbody id="alertsCardBody" data-dashboard-slot data-dashboard-section="middle" data-dashboard-colspan="4">
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -722,92 +567,8 @@ else
                                         <th style="padding: 4px 2px;">ETA</th>
                                     </tr>
                                 </thead>
-                               <tbody>
-   
-
- @if (routePerformance != null && routePerformance.Any())
-    {
-    
-        foreach (var item in routePerformance.Take(4))
-        {
-            string statusClass = "text-secondary";
-            string bgClass = "#e9ecef";
-
-            switch (item.RouteStatus)
-            {
-                case "On Time":
-                    statusClass = "text-success";
-                    bgClass = "#e0f8e9";
-                    break;
-
-                case "Delayed":
-                    statusClass = "text-warning";
-                    bgClass = "#fff3cd";
-                    break;
-
-                case "Route Time Completed":
-                    statusClass = "text-primary";
-                    bgClass = "#dbeafe";
-                    break;
-
-                case "Not Started":
-                    statusClass = "text-secondary";
-                    bgClass = "#f1f3f5";
-                    break;
-            }
-
-            <tr>
-                <td style="padding: 4px 2px;"  class="fw-bold text-dark">
-                    @item.Route
-                </td>
-
-                <td style="padding: 4px 2px;">
-    
-@{
-    var vehicle = item.Vehicle ?? "";
-
-    for (int i = 0; i < vehicle.Length; i += 8)
-    {
-        var length = Math.Min(8, vehicle.Length - i);
-        @vehicle.Substring(i, length)
-
-        if (i + 8 < vehicle.Length)
-        {
-            <br />
-        }
-    }
-}
-</td>
-                <td style="padding: 4px 2px; text-align:center">
-                    @item.Students
-                </td>
-
-                <td style="padding: 4px 2px;">
-                    <span class="@statusClass fw-semibold"
-                          style="font-size:0.55rem;background:@bgClass;padding:2px 4px;border-radius:4px;">
-                        @item.RouteStatus
-                    </span>
-                </td>
-
-                <td style="padding: 4px 2px;">
-                    @(item.ETA == "0" ? "0 Min" :
-                      item.ETA == "N/A" ? "N/A" :
-                      item.EtaDifferenceMinutes.HasValue
-                            ? $"{Math.Abs(item.EtaDifferenceMinutes.Value)} Min"
-                            : item.ETA)
-                </td>
-            </tr>
-        }
-    }
-    else
-    {
-        <tr>
-            <td colspan="5" class="text-center text-muted py-3">
-                No Route Data Available
-            </td>
-        </tr>
-    }
-</tbody>
+                               <tbody id="routePerformanceCardBody" data-dashboard-slot data-dashboard-section="middle" data-dashboard-colspan="5">
+                               </tbody>
                             </table>
                         </div>
                     </div>
@@ -845,58 +606,7 @@ else
                                 </tr>
                             </thead>
 
-                            <tbody>
-                                @if (ViewBag.DriverPerformance != null &&
-    ((IEnumerable<SchoolBuddy.Models.Driver.DriverPerformanceModel>)ViewBag.DriverPerformance).Count() > 0)
-                                {
-                                    foreach (SchoolBuddy.Models.Driver.DriverPerformanceModel driver in ((IEnumerable<SchoolBuddy.Models.Driver.DriverPerformanceModel>)ViewBag.DriverPerformance).Take(4))
-                                    {
-                                        <tr>
-                                            <td class="fw-bold text-dark">@driver.DriverName</td>
-
-                                            <td class="text-muted" style="line-height:1.2;">
-                                                @{
-                                                    var busName = string.IsNullOrWhiteSpace(driver.BusName) ? "-" : driver.BusName;
-
-                                                    var match = System.Text.RegularExpressions.Regex.Match(busName, @"^(.*?\d{4})(.*)$");
-
-                                                    @if (match.Success)
-                                                    {
-                                                        @match.Groups[1].Value
-                                                        <br />
-                                                        @match.Groups[2].Value
-                                                    }
-                                                    else
-                                                    {
-                                                        @(string.IsNullOrWhiteSpace(busName) || busName == "-" ? "N/A" : busName)
-                                                    }
-                                                }
-                                            </td>
-
-                                            <td>
-                                                <span class="sb-badge @(driver.DriverStatus == "Active"
-                                                                              ? "sb-badge-success"
-                                                                              : "sb-badge-secondary")">
-                                                    @driver.DriverStatus
-                                                </span>
-                                            </td>
-
-                                            <td class="@(driver.BusStatus == "Running"
-                                                                    ? "fw-semibold text-dark"
-                                                                    : "text-muted")">
-                                                @driver.BusStatus
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted">
-                                            No driver data available
-                                        </td>
-                                    </tr>
-                                }
+                            <tbody id="driverMonitoringCardBody" data-dashboard-slot data-dashboard-section="bottom" data-dashboard-colspan="4">
                             </tbody>
                         </table>
                     </div>
@@ -926,89 +636,7 @@ else
                                     </tr>
                                 </thead>
 
-                                <tbody>
-                                    @{
-                                        var vehicleHealth = ViewBag.VehicleHealth as List<VehicleHealthModel>;
-                                    }
-
-                                    @if (vehicleHealth != null && vehicleHealth.Any())
-                                    {
-                                        foreach (var item in vehicleHealth.Take(4))
-                                        {
-                                            TimeSpan diff = DateTime.Now - item.DateTime.AddMinutes(330);
-
-                                            string lastUpdate;
-
-                                            if (diff.TotalSeconds < 60)
-                                            {
-                                                lastUpdate = $"{diff.Seconds} sec ago";
-                                            }
-                                            else if (diff.TotalMinutes < 60)
-                                            {
-                                                lastUpdate = $"{diff.Minutes} min ago";
-                                            }
-                                            else if (diff.TotalHours < 24)
-                                            {
-                                                lastUpdate = $"{diff.Hours} hr ago";
-                                            }
-                                            else
-                                            {
-                                                lastUpdate = $"{diff.Days} day(s) ago";
-                                            }
-
-                                            decimal battery = 0;
-                                            decimal.TryParse(item.battery_percent, out battery);
-
-                                            string batteryClass = battery >= 60
-                                                ? "text-success"
-                                                : battery >= 30
-                                                    ? "text-warning"
-                                                    : "text-danger";
-
-                                            <tr >
-                                           <td class="fw-bold text-dark" style="white-space: nowrap; font-size:10px;">
-    @{
-        var vehicle = string.IsNullOrWhiteSpace(item.Id) ? "N/A" : item.Id;
-    }
-
-    @if (vehicle.Length > 8)
-    {
-        @vehicle.Substring(0, 8)
-        <br />
-        @vehicle.Substring(8)
-    }
-    else
-    {
-        @vehicle
-    }
-</td>
-
-                                                <td style="text-align:center">
-                                                    @(string.IsNullOrWhiteSpace(item.Temperature)
-                                                        ? "N/A"
-                                                        : item.Temperature)
-                                                </td>
-
-                                                <td class="@batteryClass fw-semibold">
-                                                    @(string.IsNullOrWhiteSpace(item.battery_percent)
-                                                        ? "N/A"
-                                                        : item.battery_percent + "%")
-                                                </td>
-
-                                                <td class="text-muted">
-                                                    @lastUpdate
-                                                </td>
-                                            </tr>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted py-3">
-                                                No Data Found
-                                            </td>
-                                        </tr>
-                                    }
+                                <tbody id="vehicleHealthCardBody" data-dashboard-slot data-dashboard-section="bottom" data-dashboard-colspan="4">
                                 </tbody>
                             </table>
                         </div>
@@ -1032,76 +660,35 @@ else
                             <div>
                                 <div class="sb-list-item">
                                     <span><i class="bi bi-check-circle-fill me-2 text-success"></i>Boarding Alerts</span>
-                                    <strong class="text-dark">@ViewBag.BoardingCount</strong>
+                                    <strong class="text-dark" data-dashboard-field="notifyBoarding" data-dashboard-section="bottom">0</strong>
                                 </div>
                                 <div class="sb-list-item">
                                     <span><i class="bi bi-bus-front-fill me-2 text-primary"></i>Deboarding Alerts</span>
-                                    <strong class="text-dark">@ViewBag.DeboardingCount</strong>
+                                    <strong class="text-dark" data-dashboard-field="notifyDeboarding" data-dashboard-section="bottom">0</strong>
                                 </div>
                                 <div class="sb-list-item">
                                     <span>
     <i class="bi bi-person-up me-2 text-success"></i>
     Pick Notifications
 </span>
-                                    <strong class="text-dark">@ViewBag.PickReachCount</strong>
+                                    <strong class="text-dark" data-dashboard-field="notifyPick" data-dashboard-section="bottom">0</strong>
                                 </div>
                                 <div class="sb-list-item">
                                    <span>
     <i class="bi bi-person-down me-2 text-primary"></i>
 Drop Notifications</span>
-                                    <strong class="text-dark">@ViewBag.DropReachCount</strong>
+                                    <strong class="text-dark" data-dashboard-field="notifyDrop" data-dashboard-section="bottom">0</strong>
                                 </div>
                                 <div class="sb-list-item">
                                    <span>
     <i class="bi bi-bus-front text-secondary"></i>
 Punched Notifications</span>
-                                    <strong class="text-dark">@ViewBag.justPunched</strong>
+                                    <strong class="text-dark" data-dashboard-field="notifyPunched" data-dashboard-section="bottom">0</strong>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-2" style="background-color: #eff6ff; padding: 0.5rem 0.75rem; border-radius: 6px;">
                                 <span class="fw-bold text-primary text-xs">Total Sent Today</span>
-                                @{
-    int boardingCount = 0;
-    int deboardingCount = 0;
-    int pickReachCount = 0;
-    int dropReachCount = 0;
-    int JustPunched=0;
-
-    int.TryParse(
-        ViewBag.BoardingCount?.ToString(),
-        out boardingCount
-    );
-
-    int.TryParse(
-        ViewBag.DeboardingCount?.ToString(),
-        out deboardingCount
-    );
-
-    int.TryParse(
-        ViewBag.PickReachCount?.ToString(),
-        out pickReachCount
-    );
-
-    int.TryParse(
-        ViewBag.DropReachCount?.ToString(),
-        out dropReachCount
-    );
-    int.TryParse(
-        ViewBag.justPunched?.ToString(),
-        out JustPunched
-    );
-
-
-    int totalSentToday =
-        boardingCount +
-        deboardingCount +
-        pickReachCount +
-        dropReachCount+ JustPunched;
-}
-
-<strong class="text-primary font-monospace fs-6">
-    @totalSentToday
-</strong>
+                                <strong class="text-primary font-monospace fs-6" data-dashboard-field="notifyTotal" data-dashboard-section="bottom">0</strong>
                             </div>
                         </div>
                     </div>
@@ -1165,9 +752,12 @@ Punched Notifications</span>
         <div class="modal-content">
 
             <div class="modal-header">
-                <h5 class="modal-title" id="vehicleInServiceModalLabel">
-                    Vehicle In Service (@uniqueVehicleCount)
-                </h5>
+                <div class="flex-grow-1">
+                    <h5 class="modal-title" id="vehicleInServiceModalLabel">
+                        Vehicle In Service (<span data-dashboard-field="vehiclesInService" data-dashboard-section="top">0</span>)
+                    </h5>
+                    <div class="modal-subtitle">Today's active vehicles</div>
+                </div>
 
                 <button type="button"
                         class="btn-close btn-close-black"
@@ -1190,57 +780,7 @@ Punched Notifications</span>
                         </tr>
                     </thead>
 
-                   <tbody>
-    @{
-        int snov = 1;
-    }
-
-    @foreach (var item in groupedVehicles)
-    {
-        <tr>
-            <td class="text-center">@snov</td>
-
-            <td>@item.VehReg</td>
-
-          
-
-            <td>
-                @if (item.Routes.Any())
-                {
-                    <ul class="mb-0 ps-3">
-                        @foreach (var route in item.Routes)
-                        {
-                            <li>@route</li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <span class="text-muted">No Route</span>
-                }
-            </td>
-
-            <td>@item.MaximumSpeedToday</td>
-
-            <td>
-                @{
-                    DateTime lastTime;
-
-                    if (DateTime.TryParse(item.LastRunningTime, out lastTime))
-                    {
-                        @lastTime.ToString("dd-MM-yyyy hh:mm tt")
-                    }
-                    else
-                    {
-                        @item.LastRunningTime
-                    }
-                }
-            </td>
-        </tr>
-
-        snov++;
-    }
-</tbody>
+                   <tbody id="vehicleInServiceTableBody"></tbody>
 
                 </table>
 
@@ -1560,162 +1100,7 @@ value="@DateTime.Now.ToString("yyyy-MM-dd")"
                             </tr>
                         </thead>
 
-                        <tbody>
-
-                            @if (routePerformance != null &&
-                                 routePerformance.Any())
-                            {
-                                foreach (var item in routePerformance)
-                                {
-                                    string routeTextClass = "text-secondary";
-                                    string routeBackground = "#f1f3f5";
-
-                                    switch (item.RouteStatus)
-                                    {
-                                        case "On Time":
-                                            routeTextClass = "text-success";
-                                            routeBackground = "#e0f8e9";
-                                            break;
-
-                                        case "Delayed":
-                                            routeTextClass = "text-warning";
-                                            routeBackground = "#fff3cd";
-                                            break;
-
-                                        case "Route Time Completed":
-                                            routeTextClass = "text-primary";
-                                            routeBackground = "#dbeafe";
-                                            break;
-
-                                        case "Not Started":
-                                            routeTextClass = "text-secondary";
-                                            routeBackground = "#f1f3f5";
-                                            break;
-                                    }
-
-                                    string liveTextClass = "text-secondary";
-                                    string liveBackground = "#f1f3f5";
-
-                                    switch (item.VehicleLiveStatus)
-                                    {
-                                        case "Running":
-                                            liveTextClass = "text-success";
-                                            liveBackground = "#e0f8e9";
-                                            break;
-
-                                        case "Idle":
-                                            liveTextClass = "text-warning";
-                                            liveBackground = "#fff3cd";
-                                            break;
-
-                                        case "Stopped":
-                                            liveTextClass = "text-danger";
-                                            liveBackground = "#fde2e2";
-                                            break;
-
-                                        case "Offline":
-                                            liveTextClass = "text-secondary";
-                                            liveBackground = "#e9ecef";
-                                            break;
-                                    case "Live":
-        liveBackground = "bg-success";
-        liveTextClass = "text-white";
-        break;
-                                    }
-
-                                    <tr>
-                                        <td class="fw-bold text-dark">
-                                            @item.Route
-                                        </td>
-
-                                        <td>
-                                            @{
-                                                var vehicle = item.Vehicle ?? "";
-
-                                                if (vehicle.Contains("-"))
-                                                {
-                                                    var index =
-                                                        vehicle.IndexOf("-");
-
-                                                    @vehicle.Substring(0, index)
-                                                    <br />
-                                                    @vehicle.Substring(index)
-                                                }
-                                                else
-                                                {
-                                                    @vehicle
-                                                }
-                                            }
-                                        </td>
-
-                                        <td class="text-center">
-                                            @item.Students
-                                        </td>
-
-                                        <td>
-                                            @item.StartTime
-                                        </td>
-
-                                        <td>
-                                            @item.EndTime
-                                        </td>
-
-                                        <td>
-                                            @item.StopName
-                                        </td>
-
-                                        <td>
-                                            @if (item.RouteStatus == "Route Time Completed")
-                                            {
-                                                <span>0 Min</span>
-                                            }
-                                            else if (item.ETA == "N/A")
-                                            {
-                                                <span class="text-muted">
-                                                    N/A
-                                                </span>
-                                            }
-                                            else if (item.EtaDifferenceMinutes.HasValue)
-                                            {
-                                                <span>
-                                                    @Math.Abs(
-                                                        item.EtaDifferenceMinutes.Value
-                                                    ) Min
-                                                </span>
-                                            }
-                                            else
-                                            {
-                                                <span>@item.ETA</span>
-                                            }
-                                        </td>
-
-                                        <td>
-                                            <span class="@routeTextClass fw-semibold"
-                                                  style="font-size:0.72rem;
-                                                         background:@routeBackground;
-                                                         padding:5px 9px;
-                                                         border-radius:5px;
-                                                         white-space:nowrap;">
-                                                @item.RouteStatus
-                                            </span>
-                                        </td>
-
-                                        <td>
-                                            <span class="@liveTextClass fw-semibold"
-                                                  style="font-size:0.72rem;
-                                                         background:@liveBackground;
-                                                         padding:5px 9px;
-                                                         border-radius:5px;
-                                                         white-space:nowrap;">
-                                                @item.VehicleLiveStatus
-                                            </span>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                          
-
-                        </tbody>
+                        <tbody id="routePerformanceModalBody"></tbody>
 
                     </table>
 
@@ -1779,109 +1164,7 @@ value="@DateTime.Now.ToString("yyyy-MM-dd")"
                                 </tr>
                             </thead>
 
-                          <tbody>
-    @{
-        int sno = 1;
-
-        var vehicles = ViewBag.VehicleHealth
-            as IEnumerable<SchoolBuddy.Models.Dashboard.VehicleHealthModel>;
-    }
-
-    @if (vehicles != null && vehicles.Any())
-    {
-        foreach (var vehicle in vehicles)
-        {
-            var vehicleName = string.IsNullOrWhiteSpace(vehicle.Id)
-                ? "N/A"
-                : vehicle.Id;
-
-            var match = System.Text.RegularExpressions.Regex.Match(
-                vehicleName,
-                @"^(.*?\d{4})(.*)$");
-
-            DateTime istTime = vehicle.DateTime.AddMinutes(330);
-            TimeSpan diff = DateTime.Now - istTime;
-
-            string lastUpdate;
-
-            if (diff.TotalSeconds < 60)
-            {
-                lastUpdate = $"{Math.Max(0, (int)diff.TotalSeconds)} sec ago";
-            }
-            else if (diff.TotalMinutes < 60)
-            {
-                lastUpdate = $"{(int)diff.TotalMinutes} min ago";
-            }
-            else if (diff.TotalHours < 24)
-            {
-                lastUpdate = $"{(int)diff.TotalHours} hr ago";
-            }
-            else
-            {
-                lastUpdate = $"{(int)diff.TotalDays} day(s) ago";
-            }
-
-            decimal battery = 0;
-
-            bool hasBattery = decimal.TryParse(
-                vehicle.battery_percent,
-                out battery);
-
-            <tr>
-                <td class="text-center">
-                    @sno
-                </td>
-
-                <td class="fw-bold text-dark" style="line-height:1.2;">
-                    @if (match.Success)
-                    {
-                        @match.Groups[1].Value
-
-                        @if (!string.IsNullOrWhiteSpace(match.Groups[2].Value))
-                        {
-                            <br />
-                            @match.Groups[2].Value
-                        }
-                    }
-                    else
-                    {
-                        @(vehicleName == "-" ? "N/A" : vehicleName)
-                    }
-                </td>
-
-                <td class="text-muted">
-                    @(string.IsNullOrWhiteSpace(vehicle.Temperature)
-                        ? "N/A"
-                        : vehicle.Temperature)
-                </td>
-
-                <td class="@(hasBattery
-                    ? battery >= 60
-                        ? "text-success fw-semibold"
-                        : battery >= 30
-                            ? "text-warning fw-semibold"
-                            : "text-danger fw-semibold"
-                    : "text-muted")">
-
-                    @(hasBattery ? $"{battery}%" : "N/A")
-                </td>
-
-                <td>
-                    @(string.IsNullOrWhiteSpace(vehicle.remaining_fuel) ||
-                      vehicle.remaining_fuel == "N/A"
-                        ? "N/A"
-                        : vehicle.remaining_fuel)
-                </td>
-
-                <td class="text-muted">
-                    @lastUpdate
-                </td>
-            </tr>
-
-            sno++;
-        }
-    }
-</tbody>
+                          <tbody id="vehicleHealthModalBody"></tbody>
 
                         </table>
 
@@ -1983,54 +1266,7 @@ value="@DateTime.Now.ToString("yyyy-MM-dd")"
                                 </tr>
                             </thead>
 
-                           <tbody>
-@{
-    int srno = 1;
-}
-@foreach (SchoolBuddy.Models.Driver.DriverPerformanceModel driver
-    in ((IEnumerable<SchoolBuddy.Models.Driver.DriverPerformanceModel>)ViewBag.DriverPerformance))
-{
-   <tr>
-       <td>@srno</td>
-                                        <td class="text-muted" style="white-space: normal; word-break: break-word; max-width: 150px;">@driver.DriverName</td>
-
-                                            <td class="text-muted" style="line-height:1.2;">
-                                                @{
-                                                    var busName = string.IsNullOrWhiteSpace(driver.BusName) ? "-" : driver.BusName;
-
-                                                    var match = System.Text.RegularExpressions.Regex.Match(busName, @"^(.*?\d{4})(.*)$");
-
-                                                    @if (match.Success)
-                                                    {
-                                                        @match.Groups[1].Value
-                                                        <br />
-                                                        @match.Groups[2].Value
-                                                    }
-                                                    else
-                                                    {
-                                                        @(string.IsNullOrWhiteSpace(busName) || busName == "-" ? "N/A" : busName)
-                                                    }
-                                                }
-                                            </td>
-
-                                            <td>
-                                                <span class="sb-badge @(driver.DriverStatus == "Active"
-                                                                              ? "sb-badge-success"
-                                                                              : "sb-badge-secondary")">
-                                                    @driver.DriverStatus
-                                                </span>
-                                            </td>
-
-                                            <td class="@(driver.BusStatus == "Running"
-                                                                    ? "fw-semibold text-dark"
-                                                                    : "text-muted")">
-                                                @driver.BusStatus
-                                            </td>
-                                        </tr>
-
-    srno++;
-}
-</tbody>
+                           <tbody id="driverMonitoringModalBody"></tbody>
 
                         </table>
 
@@ -2336,10 +1572,7 @@ value="@DateTime.Now.ToString("yyyy-MM-dd")"
                                 <div class="dropdown-menu w-100 p-2 vehicle-summary-multiselect" aria-labelledby="vehicleSummaryVehicleButton">
                                     <label class="dropdown-item px-1"><input id="vehicleSummaryVehiclesAll" type="checkbox" class="form-check-input me-2">Select All</label>
                                     <div class="dropdown-divider"></div>
-                                    @foreach (var item in ViewBag.VehicleList)
-                                    {
-                                        <label class="dropdown-item px-1"><input type="checkbox" class="form-check-input me-2 vehicle-summary-vehicle" value="@item.Id">@item.Name</label>
-                                    }
+                                    <div id="vehicleSummaryVehicleList"></div>
                                 </div>
                             </div>
                         </div>
@@ -2383,20 +1616,17 @@ value="@DateTime.Now.ToString("yyyy-MM-dd")"
                                 <div class="dropdown-menu w-100 p-2 vehicle-summary-multiselect" aria-labelledby="distanceChartVehicleButton">
                                     <label class="dropdown-item px-1"><input id="distanceChartVehiclesAll" type="checkbox" class="form-check-input me-2">Select All</label>
                                     <div class="dropdown-divider"></div>
-                                    @foreach (var item in ViewBag.VehicleList)
-                                    {
-                                        <label class="dropdown-item px-1"><input type="checkbox" class="form-check-input me-2 distance-chart-vehicle" value="@item.Id">@item.Name</label>
-                                    }
+                                    <div id="distanceChartVehicleList"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="col-6">
                             <label for="distanceChartMinDistance" class="form-label">Minimum Distance (km)</label>
-                            <input type="number" id="distanceChartMinDistance" class="form-control" min="0" step="any" value="0">
+                            <input max="10000" type="number" id="distanceChartMinDistance" class="form-control" min="0" step="any" value="0">
                         </div>
                         <div class="col-6">
                             <label for="distanceChartMaxDistance" class="form-label">Maximum Distance (km)</label>
-                            <input type="number" id="distanceChartMaxDistance" class="form-control" min="0" step="any" value="10">
+                            <input max="10000" type="number" id="distanceChartMaxDistance" class="form-control" min="0" step="any" value="10">
                         </div>
                     </div>
                     <div class="row g-3">
@@ -2585,88 +1815,24 @@ value="@DateTime.Now.ToString("yyyy-MM-dd")"
 
 
 <script>
-    // Server values used by ~/js/dashboard/*.js
+    // Server values used by ~/js/dashboard/*.js.
+    // alerts and totalStudentCount are filled in by dashboard-lazy-load.js.
     window.sbDashboard = {
-        alerts: @Html.Raw(
-            JsonConvert.SerializeObject(
-                alert ?? new List<NotificationItem>(),
-                new JsonSerializerSettings {
-                    StringEscapeHandling = StringEscapeHandling.EscapeHtml
-                }
-            )
-        ),
+        alerts: [],
+        totalStudentCount: 0,
+        dashboardDataUrl: '@Url.Action("DashboardData", "Home")',
+        loginUrl: '@Url.Action("Index", "Home")',
         markNotificationAsReadUrl: '@Url.Action("MarkNotificationAsRead", "Home")',
-        filterNotificationsUrl: '@Url.Action("FilterNotifications", "Home")',
-        totalStudentCount: parseInt('@(Model?.totalstudentcount ?? "0")', 10) || 0
+        filterNotificationsUrl: '@Url.Action("FilterNotifications", "Home")'
     };
 </script>
+<script src="~/js/dashboard/dashboard-lazy-load.js" asp-append-version="true"></script>
 <script src="~/js/dashboard/modal-tables.js" asp-append-version="true"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <script src="~/js/dashboard/notification-datetime.js" asp-append-version="true"></script>
 <script src="~/js/dashboard/notifications.js" asp-append-version="true"></script>
 
 <script src="~/js/dashboard/tables.js" asp-append-version="true"></script>
-<script>
-       
-  
-    // Previous Logic Values
-
-    var totalBuses =
-        parseInt('@ViewData["total_bus"]') || 0;
-
-    var totalStopBuses =
-        parseInt('@ViewData["total_stopped"]') || 0;
-
-    var totalIdleBuses =
-        parseInt('@ViewData["total_idle"]') || 0;
-
-    var totalLiveRoute =
-        parseInt('@ViewData["total_running"]') || 0;
-
-    // Optional Values
-
-    var totalOverspeed =
-        parseInt('@ViewData["total_overspeed"]') || 0;
-
-    var totalSOS =
-        parseInt('@ViewData["total_sos"]') || 0;
-
-    // Same Old Formula
-
-    var offline =
-        totalBuses -
-        (totalStopBuses +
-         totalIdleBuses +
-         totalLiveRoute);
-
-    // Prevent Negative
-
-    if (offline < 0) {
-        offline = 0;
-    }
-
-    // Bind Values
-
-    document.getElementById("runningCount")
-        .innerText = totalLiveRoute;
-
-    document.getElementById("parkedCount")
-        .innerText = totalIdleBuses;
-
-    document.getElementById("offlineCount")
-        .innerText = offline;
-
-    document.getElementById("stoppedCount")
-        .innerText = totalStopBuses;
-
-    document.getElementById("overspeedCount")
-        .innerText = totalOverspeed;
-
-    document.getElementById("sosCount")
-        .innerText = totalSOS;
-
-</script>
-
  <script src="~/js/dashboard/dashboard-ui.js" asp-append-version="true"></script>
     <!--
         Legacy duplicate notification code.  The active implementation above owns

@@ -459,9 +459,9 @@ namespace SchoolBuddy.Controllers
 
             int maximumLength = field switch
             {
-                "full_name" => 150,
-                "company_name" => 200,
-                "address" => 500,
+                "full_name" => 100,
+                "company_name" => 100,
+                "address" => 250,
                 "email" => 254,
                 _ => 15
             };

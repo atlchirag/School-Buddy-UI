@@ -14,6 +14,7 @@ namespace SchoolBuddy.Models
         [StringLength(10, ErrorMessage = "Mobile number cannot exceed 10 characters")]
         public string mobile_no { get; set; }
         [Required]
+        [StringLength(250, ErrorMessage = "Address cannot exceed 250 characters")]
         public string address { get; set; }
 
         [Required(ErrorMessage = "In time is required")]
@@ -28,7 +29,7 @@ namespace SchoolBuddy.Models
         public int sys_user_id { get; set; }
         [Required(ErrorMessage = "Visitor name is required")]
         [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters")]
-        [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Only alphabets are allowed")]
+        [RegularExpression(ValidationPatterns.PersonName, ErrorMessage = ValidationPatterns.PersonNameMessage)]
         public string name { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

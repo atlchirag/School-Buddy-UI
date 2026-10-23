@@ -6,7 +6,7 @@ namespace SchoolBuddy.Models
     {
         [Required(ErrorMessage = "Visitor name is required")]
         [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters")]
-        [RegularExpression(@"^[a-zA-Z\s]+$", ErrorMessage = "Only alphabets are allowed")]
+        [RegularExpression(ValidationPatterns.PersonName, ErrorMessage = ValidationPatterns.PersonNameMessage)]
         public string Name { get; set; }
 
         [Required(ErrorMessage = "Mobile number is required")]

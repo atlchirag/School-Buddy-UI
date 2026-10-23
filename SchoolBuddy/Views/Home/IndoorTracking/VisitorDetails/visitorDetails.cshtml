@@ -159,7 +159,7 @@
                                     Name
                                 </label>
 
-                                <input type="text"
+                                <input minlength="2" maxlength="100" type="text"
                                        placeholder="Please Enter Name"
                                        class="form-control inputbackgroundcolor" />
 
@@ -171,7 +171,7 @@
                                     RFID
                                 </label>
 
-                                <input type="text"
+                                <input maxlength="50" type="text"
                                        placeholder="Please Enter RFID"
                                        class="form-control inputbackgroundcolor" />
 
@@ -206,7 +206,7 @@
                                     Visitor Name
                                 </label>
 
-                                <input type="text"
+                                <input minlength="2" maxlength="100" type="text"
                                        placeholder="Please Enter Visitor Name"
                                        class="form-control inputbackgroundcolor" />
 
@@ -218,7 +218,7 @@
                                     Visitor Mobile Number
                                 </label>
 
-                                <input type="number"
+                                <input minlength="10" maxlength="10" type="tel"
                                        placeholder="Please Enter Mobile Number"
                                        class="form-control inputbackgroundcolor" />
 
@@ -230,7 +230,7 @@
                                     Select Card
                                 </label>
 
-                                <input type="text"
+                                <input maxlength="50" type="text"
                                        placeholder="Please Enter Card Number"
                                        class="form-control inputbackgroundcolor" />
 
@@ -294,12 +294,11 @@
                                                     Visitor Name
                                                 </label>
 
-                                                <input asp-for="Name"
+                                                <input minlength="2" maxlength="100" asp-for="Name"
                                                        class="form-control"
-                                                       pattern="[A-Za-z]+"
+                                                       data-validate="personName"
                                                        type="text"
                                                        placeholder="Enter Visitor Name"
-                                                       maxlength="100"
                                                        required />
                                                 <span asp-validation-for="Name" class="text-danger"></span>
 
@@ -312,12 +311,11 @@
                                                     Mobile Number
                                                 </label>
 
-                                                <input asp-for="MobileNo"
+                                                <input minlength="10" maxlength="10" asp-for="MobileNo"
                                                        class="form-control"
                                                        type="tel"
                                                        inputmode="numeric"
                                                        pattern="[6-9][0-9]{9}"
-                                                       maxlength="10"
                                                        placeholder="Enter Mobile Number"
                                                        title="Enter a valid 10 digit mobile number starting with 6, 7, 8, or 9"
                                                        required />
@@ -332,7 +330,7 @@
                                                     Card Id
                                                 </label>
 
-                                                <input asp-for="CardId"
+                                                <input max="99999999" asp-for="CardId"
                                                        class="form-control"
                                                        type="number"
                                                        min="1"
@@ -350,9 +348,8 @@
                                                     Card Number
                                                 </label>
 
-                                                <input asp-for="CardNo"
+                                                <input maxlength="50" asp-for="CardNo"
                                                        class="form-control"
-                                                       maxlength="50"
                                                        placeholder="Enter Card Number"
                                                        required />
                                                 <span asp-validation-for="CardNo" class="text-danger"

@@ -3,6 +3,8 @@
 }   
 @model IEnumerable<holiday_list>
 <style>
+    
+
     #showholidays thead th {
         background-color: #0f2d4e !important;
         color: white !important;
@@ -28,7 +30,7 @@
             </div>
             <div class="card-body rounded" style="background-color:white">
                 <div class="layout divmarginoutsideicon">
-                    <a class="btn btn-sm" asp-controller="Home" asp-action="CreateHoliday" title="Add Holiday" style="padding:0px">
+                    <a class="btn btn-sm " asp-controller="Home" asp-action="CreateHoliday" title="Add Holiday" style="padding:0px">
                         <i style="font-size:36px" class="ri-add-circle-line center" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -60,7 +62,7 @@
                                             <td class="text-center">@holiday.from_date</td>
                                             <td class="text-center">@holiday.to_date</td>
                                             <td class="text-center">@holiday.description</td>
-                                            <td class="text-center">
+                                            <td class="text-center fs-6">
                                                 <!-- Edit Button -->
                                                 <a href="#" class="edit-holiday"
                                                    data-id="@holiday.id"
@@ -68,7 +70,7 @@
                                                    data-end="@holiday.to_date"
                                                    data-event="@holiday.description"
                                                    data-status="@holiday.status">
-                                                    <i class="ri-edit-box-line text-info tableicon"></i>
+                                                    <i class="bi bi-pencil-square text-info tableicon"></i>
                                                 </a>
                                                 <!-- Delete Button -->
                                                 <a href="#" class="delete-holiday" data-id="@holiday.id">
@@ -129,7 +131,7 @@
                         <label>Name of Holiday/Event</label>
                     </div>
                     <div class="col-lg-6">
-                        <input id="eventname" class="form-control" type="text" />
+                        <input minlength="2" maxlength="100" id="eventname" class="form-control" type="text" />
                     </div>
                 </div>
             </div>
@@ -172,6 +174,10 @@
 
             // Save or Update Holiday
             $("#saveHoliday").click(function () {
+                if (!SBFormLength.validate(document.getElementById("eventname"))) {
+                    return;
+                }
+
                 var id = $("#holidayId").val();
                 var eventName = $("#eventname").val();
                 var startDate = $("#start").val();
@@ -192,11 +198,19 @@
                     schoolid: schoolid, // Fetch schoolid dynamically
                     status: status
                 };
+                var holidayData = {
+                    id: id ? parseInt(id) : 0,
+                    start: startDate,
+                    end: endDate,
+                    eventname: eventName,
+                    schoolid: schoolid, // ✅ Fetch schoolid dynamically
+                    status: status
+                };
 
                 // console.log("Sending Data to API:", holidayData);
 
                 $.ajax({
-                    url: id ? "/schoolbuddy/Home/UpdateHoliday" : "/schoolbuddy/Home/AddHoliday",
+                    url: id ? "Home/UpdateHoliday" : "Home/AddHoliday",
                     type: "POST",
                     contentType: "application/json",
                     data: JSON.stringify(holidayData),

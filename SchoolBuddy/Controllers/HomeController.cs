@@ -154,7 +154,11 @@ namespace SchoolBuddy.Controllers
 
         }
         [HttpGet]
-        public async Task<IActionResult> Dashboard(Login login)
+        /*
+         * Returns the dashboard page straight away with placeholders.
+         * The page then calls DashboardData() to fill in the external API data.
+         */
+        public IActionResult Dashboard(Login login)
         {
             string? uid = HttpContext.Session.GetString("uid");
             string? db = HttpContext.Session.GetString("database");
@@ -168,6 +172,52 @@ namespace SchoolBuddy.Controllers
             {
                 return RedirectToAction("Index", "Home");
             }
+
+            ViewData["Admin"] = username;
+
+            return View(
+                "Views/Home/Dashboard/Dashboard.cshtml",
+                new Dashboard());
+        }
+
+        /*
+         * Lazy-loaded dashboard data, called by ~/js/dashboard/dashboard-lazy-load.js
+         * after the page is shown. The page asks for three sections at once and shows
+         * them top to bottom:
+         *   top    - KPI cards, upcoming holiday, fleet status counts, vehicles in service
+         *   middle - vehicle list, alerts, route performance
+         *   bottom - driver monitoring, vehicle health, parent notifications
+         * Only the APIs of the requested section are called. Returns that section's values
+         * as JSON; the page script builds the cards and table rows from them.
+         */
+        [HttpGet]
+        [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+        public async Task<IActionResult> DashboardData(string section)
+        {
+            string? uid = HttpContext.Session.GetString("uid");
+            string? db = HttpContext.Session.GetString("database");
+            string? password = HttpContext.Session.GetString("password");
+            string? username = HttpContext.Session.GetString("username");
+
+            if (string.IsNullOrWhiteSpace(uid) ||
+                string.IsNullOrWhiteSpace(db) ||
+                string.IsNullOrWhiteSpace(username) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                // The page script sends the user back to the login page.
+                return Unauthorized();
+            }
+
+            section = (section ?? string.Empty).ToLowerInvariant();
+
+            if (section != "top" && section != "middle" && section != "bottom")
+            {
+                return BadRequest();
+            }
+
+            bool loadTop = section == "top";
+            bool loadMiddle = section == "middle";
+            bool loadBottom = section == "bottom";
 
             try
             {
@@ -207,66 +257,85 @@ namespace SchoolBuddy.Controllers
                  * STEP 2:
                  * All these calls are independent, so start them together.
                  * Each one is timed and gets DashboardApiTimeout before its fallback is used.
+                 * Calls outside the requested section are skipped and use the fallback.
                  */
-                var vehicleHealthTask = WithDashboardTimeout("Vehicle_health",
-                    _dashboardRepository.Vehicle_health(trackofyToken),
-                    new List<VehicleHealthModel>());
+                var vehicleHealthTask = loadBottom
+                    ? WithDashboardTimeout("Vehicle_health",
+                        _dashboardRepository.Vehicle_health(trackofyToken), new List<VehicleHealthModel>())
+                    : Task.FromResult(new List<VehicleHealthModel>());
 
-                var totalStudentTask = WithDashboardTimeout("CountTotalStudentAPICall",
-                    _dashboardRepository.CountTotalStudentAPICall(uid), "0");
+                var totalStudentTask = loadTop
+                    ? WithDashboardTimeout("CountTotalStudentAPICall",
+                        _dashboardRepository.CountTotalStudentAPICall(uid), "0")
+                    : Task.FromResult("0");
 
-                var totalLiveRouteTask = WithDashboardTimeout("countTotalLiveRouteApiCall",
-                    _dashboardRepository.countTotalLiveRouteApiCall(uid, db), "0");
+                var totalLiveRouteTask = loadTop
+                    ? WithDashboardTimeout("countTotalLiveRouteApiCall",
+                        _dashboardRepository.countTotalLiveRouteApiCall(uid, db), "0")
+                    : Task.FromResult("0");
 
-                var totalBusTask = WithDashboardTimeout("countTotalBusApiCall",
-                    _dashboardRepository.countTotalBusApiCall(uid), "0");
+                var totalBusTask = loadTop
+                    ? WithDashboardTimeout("countTotalBusApiCall",
+                        _dashboardRepository.countTotalBusApiCall(uid), "0")
+                    : Task.FromResult("0");
 
-                var totalRouteTask = WithDashboardTimeout("counttotalrouteApiCall",
-                    _dashboardRepository.counttotalrouteApiCall(uid), "0");
+                var stoppedBusTask = loadTop
+                    ? WithDashboardTimeout("countStopBusesApiCall",
+                        _dashboardRepository.countStopBusesApiCall(uid), "0")
+                    : Task.FromResult("0");
 
-                var stoppedBusTask = WithDashboardTimeout("countStopBusesApiCall",
-                    _dashboardRepository.countStopBusesApiCall(uid), "0");
+                var idleBusTask = loadTop
+                    ? WithDashboardTimeout("countIdleBusApiCall",
+                        _dashboardRepository.countIdleBusApiCall(uid), "0")
+                    : Task.FromResult("0");
 
-                var idleBusTask = WithDashboardTimeout("countIdleBusApiCall",
-                    _dashboardRepository.countIdleBusApiCall(uid), "0");
+                var assignedStudentTask = loadTop
+                    ? WithDashboardTimeout("countassignedstudent",
+                        _dashboardRepository.countassignedstudent(uid), "0")
+                    : Task.FromResult("0");
 
-                var assignedStudentTask = WithDashboardTimeout("countassignedstudent",
-                    _dashboardRepository.countassignedstudent(uid), "0");
+                var driverPerformanceTask = loadBottom
+                    ? WithDashboardTimeout("DriverPerformance",
+                        _dashboardRepository.DriverPerformance(
+                            username,
+                            password), new driverdashboard { Status = false })
+                    : Task.FromResult(new driverdashboard { Status = false });
 
-                var driverPerformanceTask = WithDashboardTimeout("DriverPerformance",
-                    _dashboardRepository.DriverPerformance(
-                        username,
-                        password),
-                    new driverdashboard { Status = false });
+                var vehicleInServiceTask = loadTop
+                    ? WithDashboardTimeout("VehicleInServices",
+                        _dashboardRepository.VehicleInServices(uid, db), new List<VehicleInService>())
+                    : Task.FromResult(new List<VehicleInService>());
 
-                var vehicleInServiceTask = WithDashboardTimeout("VehicleInServices",
-                    _dashboardRepository.VehicleInServices(uid, db),
-                    new List<VehicleInService>());
+                var notificationTask = loadBottom
+                    ? WithDashboardTimeout("GetNotification",
+                        _report.GetNotification(
+                            uid,
+                            notificationDate,
+                            db), "[]")
+                    : Task.FromResult("[]");
 
-                var notificationTask = WithDashboardTimeout("GetNotification",
-                    _report.GetNotification(
-                        uid,
-                        notificationDate,
-                        db),
-                    "[]");
+                var alertTask = loadMiddle
+                    ? WithDashboardTimeout("Alerts",
+                        _dashboardRepository.Alerts(trackofyToken), new List<NotificationItem>())
+                    : Task.FromResult(new List<NotificationItem>());
 
-                var alertTask = WithDashboardTimeout("Alerts",
-                    _dashboardRepository.Alerts(trackofyToken),
-                    new List<NotificationItem>());
+                var routePerformanceTask = loadMiddle
+                    ? WithDashboardTimeout("RoutePerformance",
+                        _dashboardRepository.RoutePerformance(uid, db), new List<RouteLiveStatusModel>())
+                    : Task.FromResult(new List<RouteLiveStatusModel>());
 
-                var routePerformanceTask = WithDashboardTimeout("RoutePerformance",
-                    _dashboardRepository.RoutePerformance(uid, db),
-                    new List<RouteLiveStatusModel>());
+                var vehiclesTask = loadMiddle
+                    ? WithDashboardTimeout("GetVehiclesAsync",
+                        _tracking.GetVehiclesAsync(
+                            username,
+                            password,
+                            db, trackofyToken), new List<DeviceIdAndVehiclenew>())
+                    : Task.FromResult(new List<DeviceIdAndVehiclenew>());
 
-                var vehiclesTask = WithDashboardTimeout("GetVehiclesAsync",
-                    _tracking.GetVehiclesAsync(
-                        username,
-                        password,
-                        db, trackofyToken),
-                    new List<DeviceIdAndVehiclenew>());
-
-                var holidays = WithDashboardTimeout("GetHolidays",
-                    _holiday.GetHolidays(uid), "[]");
+                var holidays = loadTop
+                    ? WithDashboardTimeout("GetHolidays",
+                        _holiday.GetHolidays(uid), "[]")
+                    : Task.FromResult("[]");
 
 
                 /*
@@ -277,7 +346,6 @@ namespace SchoolBuddy.Controllers
                     totalStudentTask,
                     totalLiveRouteTask,
                     totalBusTask,
-                    totalRouteTask,
                     stoppedBusTask,
                     idleBusTask,
                     assignedStudentTask,
@@ -291,8 +359,8 @@ namespace SchoolBuddy.Controllers
                 );
 
                 _logger.LogInformation(
-                    "Dashboard data loaded in {ElapsedMs} ms",
-                    pageStopwatch.ElapsedMilliseconds);
+                    "Dashboard {Section} data loaded in {ElapsedMs} ms",
+                    section, pageStopwatch.ElapsedMilliseconds);
 
                 /*
                  * Read completed results.
@@ -322,11 +390,6 @@ namespace SchoolBuddy.Controllers
                     .OrderBy(x => DateTime.Parse(x.from_date))
                     .FirstOrDefault();
 
-                ViewBag.UpcomingHolidayName =
-                    upcomingHoliday?.description ?? "No Upcoming Holiday";
-
-                ViewBag.UpcomingHolidayDate =
-                    upcomingHoliday?.from_date ?? "";
                 var vehicleHealth =
                     await vehicleHealthTask ??
                     new List<VehicleHealthModel>();
@@ -339,9 +402,6 @@ namespace SchoolBuddy.Controllers
 
                 string totalBuses =
                     await totalBusTask ?? "0";
-
-                string totalRoute =
-                    await totalRouteTask ?? "0";
 
                 string totalStoppedBuses =
                     await stoppedBusTask ?? "0";
@@ -503,114 +563,145 @@ namespace SchoolBuddy.Controllers
                     justPunched = 0;
                 }
 
-                ViewBag.BoardingCount = boardingCount;
-                ViewBag.DeboardingCount = deboardingCount;
-                ViewBag.PickReachCount = pickReachCount;
-                ViewBag.DropReachCount = dropReachCount;
-                ViewBag.justPunched = justPunched;
-
                 /*
-                 * Alert counters.
+                 * Values for the requested section, as JSON. ~/js/dashboard/dashboard-lazy-load.js
+                 * puts "fields" into the page as text and builds the table rows from the lists.
                  */
-                ViewBag.harshcount = alerts.Count(item =>
+                int CountAlerts(string text) => alerts.Count(item =>
                     !string.IsNullOrWhiteSpace(item.msg_status) &&
-                    item.msg_status.Contains(
-                        "harsh",
-                        StringComparison.OrdinalIgnoreCase));
+                    item.msg_status.Contains(text, StringComparison.OrdinalIgnoreCase));
 
-                ViewBag.batterylow = alerts.Count(item =>
-                    !string.IsNullOrWhiteSpace(item.msg_status) &&
-                    item.msg_status.Contains(
-                        "Battery Low",
-                        StringComparison.OrdinalIgnoreCase));
+                object sectionData;
 
-                ViewBag.batterydisconnection = alerts.Count(item =>
-                    !string.IsNullOrWhiteSpace(item.msg_status) &&
-                    item.msg_status.Contains(
-                        "Battery dis",
-                        StringComparison.OrdinalIgnoreCase));
-
-                ViewBag.tamperalert = alerts.Count(item =>
-                    !string.IsNullOrWhiteSpace(item.msg_status) &&
-                    item.msg_status.Contains(
-                        "tamper",
-                        StringComparison.OrdinalIgnoreCase));
-
-                ViewData["total_sos"] = alerts.Count(item =>
-                    !string.IsNullOrWhiteSpace(item.msg_status) &&
-                    item.msg_status.Contains(
-                        "panic",
-                        StringComparison.OrdinalIgnoreCase));
-
-                ViewData["total_overspeed"] = alerts.Count(item =>
-                    !string.IsNullOrWhiteSpace(item.msg_status) &&
-                    item.msg_status.Contains(
-                        "speed",
-                        StringComparison.OrdinalIgnoreCase));
-
-                ViewBag.Alerts =
-                    alerts.Any()
-                        ? alerts
-                        : null;
-
-                /*
-                 * Driver Performance.
-                 */
-                if (driverPerformance != null &&
-                    driverPerformance.Status &&
-                    driverPerformance.Data != null)
+                if (loadTop)
                 {
-                    ViewBag.DriverPerformance =
-                        driverPerformance.Data;
+                    int busCount = ParseDashboardCount(totalBuses);
+                    int stoppedCount = ParseDashboardCount(totalStoppedBuses);
+                    int idleCount = ParseDashboardCount(totalIdleBuses);
+                    int liveRouteCount = ParseDashboardCount(totalLiveRoute);
+
+                    var vehiclesInService = vehicleInService
+                        .GroupBy(x => x.veh_reg)
+                        .Select(g => new
+                        {
+                            vehReg = g.Key,
+                            routes = g
+                                .Where(x => !string.IsNullOrWhiteSpace(x.route_name))
+                                .Select(x => x.route_name)
+                                .Distinct()
+                                .ToList(),
+                            maximumSpeedToday = g
+                                .Select(x => x.MaximumSpeedToday)
+                                .FirstOrDefault(),
+                            lastRunningTime = FormatLastRunningTime(g
+                                .OrderByDescending(x =>
+                                {
+                                    DateTime.TryParse(x.LastRunningTime, out var dt);
+                                    return dt;
+                                })
+                                .Select(x => x.LastRunningTime)
+                                .FirstOrDefault())
+                        })
+                        .ToList();
+
+                    double inServicePercent = busCount > 0
+                        ? (vehiclesInService.Count * 100.0) / busCount
+                        : 0;
+
+                    sectionData = new
+                    {
+                        totalStudentCount = ParseDashboardCount(totalStudent),
+                        assignedStudentCount = ParseDashboardCount(assignedStudents),
+                        upcomingHoliday = upcomingHoliday == null
+                            ? null
+                            : new { name = upcomingHoliday.description, date = upcomingHoliday.from_date },
+                        vehiclesInService,
+                        fields = new Dictionary<string, string>
+                        {
+                            ["totalStudents"] = totalStudent,
+                            ["assignedStudents"] = assignedStudents,
+                            ["totalBuses"] = totalBuses,
+                            ["liveRoutes"] = totalLiveRoute,
+                            ["vehiclesInService"] = vehiclesInService.Count.ToString(),
+                            ["vehiclesInServicePercent"] = inServicePercent.ToString("0.##"),
+                            ["fleetRunning"] = liveRouteCount.ToString(),
+                            ["fleetParked"] = idleCount.ToString(),
+                            ["fleetOffline"] = Math.Max(busCount - (stoppedCount + idleCount + liveRouteCount), 0).ToString(),
+                            ["fleetStopped"] = stoppedCount.ToString()
+                        }
+                    };
+                }
+                else if (loadMiddle)
+                {
+                    sectionData = new
+                    {
+                        // Original property names: ~/js/dashboard/notifications.js reads them too.
+                        alerts,
+                        vehicles = (vehicles ?? new List<DeviceIdAndVehiclenew>())
+                            .Select(v => new { id = v.Id, name = v.Name }),
+                        routePerformance = (routePerformance ?? new List<RouteLiveStatusModel>())
+                            .Select(r => new
+                            {
+                                route = r.Route,
+                                vehicle = r.Vehicle,
+                                students = r.Students,
+                                startTime = r.StartTime,
+                                endTime = r.EndTime,
+                                stopName = r.StopName,
+                                eta = r.ETA,
+                                etaDifferenceMinutes = r.EtaDifferenceMinutes,
+                                routeStatus = r.RouteStatus,
+                                vehicleLiveStatus = r.VehicleLiveStatus
+                            }),
+                        fields = new Dictionary<string, string>
+                        {
+                            ["fleetOverspeed"] = CountAlerts("speed").ToString(),
+                            ["fleetSos"] = CountAlerts("panic").ToString(),
+                            ["alertBatteryLow"] = CountAlerts("Battery Low").ToString(),
+                            ["alertBatteryOffline"] = CountAlerts("Battery dis").ToString(),
+                            ["alertTamper"] = CountAlerts("tamper").ToString(),
+                            ["alertHarsh"] = CountAlerts("harsh").ToString()
+                        }
+                    };
                 }
                 else
                 {
-                    ViewBag.DriverPerformance =
-                        Enumerable.Empty<SchoolBuddy.Models.Dashboard.DriverPerformanceModel>();
+                    var drivers =
+                        driverPerformance != null && driverPerformance.Status && driverPerformance.Data != null
+                            ? driverPerformance.Data
+                            : new List<SchoolBuddy.Models.Driver.DriverPerformanceModel>();
+
+                    sectionData = new
+                    {
+                        drivers = drivers.Select(d => new
+                        {
+                            driverName = d.DriverName,
+                            busName = d.BusName,
+                            driverStatus = d.DriverStatus,
+                            busStatus = d.BusStatus
+                        }),
+                        vehicleHealth = vehicleHealth.Select(v => new
+                        {
+                            id = v.Id,
+                            temperature = v.Temperature,
+                            batteryPercent = v.battery_percent,
+                            remainingFuel = v.remaining_fuel,
+                            lastUpdate = FormatLastUpdate(v.DateTime)
+                        }),
+                        fields = new Dictionary<string, string>
+                        {
+                            ["notifyBoarding"] = boardingCount.ToString(),
+                            ["notifyDeboarding"] = deboardingCount.ToString(),
+                            ["notifyPick"] = pickReachCount.ToString(),
+                            ["notifyDrop"] = dropReachCount.ToString(),
+                            ["notifyPunched"] = justPunched.ToString(),
+                            ["notifyTotal"] = (boardingCount + deboardingCount + pickReachCount + dropReachCount + justPunched).ToString()
+                        }
+                    };
                 }
 
-                /*
-                 * Remaining dashboard data.
-                 */
-                ViewBag.RoutePerformance =
-                    routePerformance;
-
-                ViewBag.vehicleserve =
-                    vehicleInService;
-
-                ViewBag.VehicleHealth =
-                    vehicleHealth;
-
-                ViewBag.VehicleList =
-                    vehicles;
-
-                ViewData["total_bus"] =
-                    totalBuses;
-
-                ViewData["total_running"] =
-                    totalLiveRoute;
-
-                ViewData["total_idle"] =
-                    totalIdleBuses;
-
-                ViewData["total_stopped"] =
-                    totalStoppedBuses;
-
-                ViewData["Admin"] =
-                    username;
-
-                var dashboardModel = new Dashboard
-                {
-                    assignedstudent = assignedStudents,
-                    totalstudentcount = totalStudent,
-                    totalroutecount = totalRoute,
-                    totalbuscount = totalBuses,
-                    totalliveroutecount = totalLiveRoute
-                };
-
-                return View(
-                    "Views/Home/Dashboard/Dashboard.cshtml",
-                    dashboardModel);
+                // Newtonsoft keeps the alert property names as declared (System.Text.Json would camel-case them).
+                return Content(JsonConvert.SerializeObject(sectionData), "application/json");
             }
             catch (Exception ex)
             {
@@ -618,59 +709,48 @@ namespace SchoolBuddy.Controllers
                 System.Diagnostics.Debug.WriteLine(
                     $"Dashboard loading error: {ex}");
 
-                /*
-                 * Keep the page available even if one external API fails.
-                 */
-                ViewBag.DriverPerformance =
-                    Enumerable.Empty<SchoolBuddy.Models.Dashboard.DriverPerformanceModel>();
-
-                ViewBag.RoutePerformance =
-                    new List<RouteLiveStatusModel>();
-
-                ViewBag.Alerts =
-                    new List<NotificationItem>();
-
-                ViewBag.vehicleserve =
-                    new List<VehicleInService>();
-
-                ViewBag.VehicleHealth =
-                    new List<VehicleHealthModel>();
-
-                ViewBag.VehicleList =
-                    new List<DeviceIdAndVehiclenew>();
-
-                ViewBag.BoardingCount = 0;
-                ViewBag.DeboardingCount = 0;
-                ViewBag.PickReachCount = 0;
-                ViewBag.DropReachCount = 0;
-
-                ViewData["total_bus"] = "0";
-                ViewData["total_running"] = "0";
-                ViewData["total_idle"] = "0";
-                ViewData["total_stopped"] = "0";
-                ViewData["total_sos"] = 0;
-                ViewData["total_overspeed"] = 0;
-
-                return View(
-                    "Views/Home/Dashboard/Dashboard.cshtml",
-                    new Dashboard
-                    {
-                        assignedstudent = "0",
-                        totalstudentcount = "0",
-                        totalroutecount = "0",
-                        totalbuscount = "0",
-                        totalliveroutecount = "0"
-                    });
+                // The page shows "Unable to load data. Retry" for this section only.
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
-        // How long the dashboard waits for one external API before showing its fallback value.
+
+        // Dashboard API counts arrive as strings; anything non-numeric counts as 0.
+        private static int ParseDashboardCount(string? value) =>
+            int.TryParse(value, out int number) ? number : 0;
+
+        // Vehicles In Service "Last Running Time" column.
+        private static string? FormatLastRunningTime(string? value) =>
+            DateTime.TryParse(value, out DateTime time)
+                ? time.ToString("dd-MM-yyyy hh:mm tt")
+                : value;
+
+        // Vehicle Health "Last Update" column; the API time is UTC, +330 minutes gives IST.
+        private static string FormatLastUpdate(DateTime time)
+        {
+            TimeSpan diff = DateTime.Now - time.AddMinutes(330);
+
+            if (diff.TotalSeconds < 60)
+            {
+                return $"{Math.Max(0, (int)diff.TotalSeconds)} sec ago";
+            }
+
+            if (diff.TotalMinutes < 60)
+            {
+                return $"{(int)diff.TotalMinutes} min ago";
+            }
+
+            if (diff.TotalHours < 24)
+            {
+                return $"{(int)diff.TotalHours} hr ago";
+            }
+
+            return $"{(int)diff.TotalDays} day(s) ago";
+        }
+
+
         private static readonly TimeSpan DashboardApiTimeout = TimeSpan.FromSeconds(30);
 
-        /*
-         * Waits up to DashboardApiTimeout for one dashboard API call and logs how long it took,
-         * so the slowest external API shows up in the logs. On timeout or error the fallback is
-         * returned and the page still loads.
-         */
+
         private async Task<T> WithDashboardTimeout<T>(string apiName, Task<T> call, T fallback)
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
@@ -1621,6 +1701,7 @@ namespace SchoolBuddy.Controllers
         {
             try
             {
+                
                 // Console.WriteLine($"Received Data: {JsonConvert.SerializeObject(holidayData)}");
 
                 if (holidayData == null || string.IsNullOrEmpty(holidayData.start) ||

@@ -175,7 +175,7 @@
                                <label>Message</label>
                            </div>
                            <div class="col-lg-6"></div>
-                           <input id="msg" class="form-control" type="text"/>
+                           <input minlength="2" maxlength="200" id="msg" class="form-control" type="text"/>
                            <div id="msgError" class="text-danger small mt-1" aria-live="polite"></div>
                        </div>
                         
@@ -191,7 +191,7 @@
                 </div>
                 <div class=row>
                     <div class=col-lg-12>
-                        <textarea id="reason" class="form-control"></textarea>
+                        <textarea minlength="5" maxlength="500" id="reason" class="form-control"></textarea>
                         <div id="reasonError" class="text-danger small mt-1" aria-live="polite"></div>
 
 
@@ -320,6 +320,12 @@
 
         function AddCommand(){
             clearCommandErrors();
+
+            if (!SBFormLength.validate(document.getElementById("msg")) ||
+                !SBFormLength.validate(document.getElementById("reason"))) {
+                return;
+            }
+
             var route_id = $('#routenames').val();
             var mssg = ($('#msg').val() || '').toString().trim();
             var reason = ($('#reason').val() || '').toString().trim();

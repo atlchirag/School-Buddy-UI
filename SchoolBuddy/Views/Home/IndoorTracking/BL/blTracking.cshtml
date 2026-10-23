@@ -17,11 +17,11 @@
                 <div class="row">
                     <div class="col-lg-3">
                         <label class="form-control">Student Roll No/Name<span class="required_">*</span></label>
-                        <input type="text" class="form-control inputbackgroundcolor" />
+                        <input minlength="2" maxlength="100" type="text" class="form-control inputbackgroundcolor" />
                     </div>
                     <div class="col-lg-3">
                         <label class="form-control">Anchor Unit<span class="required_">*</span></label>
-                        <input type="text" class="form-control inputbackgroundcolor" />
+                        <input maxlength="50" type="text" class="form-control inputbackgroundcolor" />
                     </div>
                     <div class="col-lg-2">
                         <label class="form-control">From Date<span class="required_">*</span></label>
@@ -52,7 +52,7 @@
 
                             <div style="position: absolute;right: 50px">
                                 <form class="input-group my-2 my-md-0 justify-content-lg-start " style="width:90vh;height:auto;align-items: center;">
-                                    <input autocomplete="off"
+                                    <input maxlength="100" autocomplete="off"
                                            type="search"
                                            class="form-control-sm rounded"
                                            placeholder='Search here...'

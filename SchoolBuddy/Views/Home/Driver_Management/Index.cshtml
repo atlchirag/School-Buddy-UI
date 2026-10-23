@@ -978,11 +978,10 @@ div.dt-buttons .dt-button i {
                                 <span class="text-danger">*</span>
                             </label>
 
-                            <input type="text"
+                            <input minlength="2" maxlength="100" type="text"
                                    id="driverName"
                                    name="name"
                                    class="form-control"
-                            maxlength="100"
                             placeholder="Enter Driver Name">
 
                             <small class="text-danger error"
@@ -996,11 +995,10 @@ div.dt-buttons .dt-button i {
                                 <span class="text-danger">*</span>
                             </label>
 
-                           <input type="text"
+                           <input minlength="10" maxlength="10" type="text"
        id="mobile"
        name="mobile"
        class="form-control"
-       maxlength="10"
        inputmode="numeric"
        autocomplete="off"
        placeholder="Enter Mobile Number">
@@ -1016,7 +1014,7 @@ div.dt-buttons .dt-button i {
                                 <span class="text-danger">*</span>
                             </label>
 
-                            <input type="email"
+                            <input minlength="5" maxlength="100" type="email"
                                    id="email"
                                     name="email"
                                    class="form-control"
@@ -1051,8 +1049,7 @@ div.dt-buttons .dt-button i {
                                 <span class="text-danger">*</span>
                             </label>
 
-                            <input type="text"
-                                   maxlength="10"
+                            <input minlength="10" maxlength="10" type="text"
                                    name="emergency_contact"
                                    id="emergency"
                                    class="form-control"
@@ -1069,7 +1066,7 @@ div.dt-buttons .dt-button i {
                                 <span class="text-danger">*</span>
                             </label>
 
-                            <input type="text"
+                            <input minlength="5" maxlength="20" type="text"
                                    id="dlNo"
                                     name="dl_number"
                                    class="form-control"
@@ -1149,10 +1146,9 @@ div.dt-buttons .dt-button i {
                                 <span class="text-danger">*</span>
                             </label>
 
-                            <textarea rows="3"
+                            <textarea minlength="5" maxlength="250" rows="3"
                                       id="address"
                                        name="address"
-                                      maxlength="250"
                                       class="form-control"
                              placeholder=" Address"></textarea>
 
@@ -1453,13 +1449,13 @@ div.dt-buttons .dt-button i {
                                 <div class="row">
 
                                     <div class="col-5">
-                                        <input type="number"
+                                        <input min="0" max="9999" type="number"
                                                class="form-control"
                                                placeholder="Limit">
                                     </div>
 
                                     <div class="col-5">
-                                        <input type="number"
+                                        <input min="0" max="9999" type="number"
                                                class="form-control"
                                                placeholder="Count">
                                     </div>
@@ -1481,12 +1477,12 @@ div.dt-buttons .dt-button i {
                                 <div class="row">
 
                                     <div class="col-5">
-                                        <input class="form-control"
+                                        <input maxlength="6" class="form-control"
                                                placeholder="Min">
                                     </div>
 
                                     <div class="col-5">
-                                        <input class="form-control"
+                                        <input maxlength="6" class="form-control"
                                                placeholder="Max">
                                     </div>
 
@@ -1506,10 +1502,10 @@ div.dt-buttons .dt-button i {
 
                                 <div class="row">
                                     <div class="col-5">
-                                        <input class="form-control" placeholder="Min">
+                                        <input maxlength="6" class="form-control" placeholder="Min">
                                     </div>
                                     <div class="col-5">
-                                        <input class="form-control" placeholder="Max">
+                                        <input maxlength="6" class="form-control" placeholder="Max">
                                     </div>
                                     <div class="col-2 text-end">
                                         <i class="bi bi-trash text-danger fs-4 removeCard"></i>
@@ -1527,10 +1523,10 @@ div.dt-buttons .dt-button i {
 
                                 <div class="row">
                                     <div class="col-5">
-                                        <input class="form-control" placeholder="Min">
+                                        <input maxlength="6" class="form-control" placeholder="Min">
                                     </div>
                                     <div class="col-5">
-                                        <input class="form-control" placeholder="Max">
+                                        <input maxlength="6" class="form-control" placeholder="Max">
                                     </div>
                                     <div class="col-2 text-end">
                                         <i class="bi bi-trash text-danger fs-4 removeCard"></i>
@@ -1548,10 +1544,10 @@ div.dt-buttons .dt-button i {
 
                                 <div class="row">
                                     <div class="col-5">
-                                        <input class="form-control" placeholder="Min">
+                                        <input maxlength="6" class="form-control" placeholder="Min">
                                     </div>
                                     <div class="col-5">
-                                        <input class="form-control" placeholder="Max">
+                                        <input maxlength="6" class="form-control" placeholder="Max">
                                     </div>
                                     <div class="col-2 text-end">
                                         <i class="bi bi-trash text-danger fs-4 removeCard"></i>
@@ -1569,7 +1565,7 @@ div.dt-buttons .dt-button i {
 
                                 <div class="row">
                                     <div class="col-10">
-                                        <input class="form-control" placeholder="Count">
+                                        <input maxlength="6" class="form-control" placeholder="Count">
                                     </div>
                                     <div class="col-2 text-end">
                                         <i class="bi bi-trash text-danger fs-4 removeCard"></i>
@@ -1587,7 +1583,7 @@ div.dt-buttons .dt-button i {
 
                                 <div class="row">
                                     <div class="col-10">
-                                        <input class="form-control" placeholder="Count">
+                                        <input maxlength="6" class="form-control" placeholder="Count">
                                     </div>
                                     <div class="col-2 text-end">
                                         <i class="bi bi-trash text-danger fs-4 removeCard"></i>
@@ -1605,7 +1601,7 @@ div.dt-buttons .dt-button i {
 
                                 <div class="row">
                                     <div class="col-10">
-                                        <input class="form-control" placeholder="Count">
+                                        <input maxlength="6" class="form-control" placeholder="Count">
                                     </div>
                                     <div class="col-2 text-end">
                                         <i class="bi bi-trash text-danger fs-4 removeCard"></i>
@@ -1893,6 +1889,12 @@ $("#saveDriverBtn").text("Save Driver");
             return false;
         }
 
+        if($("#driverName").val().trim().length>100)
+        {
+            showError("driverName","Driver Name cannot exceed 100 characters");
+            return false;
+        }
+
 
         showSuccess("driverName");
         return true;
@@ -2128,6 +2130,12 @@ $("#saveDriverBtn").text("Save Driver");
         if($("#address").val().trim()=="")
         {
             showError("address","Address is required");
+            return false;
+        }
+
+        if($("#address").val().trim().length>250)
+        {
+            showError("address","Address cannot exceed 250 characters");
             return false;
         }
 

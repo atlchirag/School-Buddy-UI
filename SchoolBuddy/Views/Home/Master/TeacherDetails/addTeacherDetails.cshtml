@@ -17,13 +17,13 @@
                         <div class="col-6">
                             <label>Teacher Name</label>
                             <span class="required_">*</span>
-                            <input asp-for="TeacherName" type="text" class="form-control inputbackgroundcolor" required>
+                            <input minlength="2" maxlength="100" asp-for="TeacherName" type="text" class="form-control inputbackgroundcolor" required>
                         </div>
 
                         <div class="col-6">
                             <label>Teacher Login ID</label>
                             <span class="required_">*</span>
-                            <input asp-for="TeacherLogin" type="text" class="form-control inputbackgroundcolor" required>
+                            <input minlength="3" maxlength="50" asp-for="TeacherLogin" type="text" class="form-control inputbackgroundcolor" required>
                         </div>
                     </div>
 
@@ -31,7 +31,7 @@
                         <div class="col-6">
                             <label>Password</label>
                             <span class="required_">*</span>
-                            <input asp-for="Password" type="password" class="form-control inputbackgroundcolor" required>
+                            <input minlength="6" maxlength="50" asp-for="Password" type="password" class="form-control inputbackgroundcolor" required>
                         </div>
                         <div class="col-6">
                             <label asp-for="ClassId">Class</label><span class="required_">*</span>
@@ -51,7 +51,7 @@
                         <div class="col-6">
                             <label>Division</label>
                             <span class="required_">*</span>
-                            <input asp-for="Section" type="text" class="form-control inputbackgroundcolor" required>
+                            <input maxlength="20" asp-for="Section" type="text" class="form-control inputbackgroundcolor" required>
                         </div>
                         <div class="col-6">
                             <label>Start Time</label>
@@ -92,13 +92,13 @@
                         <div class="col-6">
                             <label>Teacher Name</label>
                             <span class="required_">*</span>
-                            <input asp-for="TeacherName" type="text" class="form-control inputbackgroundcolor" required>
+                            <input minlength="2" maxlength="100" asp-for="TeacherName" type="text" class="form-control inputbackgroundcolor" required>
                         </div>
 
                         <div class="col-6">
                             <label>Teacher Login ID</label>
                             <span class="required_">*</span>
-                            <input asp-for="TeacherLogin" type="text" class="form-control inputbackgroundcolor" required>
+                            <input minlength="3" maxlength="50" asp-for="TeacherLogin" type="text" class="form-control inputbackgroundcolor" required>
                         </div>
                     </div>
 
@@ -106,7 +106,7 @@
                         <div class="col-6">
                             <label>Password</label>
                             <span class="required_">*</span>
-                            <input asp-for="Password" type="password" class="form-control inputbackgroundcolor" required>
+                            <input minlength="6" maxlength="50" asp-for="Password" type="password" class="form-control inputbackgroundcolor" required>
                         </div>
                         <div class="col-6">
                             <label asp-for="ClassId">Class</label><span class="required_">*</span>
@@ -127,7 +127,7 @@
                         <div class="col-6">
                             <label>Division</label>
                             <span class="required_">*</span>
-                            <input asp-for="Section" type="text" class="form-control inputbackgroundcolor" required>
+                            <input maxlength="20" asp-for="Section" type="text" class="form-control inputbackgroundcolor" required>
                         </div>
                         <div class="col-6">
                             <label>Start Time</label>

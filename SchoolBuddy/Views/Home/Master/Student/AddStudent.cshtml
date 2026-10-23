@@ -33,7 +33,7 @@
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
 
                             <label asp-for="student_name">Full Name</label><span class="required_">*</span>
-                            <input asp-for="student_name" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Student FullName" value="@(Model?.student_name??"")"  required />
+                            <input minlength="2" maxlength="100" asp-for="student_name" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Student FullName" value="@(Model?.student_name??"")"  required />
                             <div>
                                 <span asp-validation-for="student_name" class="text-danger"></span>
                             </div>
@@ -43,7 +43,7 @@
                         
                         @*<div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
                             <label asp-for="admission_no">Admission No.</label><span class="required_">*</span>
-                            <input asp-for="admission_no" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Admission No." value="@(Model?.admission_no??"")" />
+                            <input maxlength="50" asp-for="admission_no" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Admission No." value="@(Model?.admission_no??"")" />
                                 <div>
                                     <span asp-validation-for="admission_no" class="text-danger"></span>
                                 </div>
@@ -72,7 +72,7 @@
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
                             <label asp-for="admission_no">Admission No.</label><span class="required_">*</span>
-                            <input asp-for="admission_no" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Admission No." value="@(Model?.admission_no??"")" required/>
+                            <input maxlength="50" asp-for="admission_no" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Admission No." value="@(Model?.admission_no??"")" required/>
                             <div>
                                 <span asp-validation-for="admission_no" class="text-danger"></span>
                             </div>
@@ -104,7 +104,7 @@
                        
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
                             <label asp-for = "division">Division</label><span class="required_">*</span>
-                            <input asp-for="division" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Division" value="@(Model?.division??"")" required />
+                            <input maxlength="10" asp-for="division" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Division" value="@(Model?.division??"")" required />
                              <div>
                                 <span asp-validation-for="division" class="text-danger"></span>
                             </div>
@@ -222,7 +222,7 @@
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
                             <label asp-for="blood_group">Blood Group</label>
-                            <input asp-for="blood_group" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Student Blood Group" value="@(Model?.blood_group??"")" />
+                            <input minlength="2" maxlength="10" asp-for="blood_group" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Student Blood Group" value="@(Model?.blood_group??"")" />
                             <span asp-validation-for="blood_group" class="text-danger"></span>
 
                         </div>
@@ -238,7 +238,7 @@
                     <div class="row" style="margin-top: 15px;">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
                             <label asp-for="parent_name">Parent Name</label><span class="required_">*</span>
-                            <input required asp-for="parent_name" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Parent Name" value="@(Model?.parent_name??"")" />
+                            <input minlength="2" maxlength="100" required asp-for="parent_name" class="form-control inputbackgroundcolor" type="text" placeholder="Enter Parent Name" value="@(Model?.parent_name??"")" />
                             <div>
                                 <span asp-validation-for="parent_name" class="text-danger"></span>
                             </div>
@@ -247,7 +247,7 @@
                             <label asp-for="relation_with_std">Relation With Student</label><span class="required_">*</span>
                             @if (isEditMode)
                             {
-                                <input asp-for="relation_with_std"
+                                <input maxlength="50" asp-for="relation_with_std"
                                        class="form-control inputbackgroundcolor"
                                        type="text"
                                        placeholder="Please Select"
@@ -255,7 +255,7 @@
                             }
                             else
                             {
-                                <input asp-for="relation_with_std"
+                                <input maxlength="50" asp-for="relation_with_std"
                                        class="form-control inputbackgroundcolor"
                                        type="text"
                                        placeholder="Please Select"
@@ -302,17 +302,15 @@
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
                             <label asp-for="mobile_no1">Mobile No.</label><span class="required_">*</span>
                             @* <input required asp-for="mobile_no1" class="form-control inputbackgroundcolor" type="number" placeholder="Enter Mobile No." value="@(Model?.mobile_no1??"")"
-                                   maxlength="10"
                                    pattern="^[6-9][0-9]{9}$"
                                    
                                    title="Enter a valid 10-digit mobile number starting with 6-9" /> *@
-                                   <input required
+                                   <input minlength="10" maxlength="10" required
        asp-for="mobile_no1"
        class="form-control inputbackgroundcolor"
        type="text"
        placeholder="Enter Mobile No."
        value="@(Model?.mobile_no1 ?? "")"
-       maxlength="10"
        pattern="^[6-9][0-9]{9}$"
        oninput="this.value=this.value.replace(/[^0-9]/g,'')"
        title="Enter a valid 10-digit mobile number starting with 6-9" />
@@ -323,7 +321,7 @@
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xl-3">
                             <label asp-for="email">Email</label><span class="required_">*</span>
 
-                            <input required asp-for="email" class="form-control inputbackgroundcolor" type="email" placeholder="Enter Email Address" value="@(Model?.email??"")" />
+                            <input minlength="5" maxlength="100" required asp-for="email" class="form-control inputbackgroundcolor" type="email" placeholder="Enter Email Address" value="@(Model?.email??"")" />
                            <div>
                                 <span asp-validation-for="email" class="text-danger"></span>
                             </div>
@@ -361,19 +359,17 @@
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
                             <label asp-for="rf_id">RFID must be 8 characters (0-9, A-F only).</label>
-                            <input asp-for="rf_id" class="form-control inputbackgroundcolor" type="text" placeholder="Enter RFID (optional)" value="@(Model?.rf_id ?? "")" 
-                                   maxlength="8"
+                            <input minlength="8" maxlength="8" asp-for="rf_id" class="form-control inputbackgroundcolor" type="text" placeholder="Enter RFID (optional)" value="@(Model?.rf_id ?? "")"
                                    pattern="^[0-9A-Fa-f]{8}$"
                                    title="RFID must be exactly 8 characters (0-9, A-F only)"  />
                             
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xl-6">
                             <label asp-for="street">Address</label><span class="required_">*</span>
-<input required
+<input minlength="5" maxlength="250" required
        asp-for="street"
        class="form-control inputbackgroundcolor"
        type="text"
-       maxlength="150"
        placeholder="Complete Address" />                            <div>
                                 <span asp-validation-for="street" class="text-danger"></span>
                             </div>

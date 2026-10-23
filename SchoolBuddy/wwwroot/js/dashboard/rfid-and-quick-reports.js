@@ -11,6 +11,9 @@
         // First Load
         LoadRFIDData();
 
+        // Totals come from the lazy-loaded dashboard data (~/js/dashboard/dashboard-lazy-load.js).
+        window.sbDashboard.onData(updateAttendanceSummary);
+
 
         // Auto refresh every 200 seconds
         setInterval(function () {
@@ -24,6 +27,92 @@
 
 
 
+
+    // RFID counts from the last LoadRFIDData() call (null until the first one finishes).
+    let lastRfidCounts = null;
+
+    function updateAttendanceSummary() {
+
+        if (!lastRfidCounts) {
+            return;
+        }
+
+        const present = lastRfidCounts.present;
+        const pickedCount = lastRfidCounts.pickedCount;
+        const droppedCount = lastRfidCounts.droppedCount;
+
+        // Total students
+        const totalstudent =
+            window.sbDashboard.totalStudentCount;
+
+        // Absent students
+        const absentstudent =
+            Math.max(totalstudent - present, 0);
+
+        // Percentages
+        let presentPercentNumber = 0;
+        let absentPercentNumber = 0;
+
+        if (totalstudent > 0) {
+            presentPercentNumber =
+                (present / totalstudent) * 100;
+
+            absentPercentNumber =
+                (absentstudent / totalstudent) * 100;
+        }
+
+        // Formatted percentages for display
+        const presentPercent =
+            presentPercentNumber.toFixed(1);
+
+        const absentPercent =
+            absentPercentNumber.toFixed(1);
+
+        // Update SVG
+        document.getElementById("attendanceCircle")
+            ?.setAttribute(
+                "stroke-dasharray",
+                `${presentPercentNumber} ${absentPercentNumber}`
+            );
+
+        // Update center percentage
+        document.getElementById("attendancePercent")
+            .innerText = presentPercent + "%";
+
+        // Update present count
+        document.getElementById("presentCount")
+            .innerText =
+            present + " (" + presentPercent + "%)";
+
+        // Update absent count
+        document.getElementById("absentCount")
+            .innerText =
+            absentstudent + " (" + absentPercent + "%)";
+
+        // Update total students
+        document.getElementById("totalStudents")
+            .innerText = totalstudent;
+
+        // Student tracking counts
+        $("#studentabsent").text(absentstudent);
+        $("#studentPicked").text(pickedCount);
+        $("#studentDropped").text(droppedCount);
+
+        // Get assigned students
+        const totalAssigned =
+            parseInt($("#totalAssigned").val(), 10) || 0;
+
+        // Calculate pending values
+        const pendingPickup =
+            Math.max(totalAssigned - pickedCount, 0);
+
+        const pendingDrop =
+            Math.max(totalAssigned - droppedCount, 0);
+
+        // Display pending values
+        $("#pendingPickup").text(pendingPickup);
+        $("#pendingDrop").text(pendingDrop);
+    }
 
     function LoadRFIDData() {
 
@@ -83,77 +172,15 @@ response.forEach(function (item) {
 // Unique RFID count
 present = uniqueRfids.size;
 
-// Total students
-const totalstudent =
-    window.sbDashboard.totalStudentCount;
+// Attendance and student tracking also need the lazy-loaded dashboard totals,
+// so keep the RFID counts and recalculate when those totals arrive.
+lastRfidCounts = {
+    present: present,
+    pickedCount: pickedCount,
+    droppedCount: droppedCount
+};
 
-// Absent students
-const absentstudent =
-    Math.max(totalstudent - present, 0);
-
-// Percentages
-let presentPercentNumber = 0;
-let absentPercentNumber = 0;
-
-if (totalstudent > 0) {
-    presentPercentNumber =
-        (present / totalstudent) * 100;
-
-    absentPercentNumber =
-        (absentstudent / totalstudent) * 100;
-}
-
-// Formatted percentages for display
-const presentPercent =
-    presentPercentNumber.toFixed(1);
-
-const absentPercent =
-    absentPercentNumber.toFixed(1);
-
-// Update SVG
-document.getElementById("attendanceCircle")
-    ?.setAttribute(
-        "stroke-dasharray",
-        `${presentPercentNumber} ${absentPercentNumber}`
-    );
-
-// Update center percentage
-document.getElementById("attendancePercent")
-    .innerText = presentPercent + "%";
-
-// Update present count
-document.getElementById("presentCount")
-    .innerText =
-    present + " (" + presentPercent + "%)";
-
-// Update absent count
-document.getElementById("absentCount")
-    .innerText =
-    absentstudent + " (" + absentPercent + "%)";
-
-// Update total students
-document.getElementById("totalStudents")
-    .innerText = totalstudent;
-
-// Student tracking counts
-$("#studentabsent").text(absentstudent);
-$("#studentPicked").text(pickedCount);
-$("#studentDropped").text(droppedCount);
-
-// Get assigned students
-const totalAssigned =
-    parseInt($("#totalAssigned").val(), 10) || 0;
-
-// Calculate pending values
-const pendingPickup =
-    Math.max(totalAssigned - pickedCount, 0);
-
-const pendingDrop =
-    Math.max(totalAssigned - droppedCount, 0);
-
-// Display pending values
-$("#pendingPickup").text(pendingPickup);
-$("#pendingDrop").text(pendingDrop);
+updateAttendanceSummary();
 
 
 
@@ -1399,15 +1426,17 @@ document.addEventListener(
             document.querySelectorAll('.vehicle-summary-column').forEach(function (input) { input.checked = this.checked; }, this);
             updateVehicleSummaryMultiselectLabels();
         });
-        document.querySelectorAll('.vehicle-summary-vehicle, .vehicle-summary-column').forEach(function (input) {
-            input.addEventListener('change', updateVehicleSummaryMultiselectLabels);
-        });
         document.getElementById('distanceChartVehiclesAll')?.addEventListener('change', function () {
             document.querySelectorAll('.distance-chart-vehicle').forEach(function (input) { input.checked = this.checked; }, this);
             updateDistanceChartMultiselectLabel();
         });
-        document.querySelectorAll('.distance-chart-vehicle').forEach(function (input) {
-            input.addEventListener('change', updateDistanceChartMultiselectLabel);
+        // Delegated: the vehicle checkboxes are added later by the lazy-loaded dashboard data.
+        quickReportsForm.addEventListener('change', function (event) {
+            if (event.target.matches('.vehicle-summary-vehicle, .vehicle-summary-column')) {
+                updateVehicleSummaryMultiselectLabels();
+            } else if (event.target.matches('.distance-chart-vehicle')) {
+                updateDistanceChartMultiselectLabel();
+            }
         });
         document.querySelectorAll('.vehicle-summary-multiselect').forEach(function (menu) {
             menu.addEventListener('click', function (event) { event.stopPropagation(); });

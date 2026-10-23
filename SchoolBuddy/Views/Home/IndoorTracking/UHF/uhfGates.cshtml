@@ -24,7 +24,7 @@
                     </div>
                     <div class="col-lg-5 d-grid  gap-3">
                         <label class="form-control">Gate Number<span class="required_">*</span></label>
-                        <input type="text" class="form-control inputbackgroundcolor"/>
+                        <input maxlength="20" type="text" data-validate="code" class="form-control inputbackgroundcolor"/>
                     </div>
                     <div class="col-lg-2">
                         <button class="btn btn-sm" style="border: 2px solid;margin-top:37px;border-color: #0f2d4e;color:#0f2d4e">SAVE</button>
@@ -57,7 +57,7 @@
                             <!-- Search -->
                             <form class="d-flex align-items-center position-relative">
 
-                                <input autocomplete="off"
+                                <input maxlength="100" autocomplete="off"
                                        type="search"
                                        class="form-control form-control-sm rounded-pill pe-5"
                                        placeholder="Search here..."

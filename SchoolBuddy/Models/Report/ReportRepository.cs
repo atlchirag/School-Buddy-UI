@@ -31,7 +31,7 @@ namespace SchoolBuddy.Models.Report
                 ["distance-chart"] = "trackofy_distance_chart",
                 ["cumulative-distance"] = "trackofy_cummulative_distacnce",
                 ["vehicle-summary"] = "trackofy_vehicle_summary",
-                ["max-speed-chart"] = "trackofy_max_speed_chart",
+                ["max-speed-chart"] = "trackofy_max_spped_chart",
                 ["stoppage-summary"] = "trackofy_api_stoppage_summary",
                 ["running-summary"] = "trackofy_api_running_summary",
                 ["alerts"] = "trackofy_api_alerts",
@@ -227,6 +227,27 @@ namespace SchoolBuddy.Models.Report
             {
                 _logger.LogError("Idle Summary Report API returned HTTP {StatusCode}.", (int)response.StatusCode);
                 throw new HttpRequestException("The Idle Summary Report request failed.");
+            }
+            return responseContent;
+        }
+
+        public override async Task<string> GetDownloadReportsAsync(string token)
+        {
+            var url = _configuration["trackofy_api_downloads_reports"];
+            if (string.IsNullOrWhiteSpace(url))
+                throw new InvalidOperationException("The report downloads API URL is not configured.");
+
+            using var client = _httpClientFactory.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(30);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            using var response = await client.PostAsync(url, new StringContent("{}", Encoding.UTF8, "application/json"));
+            var responseContent = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                throw new UnauthorizedAccessException("The Trackofy authentication token was rejected.");
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Report downloads API returned HTTP {StatusCode}.", (int)response.StatusCode);
+                throw new HttpRequestException("The report downloads request failed.");
             }
             return responseContent;
         }

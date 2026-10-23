@@ -1450,7 +1450,7 @@
                                 Full Name
                             </label>
 
-                            <input type="text"
+                            <input minlength="2" maxlength="100" type="text"
                                    class="form-control profile-edit-control"
                                    id="profileFullName"
                                    name="full_name"
@@ -1459,7 +1459,6 @@
                                    data-field="full_name"
                                    data-current="@profile.full_name"
                                    autocomplete="name"
-                                   maxlength="150"
                                    required />
 
                             <div class="profile-field-error text-danger small"
@@ -1473,7 +1472,7 @@
                                 Company Name
                             </label>
 
-                            <input type="text"
+                            <input minlength="2" maxlength="100" type="text"
                                    class="form-control profile-edit-control"
                                    id="profileCompanyName"
                                    name="company_name"
@@ -1481,8 +1480,7 @@
                                    data-profile-field
                                    data-field="company_name"
                                    data-current="@profile.company_name"
-                                   autocomplete="organization"
-                                   maxlength="200" />
+                                   autocomplete="organization" />
 
                             <div class="profile-field-error text-danger small"
                                  id="companyError"
@@ -1495,7 +1493,7 @@
                                 Mobile Number
                             </label>
 
-                            <input type="tel"
+                            <input minlength="10" maxlength="15" type="tel"
                                    class="form-control profile-edit-control"
                                    id="profileMobile"
                                    name="mobile"
@@ -1505,7 +1503,6 @@
                                    data-current="@profile.mobile"
                                    autocomplete="tel"
                                    inputmode="numeric"
-                                   maxlength="15"
                                    required />
 
                             <div class="profile-field-error text-danger small"
@@ -1520,7 +1517,7 @@
                                 Email
                             </label>
 
-                            <input type="email"
+                            <input minlength="5" maxlength="254" type="email"
                                    class="form-control profile-edit-control"
                                    id="profileEmail"
                                    name="email"
@@ -1529,7 +1526,6 @@
                                    data-field="email"
                                    data-current="@profile.email"
                                    autocomplete="email"
-                                   maxlength="254"
                                    required />
 
                             <div class="profile-field-error text-danger small"
@@ -1616,14 +1612,13 @@
                                 Address
                             </label>
 
-                            <textarea class="form-control profile-edit-control"
+                            <textarea minlength="5" maxlength="250" class="form-control profile-edit-control"
                                       id="profileAddress"
                                       name="address"
                                       data-profile-field
                                       data-field="address"
                                       data-current="@profile.address"
-                                      autocomplete="street-address"
-                                      maxlength="500">@profile.address</textarea>
+                                      autocomplete="street-address">@profile.address</textarea>
 
                             <div class="profile-field-error text-danger small"
                                  id="addressError"
@@ -1687,7 +1682,7 @@
                     Current Password
                 </label>
 
-                <input type="password"
+                <input maxlength="50" type="password"
                        class="form-control profile-edit-control"
                        id="profileCurrentPassword"
                        autocomplete="current-password"
@@ -1754,12 +1749,11 @@
                         Mobile OTP
                     </label>
 
-                    <input type="text"
+                    <input minlength="6" maxlength="6" type="text"
                            class="form-control profile-edit-control profile-otp-control"
                            id="profileMobileOtp"
                            inputmode="numeric"
                            autocomplete="one-time-code"
-                           maxlength="6"
                            placeholder="000000" />
 
                     <div class="profile-field-error text-danger small"
@@ -1792,12 +1786,11 @@
                         Email OTP
                     </label>
 
-                    <input type="text"
+                    <input minlength="6" maxlength="6" type="text"
                            class="form-control profile-edit-control profile-otp-control"
                            id="profileEmailOtp"
                            inputmode="numeric"
                            autocomplete="one-time-code"
-                           maxlength="6"
                            placeholder="000000" />
 
                     <div class="profile-field-error text-danger small"

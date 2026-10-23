@@ -23,12 +23,9 @@ using SchoolBuddy.Repositories.Attendance;
 using SchoolBuddy.Models.VideoTelematics;
 
 var builder = WebApplication.CreateBuilder(args);
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(options =>
-//    {
-//        //options.LoginPath = "/Account/Login";
-//        options.LogoutPath = "/SignOut/Logout";
-//    });
+// "UseHttps" in appsettings: true for the domain (HTTPS), false for the test server on plain HTTP.
+var useHttps = builder.Configuration.GetValue<bool>("UseHttps");
+var cookieSecurePolicy = useHttps ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
 builder.Services.AddAuthentication(
     CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -41,17 +38,23 @@ builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30); // Set your desired timeout duration
     options.Cookie.HttpOnly = true; // Mitigate XSS attacks
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Never send the session cookie over plain HTTP
+    options.Cookie.SecurePolicy = cookieSecurePolicy; // Secure-only on the domain; follows the request on the HTTP test server
     options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict; // Not sent on cross-site requests (CSRF)
     options.Cookie.IsEssential = true; // Make the session cookie essential
 });
 // Validate the anti-forgery token on every POST/PUT/PATCH/DELETE; _Layout.cshtml adds it to jQuery and fetch calls.
 builder.Services.AddControllersWithViews(options =>
-    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+    // Trim bound strings on every action (client trimming is in wwwroot/js/form-length-validation.js).
+    options.Filters.Add<SchoolBuddy.Filters.TrimStringsFilter>();
+    // Names max 150 and addresses max 250 characters on every add / update request.
+    options.Filters.Add<SchoolBuddy.Filters.MaxLengthFilter>();
+});
 builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "RequestVerificationToken";
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = cookieSecurePolicy;
 });
 builder.Services.AddHsts(options => options.MaxAge = TimeSpan.FromDays(365));
 builder.Services.AddResponseCompression(options =>
@@ -116,10 +119,17 @@ else
 {
     app.UseStatusCodePagesWithReExecute("/Error/{0}");
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    if (useHttps)
+    {
+        app.UseHsts();
+    }
 }
 
-app.UseHttpsRedirection();
+// Only redirect to HTTPS where HTTPS is actually served; on the HTTP test server this would send AJAX calls to a dead https:// URL.
+if (useHttps)
+{
+    app.UseHttpsRedirection();
+}
 // Security headers; registered before UseStaticFiles so static files get them too.
 app.Use(async (context, next) =>
 {

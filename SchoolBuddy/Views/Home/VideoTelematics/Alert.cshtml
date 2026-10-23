@@ -104,7 +104,7 @@
                                 <i class="bi bi-stopwatch vt-field-icon" aria-hidden="true"></i>
                                 <span class="vt-field-body">
                                     <span class="vt-field-label">Interval Minutes<span class="vt-req">*</span></span>
-                                    <input type="number" min="1" step="1" id="vtAddIntervalMinutes" />
+                                    <input max="1440" type="number" min="1" step="1" id="vtAddIntervalMinutes" />
                                 </span>
                                 <span class="vt-field-error" hidden></span>
                             </label>
@@ -112,7 +112,7 @@
                                 <i class="bi bi-hourglass-split vt-field-icon" aria-hidden="true"></i>
                                 <span class="vt-field-body">
                                     <span class="vt-field-label">Cooldown Minutes<span class="vt-req">*</span></span>
-                                    <input type="number" min="0" step="1" id="vtAddCooldown" value="30" />
+                                    <input max="1440" type="number" min="0" step="1" id="vtAddCooldown" value="30" />
                                 </span>
                                 <span class="vt-field-error" hidden></span>
                             </label>
@@ -166,7 +166,7 @@
                                 <i class="bi bi-hourglass-split vt-field-icon" aria-hidden="true"></i>
                                 <span class="vt-field-body">
                                     <span class="vt-field-label">Cooldown Minutes<span class="vt-req">*</span></span>
-                                    <input type="number" min="0" step="1" id="vtEditCooldown" />
+                                    <input max="1440" type="number" min="0" step="1" id="vtEditCooldown" />
                                 </span>
                                 <span class="vt-field-error" hidden></span>
                             </label>

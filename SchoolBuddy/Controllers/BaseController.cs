@@ -28,10 +28,12 @@ namespace SchoolBuddy.Controllers
             var action = context.ActionDescriptor.RouteValues["action"] ?? string.Empty;
 
             // =====================================================
-            // PUBLIC ACTIONS (LOGIN, FORGOT PASSWORD)
+            // PUBLIC ACTIONS (LOGIN, FORGOT PASSWORD, ERROR)
+            // Error must stay public: redirecting it to login while login itself fails causes a redirect loop.
             // =====================================================
             if (action.Equals("Login", StringComparison.OrdinalIgnoreCase) ||
-                action.Equals("ForgotPassword", StringComparison.OrdinalIgnoreCase))
+                action.Equals("ForgotPassword", StringComparison.OrdinalIgnoreCase) ||
+                action.Equals("Error", StringComparison.OrdinalIgnoreCase))
             {
                 base.OnActionExecuting(context);
                 return;

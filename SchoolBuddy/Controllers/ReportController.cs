@@ -23,11 +23,13 @@ namespace SchoolBuddy.Controllers
         private readonly IReportRepository _report;
         private readonly ILogger<ReportController> _logger;
         private readonly ITracking _tracking;
-        public ReportController(IReportRepository report, ILogger<ReportController> logger, ITracking tracking) 
+        private readonly IConfiguration _configuration;
+        public ReportController(IReportRepository report, ILogger<ReportController> logger, ITracking tracking, IConfiguration configuration)
         {
             _report = report;
             _logger = logger;
             _tracking = tracking;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -284,6 +286,19 @@ namespace SchoolBuddy.Controllers
                     return Json(new { success = false, message = "Unable to load the idle summary report.", data = Array.Empty<object>(), meta = (object?)null });
                 }
 
+                // Large requests are not returned inline: the API queues them and returns only the vehicle list.
+                if (apiResponse.Data?.Response == null && apiResponse.Data?.Vehicles?.Count > 0)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        queued = true,
+                        message = "Your Idle Summary Report request for " + apiResponse.Data.Vehicles.Count + " vehicle(s) has been submitted. It is being generated and will be available in the Download section.",
+                        data = Array.Empty<object>(),
+                        meta = (object?)null
+                    });
+                }
+
                 var rows = (apiResponse.Data?.Response ?? new List<TrackofyIdleSummaryRow>()).Select(row =>
                 {
                     var isError = !string.IsNullOrWhiteSpace(row.Error);
@@ -332,6 +347,62 @@ namespace SchoolBuddy.Controllers
                 _logger.LogError(ex, "Unable to load Idle Summary Report.");
                 return StatusCode(StatusCodes.Status500InternalServerError, new { success = false, message = "Unable to load the idle summary report.", data = Array.Empty<object>(), meta = (object?)null });
             }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DownloadReports()
+        {
+            var token = HttpContext.Session.GetString("token");
+            if (string.IsNullOrWhiteSpace(token))
+                return Unauthorized(new { success = false, message = "Session expired. Please log in again.", data = Array.Empty<object>() });
+
+            try
+            {
+                var raw = await _report.GetDownloadReportsAsync(token);
+                var apiResponse = JsonConvert.DeserializeObject<TrackofyDownloadReportResponse>(raw ?? string.Empty);
+                if (apiResponse == null)
+                {
+                    _logger.LogWarning("Report downloads API returned an unreadable response.");
+                    return Json(new { success = false, message = "Unable to load downloads.", data = Array.Empty<object>() });
+                }
+
+                var rows = (apiResponse.Data?.Response ?? new List<TrackofyDownloadReportRow>()).Select(row => new
+                {
+                    report_name = row.ReportName,
+                    request_date = row.RequestDate,
+                    gps_duration = row.GpsDuration,
+                    status = row.Status?.ToString(),
+                    download_url = BuildReportDownloadUrl(row.DownloadLink)
+                }).ToList();
+
+                return Json(new { success = true, message = "Downloads loaded successfully.", data = rows });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                General.LogException(ex);
+                return Unauthorized(new { success = false, message = "Session expired. Please log in again.", data = Array.Empty<object>() });
+            }
+            catch (Exception ex)
+            {
+                General.LogException(ex);
+                _logger.LogError(ex, "Unable to load report downloads.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new { success = false, message = "Unable to load downloads.", data = Array.Empty<object>() });
+            }
+        }
+
+        // Trackofy returns a path relative to its user area; only allow plain relative paths on that host.
+        private string? BuildReportDownloadUrl(string? downloadLink)
+        {
+            var link = (downloadLink ?? string.Empty).Trim().TrimStart('/');
+            if (link.Length == 0 || link.Contains("..") || link.Contains("://") || link.StartsWith("\\"))
+                return null;
+
+            var baseUrl = _configuration["trackofy_download_file_base_url"];
+            if (string.IsNullOrWhiteSpace(baseUrl))
+                return null;
+
+            return baseUrl.TrimEnd('/') + "/" + link;
         }
 
         private static string SanitizeIdleSummaryError(string? error)

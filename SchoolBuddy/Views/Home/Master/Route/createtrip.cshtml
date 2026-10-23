@@ -760,12 +760,11 @@
                                 <label class="trip-label" for="route_name">
                                     Route Name <span class="trip-required">*</span>
                                 </label>
-                                <input id="route_name"
+                                <input minlength="2" maxlength="100" id="route_name"
                                        name="route_name"
                                        type="text"
                                        class="trip-input"
                                        placeholder="Enter route name"
-                                       maxlength="100"
                                        autocomplete="off"
                                        required />
                             </div>
@@ -851,7 +850,7 @@
                                         <span>Idle</span>
                                     </label>
 
-                                    <input type="number"
+                                    <input max="9999" type="number"
                                            id="considerPointValue"
                                            class="consider-value"
                                            value="0"

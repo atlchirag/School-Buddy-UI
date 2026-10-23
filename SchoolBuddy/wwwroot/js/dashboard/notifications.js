@@ -6,13 +6,36 @@ document.addEventListener("DOMContentLoaded", function () {
        INITIAL NOTIFICATION DATA
        ========================================================= */
 
-    const dashboardAlerts = window.sbDashboard.alerts;
+    // Filled in when the lazy-loaded dashboard data arrives (see onData below).
+    let dashboardAlerts = window.sbDashboard.alerts;
 
     let currentAlertData = Array.isArray(dashboardAlerts)
         ? dashboardAlerts
         : [];
 
     let alertNotificationDataTable = null;
+
+    window.sbDashboard.onData(function () {
+
+        // Runs after every dashboard section; the alerts come with the middle one.
+        if (window.sbDashboard.alerts === dashboardAlerts) {
+            return;
+        }
+
+        const showingDashboardAlerts =
+            currentAlertData === dashboardAlerts;
+
+        dashboardAlerts = window.sbDashboard.alerts;
+
+        // Keep a filter result the user already searched for.
+        if (showingDashboardAlerts) {
+            currentAlertData = Array.isArray(dashboardAlerts)
+                ? dashboardAlerts
+                : [];
+
+            renderAlertNotificationTable(currentAlertData);
+        }
+    });
 
 
     /* =========================================================

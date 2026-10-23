@@ -255,19 +255,19 @@
             <h3 id="stopModalTitle">Add stop</h3>
             <div class="field">
                 <label for="stopName">Stop Name</label>
-                <input id="stopName" type="text" placeholder="e.g. Main Gate" />
+                <input minlength="2" maxlength="100" id="stopName" type="text" placeholder="e.g. Main Gate" />
             </div>
             <div class="field">
                 <label for="stopOrder">Order</label>
-                <input id="stopOrder" type="number" min="1" step="1" />
+                <input max="999" id="stopOrder" type="number" min="1" step="1" />
             </div>
             <div class="field">
                 <label>Latitude</label>
-                <input id="stopLat" type="text" readonly />
+                <input maxlength="20" id="stopLat" type="text" readonly />
             </div>
             <div class="field">
                 <label>Longitude</label>
-                <input id="stopLng" type="text" readonly />
+                <input maxlength="20" id="stopLng" type="text" readonly />
             </div>
             <div class="modal-actions">
                 <button id="stopCancelBtn" class="btn btn-ghost" type="button">Cancel</button>
@@ -652,6 +652,10 @@
         document.getElementById("stopCancelBtn")?.addEventListener("click", closeStopModal);
 
         document.getElementById("stopSetBtn")?.addEventListener("click", () => {
+        if (!SBFormLength.validate(document.getElementById("stopName"))) {
+            return;
+        }
+
         const name = document.getElementById("stopName").value.trim();
         const order = parseInt(document.getElementById("stopOrder").value, 10);
         const lat = parseFloat(document.getElementById("stopLat").value);

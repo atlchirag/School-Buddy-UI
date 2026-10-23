@@ -84,6 +84,20 @@ body,
     transition: background-color .2s ease, color .2s ease, border-color .2s ease;
 }
 
+/* Theme switch (theme-manager.js): stop per-element transitions so every colour flips in the same frame;
+   the page-wide cross-fade comes from the View Transitions API. */
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+    transition: none !important;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: .3s;
+    animation-timing-function: ease;
+}
+
 .theme-toggle-btn:hover { background-color: var(--sb-surface-hover); }
 .theme-toggle-btn:focus-visible { outline: 3px solid rgba(37, 99, 235, .3); outline-offset: 2px; }
 .theme-toggle-btn i { font-size: 15px; line-height: 1; }

@@ -239,10 +239,15 @@ ViewData["Title"] = "Reports";
             <button type="button" data-category="Speed Reports">Speed Reports</button>
             <button type="button" data-category="School Transport Reports">School Transport Reports</button>
         </div>
-        <label class="report-search" for="reportSearch">
-            <i class="bi bi-search" aria-hidden="true"></i>
-            <input id="reportSearch" type="search" placeholder="Search reports..." autocomplete="off" />
-        </label>
+        <div class="report-header-actions">
+            <label class="report-search" for="reportSearch">
+                <i class="bi bi-search" aria-hidden="true"></i>
+                <input maxlength="100" id="reportSearch" type="search" placeholder="Search reports..." autocomplete="off" />
+            </label>
+            <button type="button" id="openReportDownloads" class="btn report-downloads-btn" title="Generated report files">
+                <i class="bi bi-download me-1" aria-hidden="true"></i>Downloads
+            </button>
+        </div>
     </div>
     <div id="reportCardGrid" class="report-card-grid" aria-live="polite"></div>
     <p id="reportNoResults" class="report-no-results d-none">No reports match your search and category filters.</p>
@@ -342,12 +347,42 @@ ViewData["Title"] = "Reports";
     </div>
 </div>
 
+<div class="modal fade sb-common-modal report-result-modal" id="reportDownloadsModal" tabindex="-1" aria-labelledby="reportDownloadsTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 id="reportDownloadsTitle" class="modal-title">Downloads <span id="reportDownloadsCount" class="report-downloads-count"></span></h5>
+                    <p class="mb-0">View and download generated report files</p>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="reportDownloadsLoading" class="text-center text-muted py-4 d-none">
+                    <span class="spinner-border spinner-border-sm me-2"></span>Loading downloads...</div>
+                <div id="reportDownloadsError" class="report-error-state d-none" role="alert"></div>
+                <div id="reportDownloadsWrap">
+                    <table id="reportDownloadsTable" class="table table-bordered table-hover table-striped report-result-table w-100 align-middle">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" id="refreshReportDownloads"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
 <script>
     window.SchoolBuddyReportsUrls = {
             generate: '@Url.Action("GenerateTrackofyReport", "Report")',
             temperature: '@Url.Action("TemperatureReport", "Report")',
             idleSummary: '@Url.Action("IdleSummaryReport", "Report")',
+            downloads: '@Url.Action("DownloadReports", "Report")',
             driverPerformance: '@Url.Action("DriverPerformanceReport", "Report")',
             vehicles: '@Url.Action("GetTrackofyVehicles", "Report")',
             notification: '@Url.Action("Index", "Report")',

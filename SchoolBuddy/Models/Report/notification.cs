@@ -148,6 +148,30 @@
     {
         [Newtonsoft.Json.JsonProperty("response")] public List<TrackofyIdleSummaryRow>? Response { get; set; }
         [Newtonsoft.Json.JsonProperty("meta")] public TrackofyPaginationMeta? Meta { get; set; }
+        // Present instead of "response" when the report is queued for the Download section.
+        [Newtonsoft.Json.JsonProperty("vehicles")] public List<string>? Vehicles { get; set; }
+    }
+
+    // Rows of the Trackofy Downloads section (POST api/v2/downloads-reports).
+    public class TrackofyDownloadReportRow
+    {
+        [Newtonsoft.Json.JsonProperty("report_name")] public string? ReportName { get; set; }
+        [Newtonsoft.Json.JsonProperty("request_date")] public string? RequestDate { get; set; }
+        [Newtonsoft.Json.JsonProperty("gps_duration")] public string? GpsDuration { get; set; }
+        [Newtonsoft.Json.JsonProperty("status")] public object? Status { get; set; }
+        [Newtonsoft.Json.JsonProperty("download_link")] public string? DownloadLink { get; set; }
+    }
+
+    public class TrackofyDownloadReportData
+    {
+        [Newtonsoft.Json.JsonProperty("response")] public List<TrackofyDownloadReportRow>? Response { get; set; }
+    }
+
+    public class TrackofyDownloadReportResponse
+    {
+        [Newtonsoft.Json.JsonProperty("status")] public bool Status { get; set; }
+        [Newtonsoft.Json.JsonProperty("message")] public string? Message { get; set; }
+        [Newtonsoft.Json.JsonProperty("data")] public TrackofyDownloadReportData? Data { get; set; }
     }
 
     public class TrackofyIdleSummaryResponse

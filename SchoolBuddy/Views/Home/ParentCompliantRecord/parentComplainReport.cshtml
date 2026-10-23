@@ -1334,7 +1334,7 @@
                             Action Taken
                         </label>
 
-                        <textarea id="cmt"
+                        <textarea minlength="5" maxlength="500" id="cmt"
                                   class="form-control"
                                   placeholder="Enter the action taken to resolve this complaint..."></textarea>
 
@@ -2459,6 +2459,9 @@
        ========================================================= */
 
     function uticket() {
+        if (!SBFormLength.validate(document.getElementById("cmt"))) {
+            return;
+        }
 
         const cmnt =
             $('#cmt')

@@ -44,7 +44,7 @@
                         </div>
                         <div class="input-group">
 
-                            <input asp-for="username" name="userName" type="text" placeholder="Enter your name" class="form-control" />
+                            <input maxlength="50" asp-for="username" name="userName" type="text" data-validate="text" placeholder="Enter your name" class="form-control" />
                             <i class="fa fa-envelope  px-3 py-3 icon"></i>
                             
                         </div>
@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="input-group">
-                            <input asp-for="password" name="password" type="password" placeholder="Enter your password" class="form-control" />
+                            <input maxlength="50" asp-for="password" name="password" type="password" placeholder="Enter your password" class="form-control" />
                             <i class="fa fa-lock px-3 py-3 icon"></i>
 
                         </div>
@@ -103,7 +103,7 @@
 
                             <div data-mdb-input-init class="form-outline mb-4">
                                 <label asp-for="username" class="form-label" >User Name</label>
-                                <input asp-for="username" name="username" type="text" class="form-control form-control-lg" placeholder="Enter Username" />
+                                <input maxlength="50" asp-for="username" name="username" type="text" data-validate="text" class="form-control form-control-lg" placeholder="Enter Username" />
                                 <div>
                                     <span asp-validation-for="username" class="text-danger"></span>
                                 </div>
@@ -113,7 +113,7 @@
 
                             <div data-mdb-input-init class="form-outline mb-4">
                                 <label asp-for="password" class="form-label">Password</label>
-                                <input asp-for="password" name="password" type="password" class="form-control form-control-lg" placeholder="Enter Password" />
+                                <input maxlength="50" asp-for="password" name="password" type="password" class="form-control form-control-lg" placeholder="Enter Password" />
                                 
                             </div>
                             <div>
@@ -152,6 +152,7 @@
 
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/form-length-validation.js" asp-append-version="true"></script>
     <script>
         window.onload = function () {
             document.getElementById('loginForm').reset();

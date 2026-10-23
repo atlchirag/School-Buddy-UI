@@ -456,6 +456,13 @@
     margin-top: 3px;
 }
 
+/* sb-common-modal forces header text to inherit with !important, so the grey needs !important too. */
+.sb-common-modal.dashboard-table-modal .modal-header .modal-subtitle {
+    color: #64748b !important;
+    font-size: 0.82rem;
+    margin-top: 3px;
+}
+
 .dashboard-error-detail {
     background: #f8fafc;
     border: 1px solid #e5e7eb;

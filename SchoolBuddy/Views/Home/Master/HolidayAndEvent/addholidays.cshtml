@@ -52,7 +52,7 @@
                         <label>Name of holiday/event</label>
                     </div>
                     <div class="col-lg-6">
-                        <input id="eventname" class="form-control" type="text" />
+                        <input minlength="2" maxlength="100" id="eventname" class="form-control" type="text" />
                     </div>
                 </div>
             </div>
@@ -65,7 +65,7 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    @* jQuery comes from _Layout; loading it again here would drop the anti-forgery $.ajaxPrefilter and every POST would get 400. *@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.4.0/fullcalendar.min.js"></script>
@@ -112,6 +112,10 @@
 
             // Fixing AJAX Call to Send Correct Data
             $("#eventsaver").click(function () {
+                if (!SBFormLength.validate(document.getElementById("eventname"))) {
+                    return;
+                }
+
                 var eventName = $("#eventname").val();
                 var startDate = $("#start").val();
                 var endDate = $("#end").val();

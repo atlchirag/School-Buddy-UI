@@ -23,5 +23,6 @@ namespace SchoolBuddy.Models.Report
         Task<string> GetVehicleSummaryReportAsync(VehicleSummaryReportRequest request, string token);
         Task<string> GetTemperatureReportAsync(TemperatureReportRequest request, string token);
         Task<string> GetIdleSummaryReportAsync(TrackofyIdleSummaryRequest request, string token);
+        Task<string> GetDownloadReportsAsync(string token);
     }
 }

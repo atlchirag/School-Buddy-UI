@@ -84,14 +84,52 @@
         }
     }
 
+    let switchId = 0;
+
+    // Element transitions in the stylesheets have different durations (and some are "all"), so a theme
+    // change used to repaint in patches. While switching, those transitions are turned off (.theme-switching
+    // in theme.css) and the whole page cross-fades once via the View Transitions API where it is supported.
+    function runThemeSwitch(update) {
+        const id = ++switchId;
+        const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        root.classList.add("theme-switching");
+
+        function finish() {
+            // A newer switch started meanwhile; it removes the class when it ends.
+            if (id === switchId) {
+                root.classList.remove("theme-switching");
+            }
+        }
+
+        if (!reduceMotion && typeof document.startViewTransition === "function") {
+            try {
+                document.startViewTransition(update).finished.finally(finish);
+                // finished can stall while the tab is hidden; never leave transitions disabled.
+                setTimeout(finish, 1000);
+                return;
+            } catch (error) {
+                // Fall through to an instant switch.
+            }
+        }
+
+        update();
+        // Let the browser paint the new colours before transitions are re-enabled.
+        requestAnimationFrame(function () {
+            requestAnimationFrame(finish);
+        });
+    }
+
     function toggleTheme() {
         const currentTheme = getVisibleTheme();
         const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
-        applyTheme(nextTheme, {
-            persist: true,
-            source: "manual",
-            dispatch: true
+        runThemeSwitch(function () {
+            applyTheme(nextTheme, {
+                persist: true,
+                source: "manual",
+                dispatch: true
+            });
         });
     }
 
@@ -168,10 +206,12 @@
 
     systemMedia.addEventListener("change", function () {
         if (!getSavedTheme()) {
-            applyTheme(getSystemTheme(), {
-                persist: false,
-                source: "system",
-                dispatch: true
+            runThemeSwitch(function () {
+                applyTheme(getSystemTheme(), {
+                    persist: false,
+                    source: "system",
+                    dispatch: true
+                });
             });
         }
     });
